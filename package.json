@@ -1,0 +1,19 @@
+{
+  "name": "bookguard",
+  "version": "1.0.0",
+  "description": "BookGuard - Booking Integrity for Travel (KogniVera Hackathon 2026)",
+  "private": true,
+  "scripts": {
+    "setup": "npm install && cd backend && npm install && cd ../frontend && npm install",
+    "dev:backend": "cd backend && npm run dev",
+    "dev:frontend": "cd frontend && npm run dev",
+    "dev": "concurrently -n \"BACKEND,FRONTEND\" -c \"blue,green\" \"npm run dev:backend\" \"npm run dev:frontend\"",
+    "build": "cd backend && npm run build && cd ../frontend && npm run build",
+    "docker:up": "docker compose up --build",
+    "docker:down": "docker compose down",
+    "test:concurrency": "cd backend && npm run test:concurrency"
+  },
+  "devDependencies": {
+    "concurrently": "^9.1.2"
+  }
+}
