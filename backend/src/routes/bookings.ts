@@ -889,6 +889,47 @@ export default async function bookingRoutes(fastify: FastifyInstance, _opts: Fas
     });
   });
 
+  // Retrieve active hold for traveller (recovery mechanism)
+  fastify.get('/api/bookings/active-hold', async (req, reply) => {
+    const { travellerId = 'traveller_priya', inventoryId } = req.query as { travellerId?: string; inventoryId?: string };
+
+    let queryStr = `
+      SELECT h.id as hold_id, h.booking_id, h.inventory_id, h.expires_at, h.quantity,
+             b.total_amount, inv.code as flight_code, i.key as idempotency_key
+      FROM holds h
+      JOIN bookings b ON h.booking_id = b.id
+      JOIN inventory inv ON h.inventory_id = inv.id
+      LEFT JOIN idempotency_keys i ON b.id = i.booking_id
+      WHERE b.traveller_id = $1 AND h.status = 'ACTIVE' AND h.expires_at > CURRENT_TIMESTAMP
+    `;
+    const params: any[] = [travellerId];
+    if (inventoryId) {
+      queryStr += ` AND h.inventory_id = $2`;
+      params.push(inventoryId);
+    }
+    queryStr += ` ORDER BY h.created_at DESC LIMIT 1`;
+
+    const res = await query(queryStr, params);
+    if (res.rowCount === 0) {
+      return reply.send({ success: true, activeHold: null });
+    }
+
+    const row = res.rows[0];
+    return reply.send({
+      success: true,
+      activeHold: {
+        holdId: row.hold_id,
+        bookingId: row.booking_id,
+        inventoryId: row.inventory_id,
+        expiresAt: row.expires_at,
+        quantity: row.quantity,
+        totalAmount: row.total_amount != null ? Number(row.total_amount) : undefined,
+        flightCode: row.flight_code,
+        idempotencyKey: row.idempotency_key
+      }
+    });
+  });
+
   // 5. Retrieve all trips/bookings for traveller (My Trips dashboard)
   fastify.get('/api/bookings/my-trips', async (req, reply) => {
     const { travellerId = 'traveller_priya' } = req.query as { travellerId?: string };

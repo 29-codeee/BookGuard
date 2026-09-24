@@ -7,6 +7,8 @@ services:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgrespassword
       POSTGRES_DB: bookguard
+      TZ: Asia/Kolkata
+      PGTZ: Asia/Kolkata
     ports:
       - "5432:5432"
     volumes:

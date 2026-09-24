@@ -11,7 +11,9 @@
     "build": "cd backend && npm run build && cd ../frontend && npm run build",
     "docker:up": "docker compose up --build",
     "docker:down": "docker compose down",
-    "test:concurrency": "cd backend && npm run test:concurrency"
+    "test:concurrency": "cd backend && npm run test:concurrency",
+    "demo:hotel-concurrency": "cd backend && npm run demo:hotel-concurrency",
+    "db:reset": "cd backend && npm run db:reset"
   },
   "devDependencies": {
     "concurrently": "^9.1.2"

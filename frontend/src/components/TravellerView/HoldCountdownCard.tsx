@@ -1,16 +1,17 @@
 import React, { useState, useEffect } from 'react';
-import { 
-  Clock, 
-  ShieldCheck, 
-  CheckCircle2, 
-  User, 
-  Phone, 
-  Mail, 
-  Plane, 
-  Lock, 
+import {
+  Clock,
+  ShieldCheck,
+  CheckCircle2,
+  User,
+  Phone,
+  Mail,
+  Plane,
+  Lock,
   Sparkles,
   Info,
-  CreditCard
+  CreditCard,
+  ArrowLeft
 } from 'lucide-react';
 import { Language, translate } from '../../i18n';
 
@@ -24,6 +25,7 @@ interface HoldCountdownCardProps {
     flightCode?: string;
   };
   onConfirm: () => void;
+  onBack: () => void;
   isConfirming: boolean;
   lang: Language;
 }
@@ -31,6 +33,7 @@ interface HoldCountdownCardProps {
 export const HoldCountdownCard: React.FC<HoldCountdownCardProps> = ({
   hold,
   onConfirm,
+  onBack,
   isConfirming,
   lang
 }) => {
@@ -60,7 +63,28 @@ export const HoldCountdownCard: React.FC<HoldCountdownCardProps> = ({
 
   return (
     <div style={{ maxWidth: 840, margin: '0 auto', display: 'flex', flexDirection: 'column', gap: 20 }}>
-      
+
+      {/* 0. BACK TO SEARCH (hold stays active in the background) */}
+      <button
+        onClick={onBack}
+        style={{
+          alignSelf: 'flex-start',
+          display: 'flex',
+          alignItems: 'center',
+          gap: 6,
+          background: 'transparent',
+          border: '1px solid var(--border)',
+          color: '#CBD5E1',
+          padding: '8px 14px',
+          borderRadius: 10,
+          fontSize: '0.8rem',
+          fontWeight: 700,
+          cursor: 'pointer'
+        }}
+      >
+        <ArrowLeft size={16} /> Back to Search
+      </button>
+
       {/* 1. URGENT COUNTDOWN LOCK RIBBON */}
       <div style={{
         background: isUrgent ? 'linear-gradient(135deg, rgba(239, 68, 68, 0.2), rgba(185, 28, 28, 0.25))' : 'linear-gradient(135deg, rgba(245, 158, 11, 0.15), rgba(217, 119, 6, 0.2))',
@@ -281,7 +305,7 @@ export const HoldCountdownCard: React.FC<HoldCountdownCardProps> = ({
               fontWeight: 800,
               boxShadow: '0 6px 20px rgba(16, 185, 129, 0.35)'
             }}
-            onClick={onConfirm}
+            onClick={() => onConfirm()}
             disabled={isConfirming || secondsRemaining <= 0}
           >
             {isConfirming ? (

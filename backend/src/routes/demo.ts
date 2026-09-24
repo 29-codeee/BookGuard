@@ -4,14 +4,26 @@ import { applySchemaAndSeed, query, withTransaction, TransactionClient } from '.
 import { mockAirlineProvider, ProviderMode } from '../providers/mockProvider.js';
 import { createHold, broadcastInventoryUpdate } from '../redis/holdManager.js';
 import { eventHub } from '../sse/eventHub.js';
+import { getRedis } from '../redis/client.js';
 
 export default async function demoRoutes(fastify: FastifyInstance, _opts: FastifyPluginOptions) {
   // 1. Reset Database & Seed to pristine presentation state
   fastify.post('/api/demo/reset', async (_req, reply) => {
     try {
       console.log('[Demo] Resetting database to initial seed...');
-      await applySchemaAndSeed();
+      // Force schema re-application so a global reset also self-heals schema drift
+      // (e.g. a table added in a newer schema.sql) on a long-running Postgres volume,
+      // not just row data.
+      await applySchemaAndSeed(true);
       mockAirlineProvider.setMode('SUCCESS');
+
+      // Clear stale hold:* Redis TTL keys left over from the truncated bookings/holds
+      const redis = getRedis();
+      const staleHoldKeys = await redis.keys('hold:*');
+      for (const key of staleHoldKeys) {
+        await redis.del(key);
+      }
+      console.log(`[Demo] Cleared ${staleHoldKeys.length} stale Redis hold key(s).`);
 
       // Broadcast fresh inventory
       await broadcastInventoryUpdate();

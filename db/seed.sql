@@ -6,6 +6,7 @@
 -- ========================================================
 
 -- Clear existing data
+TRUNCATE TABLE ops_trace_events CASCADE;
 TRUNCATE TABLE ai_decisions CASCADE;
 TRUNCATE TABLE booking_events CASCADE;
 TRUNCATE TABLE booking_items CASCADE;
@@ -208,7 +209,10 @@ INSERT INTO inventory (
 
 -- Chennai (MAA)
 ('htl_leela_palace_maa', 'hotel', 'HTL-LEELA-MAA', 'The Leela Palace Chennai Marina Sea-Facing Room', 'MAA', 'MAA', '2026-09-25', '14:00', '12:00', 7900.00, 4, 4, 0, 0),
-('htl_itc_grand_chola', 'hotel', 'HTL-CHOLA-MAA', 'ITC Grand Chola Luxury Collection Palace Hotel', 'MAA', 'MAA', '2026-09-25', '14:00', '12:00', 8200.00, 5, 5, 0, 0);
+('htl_itc_grand_chola', 'hotel', 'HTL-CHOLA-MAA', 'ITC Grand Chola Luxury Collection Palace Hotel', 'MAA', 'MAA', '2026-09-25', '14:00', '12:00', 8200.00, 5, 5, 0, 0),
+
+-- Dedicated Concurrency Demo Fixture (Goa) — used by `npm run demo:hotel-concurrency`
+('htl_concurrency_demo', 'hotel', 'HTL-DEMO-05', 'BookGuard Concurrency Demo Suites (5 Rooms)', 'GOI', 'GOI', '2026-09-25', '14:00', '11:00', 5000.00, 5, 5, 0, 0);
 
 -- ========================================================
 -- 5. ALL-IN-ONE HOLIDAY PACKAGES & BUNDLES (Multi-Leg Itineraries)

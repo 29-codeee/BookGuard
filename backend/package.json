@@ -8,7 +8,9 @@
     "build": "tsc",
     "start": "node dist/server.js",
     "test:concurrency": "tsx src/tests/concurrency.ts",
-    "start:mock": "tsx src/providers/mockServer.ts"
+    "start:mock": "tsx src/providers/mockServer.ts",
+    "demo:hotel-concurrency": "tsx src/demo/hotelConcurrencyDemo.ts",
+    "db:reset": "tsx src/scripts/dbReset.ts"
   },
   "dependencies": {
     "@electric-sql/pglite": "^0.2.14",

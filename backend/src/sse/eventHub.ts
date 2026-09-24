@@ -1,4 +1,6 @@
+import crypto from 'crypto';
 import { FastifyReply } from 'fastify';
+import { query } from '../db/client.js';
 
 interface SSEClient {
   id: string;
@@ -6,6 +8,7 @@ interface SSEClient {
 }
 
 export interface TraceEvent {
+  id: string;
   traceId: string;
   timestamp: string;
   type: 'HOLD' | 'CONFIRM' | 'EXPIRY' | 'CANCEL';
@@ -21,6 +24,7 @@ export interface TraceEvent {
 class SSEEventHub {
   private clients = new Map<string, SSEClient>();
   private keepAliveTimer: NodeJS.Timeout | null = null;
+  private pendingPersists = 0;
 
   constructor() {
     this.keepAliveTimer = setInterval(() => {
@@ -59,11 +63,46 @@ class SSEEventHub {
     }
   }
 
-  emitTrace(event: Omit<TraceEvent, 'timestamp'>): void {
-    this.broadcast('ops_trace', {
+  emitTrace(event: Omit<TraceEvent, 'id' | 'timestamp'>): void {
+    const id = crypto.randomUUID();
+    const fullEvent: TraceEvent = {
       ...event,
+      id,
       timestamp: new Date().toISOString()
-    });
+    };
+
+    this.broadcast('ops_trace', fullEvent);
+    this.persistTrace(fullEvent);
+  }
+
+  private persistTrace(event: TraceEvent): void {
+    this.pendingPersists++;
+    query(
+      `INSERT INTO ops_trace_events (id, trace_id, operation_type, event_type, stage, message, booking_id, hold_id, inventory_id, metadata)
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)`,
+      [
+        event.id,
+        event.traceId,
+        event.type,
+        event.status,
+        event.stage,
+        event.message,
+        event.bookingId || null,
+        event.holdId || null,
+        event.resourceId || null,
+        event.data ? JSON.stringify(event.data) : null
+      ]
+    )
+      .catch((err) => {
+        console.error(`[EventHub] Failed to persist trace event ${event.id}:`, (err as Error).message);
+      })
+      .finally(() => {
+        this.pendingPersists--;
+      });
+  }
+
+  getPendingPersistCount(): number {
+    return this.pendingPersists;
   }
 
   getClientCount(): number {

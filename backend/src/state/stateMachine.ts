@@ -31,7 +31,7 @@ export interface TransitionOptions {
   deferBroadcast?: boolean; // if true, returns a broadcast() function instead of emitting immediately
 }
 
-export async function transitionBookingState(options: TransitionOptions): Promise<{ success: boolean; fromState: BookingState; toState: BookingState; broadcast: () => void }> {
+export async function transitionBookingState(options: TransitionOptions): Promise<{ success: boolean; fromState: BookingState; toState: BookingState; eventId?: string; broadcast: () => void }> {
   const { bookingId, toState, reason, evidence, operator = 'SYSTEM', deferBroadcast } = options;
 
   const executeTransition = async (client: TransactionClient) => {
@@ -49,7 +49,7 @@ export async function transitionBookingState(options: TransitionOptions): Promis
 
     // Check if idempotent / already in target state
     if (currentStatus === toState) {
-      return { success: true, fromState: currentStatus, toState };
+      return { success: true, fromState: currentStatus, toState, eventId: undefined as string | undefined };
     }
 
     // Validate transition
@@ -80,7 +80,7 @@ export async function transitionBookingState(options: TransitionOptions): Promis
       ]
     );
 
-    return { success: true, fromState: currentStatus, toState };
+    return { success: true, fromState: currentStatus, toState, eventId: eventId as string | undefined };
   };
 
   let result;
@@ -92,6 +92,7 @@ export async function transitionBookingState(options: TransitionOptions): Promis
 
   const broadcastFn = () => {
     eventHub.broadcast('booking_state_changed', {
+      eventId: result.eventId,
       bookingId,
       fromState: result.fromState,
       toState: result.toState,

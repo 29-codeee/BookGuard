@@ -7,6 +7,7 @@ DROP VIEW IF EXISTS v_reconciliation_context CASCADE;
 DROP VIEW IF EXISTS v_active_holds CASCADE;
 DROP VIEW IF EXISTS v_inventory CASCADE;
 
+DROP TABLE IF EXISTS ops_trace_events CASCADE;
 DROP TABLE IF EXISTS ai_decisions CASCADE;
 DROP TABLE IF EXISTS booking_events CASCADE;
 DROP TABLE IF EXISTS booking_items CASCADE;
@@ -137,6 +138,24 @@ CREATE TABLE ai_decisions (
     applied_at TIMESTAMP WITH TIME ZONE,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP NOT NULL
 );
+
+-- 10. Ops Trace Events (Persisted mirror of live SSE execution traces)
+CREATE TABLE ops_trace_events (
+    id VARCHAR(64) PRIMARY KEY,
+    trace_id VARCHAR(64) NOT NULL,
+    operation_type VARCHAR(32) NOT NULL, -- HOLD, CONFIRM, EXPIRY, CANCEL
+    event_type VARCHAR(32) NOT NULL,     -- running, success, failed, info
+    stage VARCHAR(64) NOT NULL,
+    message TEXT NOT NULL,
+    booking_id VARCHAR(64),
+    hold_id VARCHAR(64),
+    inventory_id VARCHAR(64),
+    metadata JSONB,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP NOT NULL
+);
+
+CREATE INDEX idx_ops_trace_events_created_at ON ops_trace_events(created_at DESC);
+CREATE INDEX idx_ops_trace_events_trace_id ON ops_trace_events(trace_id);
 
 -- Views for safe read-only queries
 CREATE VIEW v_inventory AS

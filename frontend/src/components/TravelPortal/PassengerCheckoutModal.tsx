@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { 
   X, 
   ShieldCheck, 
@@ -54,11 +54,32 @@ export const PassengerCheckoutModal: React.FC<PassengerCheckoutModalProps> = ({
   const [cardCvv, setCardCvv] = useState('•••');
   const [bankName, setBankName] = useState('HDFC Bank');
 
+  // Live "Seat Held For You" countdown, mirroring HoldCountdownCard's timer so the
+  // remaining hold time is visible throughout checkout, not just after confirming.
+  const [secondsRemaining, setSecondsRemaining] = useState<number>(0);
+
+  useEffect(() => {
+    if (!hold?.expiresAt) return;
+    const tick = () => {
+      const diff = Math.max(0, Math.floor((new Date(hold.expiresAt).getTime() - Date.now()) / 1000));
+      setSecondsRemaining(diff);
+    };
+    tick();
+    const interval = setInterval(tick, 1000);
+    return () => clearInterval(interval);
+  }, [hold?.expiresAt]);
+
   if (!isOpen || !item) return null;
 
   const basePrice = parseFloat(item.price);
   const taxAmount = Math.round(basePrice * 0.05); // 5% GST
   const totalAmount = basePrice + taxAmount;
+
+  const holdMinutes = Math.floor(secondsRemaining / 60);
+  const holdSeconds = secondsRemaining % 60;
+  const formattedHoldTime = `${String(holdMinutes).padStart(2, '0')}:${String(holdSeconds).padStart(2, '0')}`;
+  const isHoldUrgent = secondsRemaining < 60;
+  const isHoldExpired = !!hold?.expiresAt && secondsRemaining <= 0;
 
   const handleProceedToPayment = (e: React.FormEvent) => {
     e.preventDefault();
@@ -172,18 +193,30 @@ export const PassengerCheckoutModal: React.FC<PassengerCheckoutModalProps> = ({
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'space-between',
+                flexWrap: 'wrap',
+                gap: 10,
                 padding: '10px 16px',
                 borderRadius: 10,
-                background: 'rgba(16, 185, 129, 0.1)',
-                border: '1px solid rgba(16, 185, 129, 0.25)',
+                background: isHoldUrgent ? 'rgba(239, 68, 68, 0.12)' : 'rgba(16, 185, 129, 0.1)',
+                border: `1px solid ${isHoldUrgent ? 'rgba(239, 68, 68, 0.3)' : 'rgba(16, 185, 129, 0.25)'}`,
                 fontSize: '0.82rem'
               }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 8, color: '#10b981', fontWeight: 700 }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 8, color: isHoldUrgent ? '#ef4444' : '#10b981', fontWeight: 700 }}>
                   <ShieldCheck size={16} />
-                  BookGuard Atomic Lock Active
+                  {isHoldExpired ? 'Seat Hold Expired' : 'Seat Held For You'}
                 </div>
-                <div style={{ color: '#cbd5e1' }}>
-                  Hold ID: <code>{hold?.holdId?.substring(0, 14)}...</code>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
+                  <span style={{
+                    fontFamily: 'monospace',
+                    fontWeight: 800,
+                    fontSize: '0.95rem',
+                    color: isHoldUrgent ? '#ef4444' : '#34d399'
+                  }}>
+                    {formattedHoldTime}
+                  </span>
+                  <span style={{ color: '#cbd5e1' }}>
+                    Hold ID: <code>{hold?.holdId?.substring(0, 14)}...</code>
+                  </span>
                 </div>
               </div>
 
@@ -384,23 +417,24 @@ export const PassengerCheckoutModal: React.FC<PassengerCheckoutModalProps> = ({
               {/* Action Button */}
               <button
                 type="submit"
+                disabled={isHoldExpired}
                 style={{
                   padding: '14px',
                   borderRadius: 12,
-                  background: 'linear-gradient(135deg, #0ea5e9, #2563eb)',
+                  background: isHoldExpired ? '#334155' : 'linear-gradient(135deg, #0ea5e9, #2563eb)',
                   color: '#fff',
                   fontWeight: 800,
                   fontSize: '1rem',
                   border: 'none',
-                  cursor: 'pointer',
+                  cursor: isHoldExpired ? 'not-allowed' : 'pointer',
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
                   gap: 8,
-                  boxShadow: '0 4px 16px rgba(14, 165, 233, 0.35)'
+                  boxShadow: isHoldExpired ? 'none' : '0 4px 16px rgba(14, 165, 233, 0.35)'
                 }}
               >
-                <span>Proceed to Payment</span>
+                <span>{isHoldExpired ? 'Seat Hold Expired' : 'Proceed to Payment'}</span>
                 <ArrowRight size={18} />
               </button>
             </form>

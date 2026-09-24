@@ -2,6 +2,7 @@ import React, { useState, useMemo } from 'react';
 import { Activity, Server, Database, Box, CheckCircle, XCircle, Clock, Zap, Shield, Key } from 'lucide-react';
 
 export interface TraceEvent {
+  id: string;
   traceId: string;
   timestamp: string;
   type: 'HOLD' | 'CONFIRM' | 'EXPIRY' | 'CANCEL';
@@ -48,6 +49,52 @@ export const TraceLiveFeed: React.FC<TraceLiveFeedProps> = ({ traces }) => {
       isFailed: groups[id].some(t => t.status === 'failed' || t.stage.includes('ERROR') || t.stage === 'FAILED')
     }));
   }, [filteredTraces]);
+
+  // Collapse repeated identical-failure transactions (e.g. 495 rejected concurrency-demo
+  // requests) into one summary card + one expandable example, so the feed doesn't flood
+  // with hundreds of visually-identical rejection cards. Successful transactions are
+  // always shown individually and in full, regardless of how many failures collapse.
+  const [expandedAggregates, setExpandedAggregates] = useState<Set<string>>(new Set());
+
+  type TransactionGroup = (typeof transactionGroups)[number];
+  type DisplayItem =
+    | (TransactionGroup & { isAggregate?: false })
+    | { isAggregate: true; signature: string; count: number; type: string; example: TransactionGroup };
+
+  const displayGroups: DisplayItem[] = useMemo(() => {
+    const buckets = new Map<string, TransactionGroup[]>();
+
+    for (const g of transactionGroups) {
+      if (g.isFailed && g.type === 'HOLD') {
+        const last = g.traces[g.traces.length - 1];
+        const signature = `${last.stage}|${last.message}`;
+        if (!buckets.has(signature)) buckets.set(signature, []);
+        buckets.get(signature)!.push(g);
+      }
+    }
+
+    const result: DisplayItem[] = [];
+    const consumedSignatures = new Set<string>();
+
+    for (const g of transactionGroups) {
+      if (g.isFailed && g.type === 'HOLD') {
+        const last = g.traces[g.traces.length - 1];
+        const signature = `${last.stage}|${last.message}`;
+        if (consumedSignatures.has(signature)) continue;
+        consumedSignatures.add(signature);
+        const bucket = buckets.get(signature)!;
+        if (bucket.length === 1) {
+          result.push(bucket[0]);
+        } else {
+          result.push({ isAggregate: true, signature, count: bucket.length, type: g.type, example: bucket[0] });
+        }
+      } else {
+        result.push(g);
+      }
+    }
+
+    return result;
+  }, [transactionGroups]);
 
   const getStageCategory = (stage: string) => {
     if (stage.includes('REQUEST') || stage.includes('TRIGGER')) return 'REQUEST';
@@ -132,6 +179,75 @@ export const TraceLiveFeed: React.FC<TraceLiveFeedProps> = ({ traces }) => {
     );
   };
 
+  const renderTransactionCard = (group: TransactionGroup) => (
+    <div
+      key={group.traceId}
+      style={{
+        background: 'rgba(15, 23, 42, 0.6)',
+        border: `1px solid ${group.isFailed ? 'rgba(239, 68, 68, 0.3)' : group.isSuccess ? 'rgba(16, 185, 129, 0.3)' : 'rgba(99, 102, 241, 0.3)'}`,
+        borderRadius: 12,
+        padding: 16,
+        display: 'flex',
+        flexDirection: 'column',
+        gap: 12
+      }}
+    >
+      {/* Transaction Header */}
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid rgba(255,255,255,0.05)', paddingBottom: 10 }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+          <span style={{
+            fontSize: '0.75rem', fontWeight: 800, padding: '4px 10px', borderRadius: 6,
+            background: group.type === 'HOLD' ? 'rgba(245, 158, 11, 0.15)' : group.type === 'CONFIRM' ? 'rgba(16, 185, 129, 0.15)' : 'rgba(239, 68, 68, 0.15)',
+            color: group.type === 'HOLD' ? '#FBBF24' : group.type === 'CONFIRM' ? '#34D399' : '#EF4444'
+          }}>
+            {group.type} TRANSACTION
+          </span>
+          <code style={{ fontSize: '0.7rem', color: '#64748B' }}>{group.traceId}</code>
+        </div>
+        <span style={{ fontSize: '0.7rem', color: '#64748B' }}>
+          {new Date(group.traces[0].timestamp).toLocaleTimeString()}
+        </span>
+      </div>
+
+      {/* Steps */}
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+        {group.traces.map((trace, i) => {
+          const category = getStageCategory(trace.stage);
+          const isLast = i === group.traces.length - 1;
+
+          return (
+            <div key={trace.id} style={{ display: 'flex', gap: 12 }}>
+              {/* Timeline Line */}
+              <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', width: 20 }}>
+                <div style={{
+                  width: 20, height: 20, borderRadius: 10, display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  background: trace.status === 'failed' ? 'rgba(239, 68, 68, 0.1)' : 'rgba(255,255,255,0.05)'
+                }}>
+                  {getCategoryIcon(category, trace.status)}
+                </div>
+                {!isLast && <div style={{ width: 2, flex: 1, background: 'rgba(255,255,255,0.1)', margin: '4px 0' }} />}
+              </div>
+
+              {/* Content */}
+              <div style={{ paddingBottom: isLast ? 0 : 16, flex: 1 }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+                  <span style={{ fontSize: '0.8rem', fontWeight: 700, color: trace.status === 'failed' ? '#EF4444' : '#E2E8F0' }}>
+                    {trace.stage.replace(/_/g, ' ')}
+                  </span>
+                </div>
+                <div style={{ fontSize: '0.75rem', color: '#CBD5E1', marginTop: 2 }}>
+                  {trace.message}
+                </div>
+
+                {renderEvidence(trace)}
+              </div>
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+
   return (
     <div className="glass-panel" style={{ padding: 24, marginBottom: 28 }}>
       <div style={{
@@ -178,79 +294,51 @@ export const TraceLiveFeed: React.FC<TraceLiveFeedProps> = ({ traces }) => {
         overflowY: 'auto',
         paddingRight: 6
       }}>
-        {transactionGroups.length === 0 ? (
+        {displayGroups.length === 0 ? (
           <div style={{ textAlign: 'center', padding: '32px 0', color: 'var(--text-muted)', fontSize: '0.85rem' }}>
             No trace events yet. Perform an action to see real-time backend execution.
           </div>
         ) : (
-          transactionGroups.map(group => (
-            <div
-              key={group.traceId}
-              style={{
-                background: 'rgba(15, 23, 42, 0.6)',
-                border: `1px solid ${group.isFailed ? 'rgba(239, 68, 68, 0.3)' : group.isSuccess ? 'rgba(16, 185, 129, 0.3)' : 'rgba(99, 102, 241, 0.3)'}`,
-                borderRadius: 12,
-                padding: 16,
-                display: 'flex',
-                flexDirection: 'column',
-                gap: 12
-              }}
-            >
-              {/* Transaction Header */}
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid rgba(255,255,255,0.05)', paddingBottom: 10 }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-                  <span style={{ 
-                    fontSize: '0.75rem', fontWeight: 800, padding: '4px 10px', borderRadius: 6,
-                    background: group.type === 'HOLD' ? 'rgba(245, 158, 11, 0.15)' : group.type === 'CONFIRM' ? 'rgba(16, 185, 129, 0.15)' : 'rgba(239, 68, 68, 0.15)',
-                    color: group.type === 'HOLD' ? '#FBBF24' : group.type === 'CONFIRM' ? '#34D399' : '#EF4444'
-                  }}>
-                    {group.type} TRANSACTION
-                  </span>
-                  <code style={{ fontSize: '0.7rem', color: '#64748B' }}>{group.traceId}</code>
-                </div>
-                <span style={{ fontSize: '0.7rem', color: '#64748B' }}>
-                  {new Date(group.traces[0].timestamp).toLocaleTimeString()}
-                </span>
-              </div>
-
-              {/* Steps */}
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-                {group.traces.map((trace, i) => {
-                  const category = getStageCategory(trace.stage);
-                  const isLast = i === group.traces.length - 1;
-                  
-                  return (
-                    <div key={`${trace.traceId}-${i}`} style={{ display: 'flex', gap: 12 }}>
-                      {/* Timeline Line */}
-                      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', width: 20 }}>
-                        <div style={{ 
-                          width: 20, height: 20, borderRadius: 10, display: 'flex', alignItems: 'center', justifyContent: 'center',
-                          background: trace.status === 'failed' ? 'rgba(239, 68, 68, 0.1)' : 'rgba(255,255,255,0.05)'
-                        }}>
-                          {getCategoryIcon(category, trace.status)}
-                        </div>
-                        {!isLast && <div style={{ width: 2, flex: 1, background: 'rgba(255,255,255,0.1)', margin: '4px 0' }} />}
-                      </div>
-
-                      {/* Content */}
-                      <div style={{ paddingBottom: isLast ? 0 : 16, flex: 1 }}>
-                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-                          <span style={{ fontSize: '0.8rem', fontWeight: 700, color: trace.status === 'failed' ? '#EF4444' : '#E2E8F0' }}>
-                            {trace.stage.replace(/_/g, ' ')}
-                          </span>
-                        </div>
-                        <div style={{ fontSize: '0.75rem', color: '#CBD5E1', marginTop: 2 }}>
-                          {trace.message}
-                        </div>
-                        
-                        {renderEvidence(trace)}
-                      </div>
+          displayGroups.map(item => {
+            if ('isAggregate' in item && item.isAggregate) {
+              const isExpanded = expandedAggregates.has(item.signature);
+              return (
+                <div key={`agg-${item.signature}`} style={{
+                  background: 'rgba(239, 68, 68, 0.06)',
+                  border: '1px solid rgba(239, 68, 68, 0.25)',
+                  borderRadius: 12,
+                  padding: 16,
+                  display: 'flex',
+                  flexDirection: 'column',
+                  gap: 10
+                }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                      <XCircle size={16} color="#EF4444" />
+                      <span style={{ fontSize: '0.85rem', fontWeight: 800, color: '#F87171' }}>
+                        {item.count} REJECTED — {item.example.traces[item.example.traces.length - 1].message}
+                      </span>
                     </div>
-                  );
-                })}
-              </div>
-            </div>
-          ))
+                    <button
+                      onClick={() => setExpandedAggregates(prev => {
+                        const next = new Set(prev);
+                        if (next.has(item.signature)) next.delete(item.signature); else next.add(item.signature);
+                        return next;
+                      })}
+                      style={{
+                        background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)',
+                        color: '#CBD5E1', padding: '4px 10px', borderRadius: 8, fontSize: '0.72rem', fontWeight: 700, cursor: 'pointer'
+                      }}
+                    >
+                      {isExpanded ? 'Hide example' : 'View 1 example'}
+                    </button>
+                  </div>
+                  {isExpanded && renderTransactionCard(item.example)}
+                </div>
+              );
+            }
+            return renderTransactionCard(item as TransactionGroup);
+          })
         )}
       </div>
     </div>

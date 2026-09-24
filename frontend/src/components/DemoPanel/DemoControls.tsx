@@ -60,7 +60,7 @@ export const DemoControls: React.FC<DemoControlsProps> = ({
     setIsRunningStampede(true);
     setStampedeResult(null);
     try {
-      const res = await runConcurrencyStampede(500, 'flt_blr_goi_ix6534');
+      const res = await runConcurrencyStampede(500, 'htl_concurrency_demo');
       setStampedeResult(res.verdict);
       onRefreshData();
     } catch (err: any) {
@@ -228,7 +228,7 @@ export const DemoControls: React.FC<DemoControlsProps> = ({
             <h3 style={{ fontSize: '1.05rem', fontWeight: 700 }}>2. 500-VU Concurrency Stampede</h3>
           </div>
           <p style={{ fontSize: '0.8rem', color: 'var(--text-muted)', marginBottom: 16 }}>
-            Fire 500 concurrent virtual users competing simultaneously for only 3 available seats in PostgreSQL:
+            Fire 500 concurrent virtual users competing simultaneously for only 5 available rooms (htl_concurrency_demo) in PostgreSQL:
           </p>
 
           <button

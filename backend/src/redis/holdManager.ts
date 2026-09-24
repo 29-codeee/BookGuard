@@ -30,6 +30,7 @@ export async function createHold(params: CreateHoldParams): Promise<HoldResult> 
   const bookingId = `bk_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`;
   const holdId = `hld_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`;
   const itemId = `itm_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`;
+  const holdEventId = `evt_${Date.now()}_${Math.random().toString(36).substring(2, 6)}`;
   const expiresAt = new Date(Date.now() + ttlSeconds * 1000).toISOString();
   
   const tId = params.traceId;
@@ -173,7 +174,7 @@ export async function createHold(params: CreateHoldParams): Promise<HoldResult> 
       `INSERT INTO booking_events (id, booking_id, from_state, to_state, reason, evidence, operator)
        VALUES ($1, $2, 'PENDING', 'HELD', $3, $4, 'HOLD_MANAGER')`,
       [
-        `evt_${Date.now()}_${Math.random().toString(36).substring(2, 6)}`,
+        holdEventId,
         bookingId,
         `Held ${quantity} seat(s) on ${inv.code} for ${ttlSeconds}s`,
         JSON.stringify({ holdId, ttlSeconds, expiresAt, availableBefore: inv.available_quantity })
@@ -257,6 +258,7 @@ export async function createHold(params: CreateHoldParams): Promise<HoldResult> 
 
   // Broadcast updates
   eventHub.broadcast('booking_state_changed', {
+    eventId: holdEventId,
     bookingId,
     fromState: 'PENDING',
     toState: 'HELD',

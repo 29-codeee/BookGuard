@@ -3,8 +3,8 @@ import { ShieldCheck, Plane, LayoutDashboard, Cpu, Globe, Check } from 'lucide-r
 import { Language, translate } from '../i18n';
 
 interface NavbarProps {
-  currentView: 'trip_guide' | 'my_trips' | 'sentinel' | 'plugin_sdk' | 'ops' | 'demo';
-  setCurrentView: (view: 'trip_guide' | 'my_trips' | 'sentinel' | 'plugin_sdk' | 'ops' | 'demo') => void;
+  currentView: 'trip_guide' | 'my_trips' | 'plugin_sdk' | 'ops' | 'demo';
+  setCurrentView: (view: 'trip_guide' | 'my_trips' | 'plugin_sdk' | 'ops' | 'demo') => void;
   lang: Language;
   setLang: (lang: Language) => void;
   oversoldCount: number;
@@ -127,28 +127,6 @@ export const Navbar: React.FC<NavbarProps> = ({
           >
             <span>🧳</span>
             <span>My Trips</span>
-          </button>
-
-          <button
-            id="nav-sentinel"
-            onClick={() => setCurrentView('sentinel')}
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: 6,
-              padding: '8px 14px',
-              borderRadius: 8,
-              border: 'none',
-              background: currentView === 'sentinel' ? 'linear-gradient(135deg, #f59e0b, #d97706)' : 'transparent',
-              color: currentView === 'sentinel' ? '#000' : '#94A3B8',
-              fontWeight: 700,
-              fontSize: '0.84rem',
-              cursor: 'pointer',
-              transition: 'all 0.18s'
-            }}
-          >
-            <span>⚡</span>
-            <span>Trip Sentinel</span>
           </button>
 
           <button

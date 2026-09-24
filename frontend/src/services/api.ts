@@ -18,8 +18,7 @@ export async function fetchDashboardSnapshot(inventoryId?: string) {
   return await res.json();
 }
 
-export async function createHold(inventoryId: string, quantity = 1, ttlSeconds = 600, travellerId = 'traveller_priya') {
-  const idempotencyKey = crypto.randomUUID();
+export async function createHold(inventoryId: string, quantity = 1, ttlSeconds = 60, travellerId = 'traveller_priya', idempotencyKey: string = crypto.randomUUID()) {
   let attempt = 0;
   const maxAttempts = 3;
 
@@ -80,6 +79,10 @@ export async function getBooking(id: string) {
   return await res.json();
 }
 
+export async function fetchActiveHold(travellerId = 'traveller_priya') {
+  const res = await fetch(`${BASE_URL}/api/bookings/active-hold?travellerId=${travellerId}`);
+  return await res.json();
+}
 export async function fetchReconciliations() {
   const res = await fetch(`${BASE_URL}/api/reconciliation/pending`);
   return await res.json();
@@ -207,6 +210,17 @@ export async function fetchMyTrips(travellerId = 'traveller_priya') {
 }
 
 // Booking Cancellation API
+// Persistent Ops History (survives browser refresh)
+export async function fetchTraceHistory(limit = 6000) {
+  const res = await fetch(`${BASE_URL}/api/ops/traces?limit=${limit}`);
+  return await res.json();
+}
+
+export async function fetchBookingEventHistory(limit = 200) {
+  const res = await fetch(`${BASE_URL}/api/ops/booking-events?limit=${limit}`);
+  return await res.json();
+}
+
 export async function cancelBooking(bookingId: string, reason?: string) {
   const res = await fetch(`${BASE_URL}/api/bookings/cancel`, {
     method: 'POST',

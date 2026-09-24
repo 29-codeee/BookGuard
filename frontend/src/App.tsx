@@ -6,14 +6,12 @@ import { ReconcilingCard } from './components/TravellerView/ReconcilingCard';
 import { ConfirmedTicketCard } from './components/TravellerView/ConfirmedTicketCard';
 import { RecoveryCard } from './components/TravellerView/RecoveryCard';
 
-import { InvariantPanel } from './components/OpsDashboard/InvariantPanel';
 import { EventTimeline, BookingEvent } from './components/OpsDashboard/EventTimeline';
 import { TraceLiveFeed, TraceEvent } from './components/OpsDashboard/TraceLiveFeed';
 
 import { DemoControls } from './components/DemoPanel/DemoControls';
 import { TripGuideView } from './components/TripGuide/TripGuideView';
 import { PluginShowcase } from './components/PluginSDK/PluginShowcase';
-import { TripSentinelView } from './components/TripSentinel/TripSentinelView';
 import { PassengerCheckoutModal } from './components/TravelPortal/PassengerCheckoutModal';
 import { ETicketModal } from './components/TravelPortal/ETicketModal';
 import { MyTripsManager } from './components/TravelPortal/MyTripsManager';
@@ -29,12 +27,21 @@ import {
   fetchReconciliations, 
   applyReconciliation,
   getProviderMode,
-  getBooking
+  getBooking,
+  fetchActiveHold,
+  fetchTraceHistory,
+  fetchBookingEventHistory
 } from './services/api';
 import { sseManager } from './services/sse';
 
+// A single concurrency-demo run emits ~2,500 real trace rows (5 successful holds x
+// ~12 stages + 495 rejected holds x 5 stages). This cap must comfortably exceed one
+// full run (with headroom for re-runs in the same session) or the aggregation in
+// TraceLiveFeed silently undercounts rejections because older rows get evicted.
+const TRACE_HISTORY_LIMIT = 6000;
+
 export const App: React.FC = () => {
-  const [currentView, setCurrentView] = useState<'trip_guide' | 'my_trips' | 'sentinel' | 'plugin_sdk' | 'ops' | 'demo'>('trip_guide');
+  const [currentView, setCurrentView] = useState<'trip_guide' | 'my_trips' | 'plugin_sdk' | 'ops' | 'demo'>('trip_guide');
   const [lang, setLang] = useState<Language>('en');
 
   // Inventory & System State
@@ -58,6 +65,8 @@ export const App: React.FC = () => {
   const [activeTicket, setActiveTicket] = useState<any>(null);
   const [isTicketModalOpen, setIsTicketModalOpen] = useState(false);
 
+  const [currentIdempotencyKey, setCurrentIdempotencyKey] = useState<string | null>(null);
+
   const [isHolding, setIsHolding] = useState(false);
   const [isConfirming, setIsConfirming] = useState(false);
   const [isApplyingCopilot, setIsApplyingCopilot] = useState(false);
@@ -71,17 +80,35 @@ export const App: React.FC = () => {
   // Load Initial Data
   const loadData = useCallback(async () => {
     try {
-      const [invRes, snapRes, recRes, provRes] = await Promise.all([
+      const [invRes, snapRes, recRes, provRes, holdRes] = await Promise.all([
         fetchInventory(),
         fetchDashboardSnapshot(selectedInventoryItem?.id),
         fetchReconciliations(),
-        getProviderMode()
+        getProviderMode(),
+        fetchActiveHold('traveller_priya')
       ]);
 
       if (invRes.success) setInventoryItems(invRes.items);
       if (snapRes.success) setDashboardSnapshot(snapRes);
       if (recRes.success) setReconciliations(recRes.reconciliations);
       if (provRes.mode) setProviderModeState(provRes.mode);
+      
+      if (holdRes.success && holdRes.activeHold) {
+        setCurrentHold({
+          bookingId: holdRes.activeHold.bookingId,
+          holdId: holdRes.activeHold.holdId,
+          inventoryId: holdRes.activeHold.inventoryId,
+          quantity: holdRes.activeHold.quantity || 1,
+          ttlSeconds: 60, // config value
+          expiresAt: holdRes.activeHold.expiresAt,
+          totalAmount: holdRes.activeHold.totalAmount || 0,
+          flightCode: holdRes.activeHold.flightCode,
+          status: 'ACTIVE'
+        });
+        setCurrentBookingId(holdRes.activeHold.bookingId);
+        setCurrentIdempotencyKey(holdRes.activeHold.idempotencyKey || crypto.randomUUID());
+        setTravellerStep('HELD');
+      }
     } catch (err) {
       console.error('Error loading initial state:', err);
     }
@@ -90,6 +117,55 @@ export const App: React.FC = () => {
   useEffect(() => {
     loadData();
   }, [loadData]);
+
+  // Rehydrate persisted Ops history from PostgreSQL once on mount, so trace/event
+  // history survives a browser refresh instead of living only in React state.
+  // Merged (deduped by real persisted id) rather than overwritten, in case a live
+  // SSE event races in before this fetch resolves.
+  useEffect(() => {
+    (async () => {
+      try {
+        const [traceRes, eventRes] = await Promise.all([
+          fetchTraceHistory(TRACE_HISTORY_LIMIT),
+          fetchBookingEventHistory(200)
+        ]);
+
+        if (traceRes.success) {
+          const historyTraces: TraceEvent[] = traceRes.traces.map((t: any) => ({
+            id: t.id,
+            traceId: t.trace_id,
+            type: t.operation_type,
+            stage: t.stage,
+            message: t.message,
+            status: t.event_type,
+            resourceId: t.inventory_id || undefined,
+            bookingId: t.booking_id || undefined,
+            holdId: t.hold_id || undefined,
+            data: t.metadata || undefined,
+            timestamp: t.created_at
+          }));
+          setTraces(prev => {
+            const seen = new Set(prev.map(p => p.id));
+            const merged = [...prev, ...historyTraces.filter(h => !seen.has(h.id))];
+            merged.sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime());
+            return merged.slice(0, TRACE_HISTORY_LIMIT);
+          });
+        }
+
+        if (eventRes.success) {
+          const historyEvents: BookingEvent[] = eventRes.events;
+          setEvents(prev => {
+            const seen = new Set(prev.map(p => p.id));
+            const merged = [...prev, ...historyEvents.filter(h => !seen.has(h.id))];
+            merged.sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
+            return merged;
+          });
+        }
+      } catch (err) {
+        console.error('Error loading persisted ops history:', err);
+      }
+    })();
+  }, []);
 
   // Subscribe to Live Server-Sent Events (SSE)
   useEffect(() => {
@@ -108,9 +184,10 @@ export const App: React.FC = () => {
       if (event === 'booking_state_changed') {
         showToast(`Booking ${data.bookingId?.substring(0, 10)}... moved to ${data.toState}`);
         
-        // Add to audit timeline
-        setEvents(prev => [{
-          id: `evt_${Date.now()}`,
+        // Add to audit timeline (dedup against persisted history by the real event id)
+        const newEventId = data.eventId || `evt_${Date.now()}`;
+        setEvents(prev => prev.some(e => e.id === newEventId) ? prev : [{
+          id: newEventId,
           booking_id: data.bookingId,
           from_state: data.fromState,
           to_state: data.toState,
@@ -128,6 +205,7 @@ export const App: React.FC = () => {
             });
           } else if (data.toState === 'FAILED' || data.toState === 'EXPIRED') {
             setTravellerStep('FAILED');
+            setCurrentHold((prev: any) => prev ? { ...prev, status: data.toState } : null);
           }
         }
 
@@ -161,7 +239,7 @@ export const App: React.FC = () => {
       }
 
       if (event === 'ops_trace') {
-        setTraces(prev => [data as TraceEvent, ...prev].slice(0, 500));
+        setTraces(prev => [data as TraceEvent, ...prev].slice(0, TRACE_HISTORY_LIMIT));
       }
     });
 
@@ -176,14 +254,24 @@ export const App: React.FC = () => {
     const targetInvId = inventoryId || primaryFlight?.id;
     if (!targetInvId) return;
 
+    // Check if we have an active hold for the same resource
+    const isHoldActive = currentHold 
+      && currentHold.inventoryId === targetInvId 
+      && currentHold.status !== 'EXPIRED'
+      && new Date(currentHold.expiresAt).getTime() > Date.now();
+      
+    const idemKey = (isHoldActive && currentIdempotencyKey) ? currentIdempotencyKey : crypto.randomUUID();
+    setCurrentIdempotencyKey(idemKey);
+
     setIsHolding(true);
     try {
-      const res = await createHold(targetInvId, 1, 600, 'traveller_priya');
+      const res = await createHold(targetInvId, 1, 60, 'traveller_priya', idemKey);
       if (res.success) {
         const heldItem = inventoryItems.find(i => i.id === targetInvId) || primaryFlight;
         setSelectedInventoryItem(heldItem);
         setCurrentHold({
           ...res.hold,
+          inventoryId: targetInvId,
           flightCode: heldItem?.code || 'IX 6534'
         });
         setCurrentBookingId(res.hold.bookingId);
@@ -344,6 +432,7 @@ export const App: React.FC = () => {
               <HoldCountdownCard
                 hold={currentHold}
                 onConfirm={handleConfirmBooking}
+                onBack={() => setTravellerStep('SEARCH')}
                 isConfirming={isConfirming}
                 lang={lang}
               />
@@ -386,24 +475,14 @@ export const App: React.FC = () => {
           />
         )}
 
-        {/* VIEW 3: TRIP DISRUPTION SENTINEL & HOTEL COMPENSATION GUARANTEE */}
-        {currentView === 'sentinel' && (
-          <TripSentinelView />
-        )}
-
         {/* VIEW 4: ANTI-DOUBLE-BOOKING PLUGIN SDK & MILLISECOND RACE SIMULATOR */}
         {currentView === 'plugin_sdk' && (
           <PluginShowcase />
         )}
 
-        {/* VIEW 5: OPERATIONS DASHBOARD & INVARIANTS */}
+        {/* VIEW 5: OPERATIONS DASHBOARD (LIVE TRANSACTION TRACE + BOOKING EVENTS AUDIT LOG) */}
         {currentView === 'ops' && (
           <div>
-            <InvariantPanel
-              snapshot={dashboardSnapshot}
-              onRefresh={loadData}
-            />
-
             <TraceLiveFeed traces={traces} />
 
             <EventTimeline events={events} />
