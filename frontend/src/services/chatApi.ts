@@ -29,7 +29,16 @@ async function request<T>(method: 'GET' | 'POST', path: string, body?: unknown):
   } catch {
     // non-JSON error page
   }
-  if (!res.ok) throw new ChatApiError(data?.message || `Request failed (${res.status})`, res.status);
+  if (!res.ok) {
+    // An error with no JSON body comes from the dev proxy, not our API: the backend is down or crashed.
+    if (!data && res.status >= 500) {
+      throw new ChatApiError(
+        'Cannot reach the BookGuard backend on port 3001. Check the backend terminal: it may have stopped or crashed (after pulling new code, run "npm install" in backend/ and restart it).',
+        res.status
+      );
+    }
+    throw new ChatApiError(data?.message || `Request failed (${res.status})`, res.status);
+  }
   return data as T;
 }
 
