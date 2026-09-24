@@ -7,9 +7,8 @@ import { ConfirmedTicketCard } from './components/TravellerView/ConfirmedTicketC
 import { RecoveryCard } from './components/TravellerView/RecoveryCard';
 
 import { InvariantPanel } from './components/OpsDashboard/InvariantPanel';
-import { LiveStateBoard } from './components/OpsDashboard/LiveStateBoard';
-import { CopilotCard } from './components/OpsDashboard/CopilotCard';
 import { EventTimeline, BookingEvent } from './components/OpsDashboard/EventTimeline';
+import { TraceLiveFeed, TraceEvent } from './components/OpsDashboard/TraceLiveFeed';
 
 import { DemoControls } from './components/DemoPanel/DemoControls';
 import { TripGuideView } from './components/TripGuide/TripGuideView';
@@ -26,6 +25,7 @@ import {
   fetchInvariants, 
   createHold, 
   confirmBooking, 
+  fetchDashboardSnapshot,
   fetchReconciliations, 
   applyReconciliation,
   getProviderMode,
@@ -39,9 +39,9 @@ export const App: React.FC = () => {
 
   // Inventory & System State
   const [inventoryItems, setInventoryItems] = useState<any[]>([]);
-  const [invariants, setInvariants] = useState<any>(null);
-  const [counters, setCounters] = useState<any>(null);
+  const [dashboardSnapshot, setDashboardSnapshot] = useState<any>(null);
   const [events, setEvents] = useState<BookingEvent[]>([]);
+  const [traces, setTraces] = useState<TraceEvent[]>([]);
   const [reconciliations, setReconciliations] = useState<any[]>([]);
   const [providerMode, setProviderModeState] = useState<'SUCCESS' | 'FAILURE' | 'TIMEOUT' | 'DELAY'>('SUCCESS');
 
@@ -71,18 +71,15 @@ export const App: React.FC = () => {
   // Load Initial Data
   const loadData = useCallback(async () => {
     try {
-      const [invRes, statsRes, recRes, provRes] = await Promise.all([
+      const [invRes, snapRes, recRes, provRes] = await Promise.all([
         fetchInventory(),
-        fetchInvariants(),
+        fetchDashboardSnapshot(selectedInventoryItem?.id),
         fetchReconciliations(),
         getProviderMode()
       ]);
 
       if (invRes.success) setInventoryItems(invRes.items);
-      if (statsRes.success) {
-        setInvariants(statsRes.inventory);
-        setCounters(statsRes.auditCounters);
-      }
+      if (snapRes.success) setDashboardSnapshot(snapRes);
       if (recRes.success) setReconciliations(recRes.reconciliations);
       if (provRes.mode) setProviderModeState(provRes.mode);
     } catch (err) {
@@ -100,11 +97,8 @@ export const App: React.FC = () => {
       console.log(`[App SSE] Received ${event}:`, data);
 
       if (event === 'inventory_updated') {
-        fetchInvariants().then(res => {
-          if (res.success) {
-            setInvariants(res.inventory);
-            setCounters(res.auditCounters);
-          }
+        fetchDashboardSnapshot(selectedInventoryItem?.id).then(res => {
+          if (res.success) setDashboardSnapshot(res);
         });
         fetchInventory().then(res => {
           if (res.success) setInventoryItems(res.items);
@@ -137,11 +131,8 @@ export const App: React.FC = () => {
           }
         }
 
-        fetchInvariants().then(res => {
-          if (res.success) {
-            setInvariants(res.inventory);
-            setCounters(res.auditCounters);
-          }
+        fetchDashboardSnapshot(selectedInventoryItem?.id).then(res => {
+          if (res.success) setDashboardSnapshot(res);
         });
       }
 
@@ -166,11 +157,16 @@ export const App: React.FC = () => {
         setConfirmedTicket(null);
         setRecoveryInfo(null);
         setEvents([]);
+        setTraces([]);
+      }
+
+      if (event === 'ops_trace') {
+        setTraces(prev => [data as TraceEvent, ...prev].slice(0, 500));
       }
     });
 
     return () => unsubscribe();
-  }, [currentBookingId, loadData]);
+  }, [currentBookingId, loadData, selectedInventoryItem]);
 
   // Primary Flight (BLR -> GOI)
   const primaryFlight = inventoryItems.find(item => item.code === 'IX 6534') || inventoryItems[0] || null;
@@ -298,8 +294,8 @@ export const App: React.FC = () => {
         setCurrentView={setCurrentView}
         lang={lang}
         setLang={setLang}
-        oversoldCount={counters?.oversold ?? 0}
-        duplicateCount={counters?.duplicateBookings ?? 0}
+        oversoldCount={dashboardSnapshot?.systemMetrics?.systemOversold ?? 0}
+        duplicateCount={0}
       />
 
       {/* Floating Toast Notification */}
@@ -404,26 +400,11 @@ export const App: React.FC = () => {
         {currentView === 'ops' && (
           <div>
             <InvariantPanel
-              inventory={invariants}
-              counters={counters}
+              snapshot={dashboardSnapshot}
               onRefresh={loadData}
             />
 
-            <CopilotCard
-              reconciliations={reconciliations}
-              onApply={handleApplyCopilot}
-              isApplying={isApplyingCopilot}
-            />
-
-            <LiveStateBoard
-              bookings={reconciliations.map(r => ({
-                id: r.booking_id,
-                status: r.status as any,
-                flight_code: r.flight_code,
-                traveller_name: r.traveller_name,
-                total_amount: r.total_amount
-              }))}
-            />
+            <TraceLiveFeed traces={traces} />
 
             <EventTimeline events={events} />
           </div>

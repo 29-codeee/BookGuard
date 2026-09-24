@@ -28,10 +28,11 @@ export interface TransitionOptions {
   evidence?: any;
   operator?: string;
   tx?: TransactionClient; // optional existing transaction
+  deferBroadcast?: boolean; // if true, returns a broadcast() function instead of emitting immediately
 }
 
-export async function transitionBookingState(options: TransitionOptions): Promise<{ success: boolean; fromState: BookingState; toState: BookingState }> {
-  const { bookingId, toState, reason, evidence, operator = 'SYSTEM' } = options;
+export async function transitionBookingState(options: TransitionOptions): Promise<{ success: boolean; fromState: BookingState; toState: BookingState; broadcast: () => void }> {
+  const { bookingId, toState, reason, evidence, operator = 'SYSTEM', deferBroadcast } = options;
 
   const executeTransition = async (client: TransactionClient) => {
     // 1. Lock the booking row
@@ -89,17 +90,23 @@ export async function transitionBookingState(options: TransitionOptions): Promis
     result = await withTransaction(executeTransition);
   }
 
-  // Broadcast state change over SSE
-  eventHub.broadcast('booking_state_changed', {
-    bookingId,
-    fromState: result.fromState,
-    toState: result.toState,
-    reason,
-    operator,
-    timestamp: new Date().toISOString()
-  });
+  const broadcastFn = () => {
+    eventHub.broadcast('booking_state_changed', {
+      bookingId,
+      fromState: result.fromState,
+      toState: result.toState,
+      reason,
+      operator,
+      timestamp: new Date().toISOString()
+    });
+  };
 
-  return result;
+  if (!deferBroadcast) {
+    // Broadcast state change over SSE immediately
+    broadcastFn();
+  }
+
+  return { ...result, broadcast: broadcastFn };
 }
 
 export async function getBookingEvents(bookingId: string) {

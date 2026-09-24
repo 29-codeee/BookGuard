@@ -44,7 +44,8 @@ class SSEClientManager {
       'stampede_completed',
       'compensation_executed',
       'demo_reset',
-      'provider_mode_changed'
+      'provider_mode_changed',
+      'ops_trace'
     ];
 
     eventTypes.forEach(evt => {

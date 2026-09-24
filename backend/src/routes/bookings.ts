@@ -12,6 +12,23 @@ import { eventHub } from '../sse/eventHub.js';
 export default async function bookingRoutes(fastify: FastifyInstance, _opts: FastifyPluginOptions) {
   // 1. Create temporary hold
   fastify.post('/api/bookings/hold', async (req, reply) => {
+    const traceId = `trc_${Date.now()}_${Math.random().toString(36).substring(2, 8)}`;
+    
+    eventHub.emitTrace({
+      traceId,
+      type: 'HOLD',
+      stage: 'REQUEST_RECEIVED',
+      message: 'Received HOLD request for inventory',
+      status: 'running',
+      data: req.body
+    });
+
+    const idempotencyKey = (req.headers['idempotency-key'] || (req.body as any)?.idempotencyKey) as string;
+
+    if (!idempotencyKey) {
+      return reply.status(400).send({ error: 'Idempotency-Key is required' });
+    }
+
     const { travellerId = 'traveller_priya', inventoryId, quantity = 1, ttlSeconds } = req.body as {
       travellerId?: string;
       inventoryId: string;
@@ -23,12 +40,87 @@ export default async function bookingRoutes(fastify: FastifyInstance, _opts: Fas
       return reply.status(400).send({ error: 'inventoryId is required' });
     }
 
+    // Compute request hash deterministically
+    const requestPayload = JSON.stringify({ travellerId, inventoryId, quantity, ttlSeconds });
+    const requestHash = crypto.createHash('sha256').update(requestPayload).digest('hex');
+
+    // 1. Check Idempotency Table
+    const existingKeyRes = await query<{
+      key: string;
+      request_hash: string;
+      status_code: number;
+      response_body: any;
+    }>(
+      `SELECT key, request_hash, status_code, response_body 
+       FROM idempotency_keys 
+       WHERE key = $1`,
+      [idempotencyKey]
+    );
+
+    if (existingKeyRes.rowCount > 0) {
+      const stored = existingKeyRes.rows[0];
+      if (stored.request_hash !== requestHash) {
+        eventHub.emitTrace({
+          traceId,
+          type: 'HOLD',
+          stage: 'IDEMPOTENCY_CHECK',
+          message: 'Idempotency key reuse detected with mismatched payload',
+          status: 'failed',
+          data: { key: idempotencyKey, result: 'MISS_REUSE' }
+        });
+        return reply.status(409).send({
+          error: 'IDEMPOTENCY_KEY_REUSE',
+          message: 'Idempotency key already used for a different request'
+        });
+      }
+      reply.header('X-Cache-Idempotent', 'HIT');
+      eventHub.emitTrace({
+        traceId,
+        type: 'HOLD',
+        stage: 'IDEMPOTENCY_CHECK',
+        message: 'Idempotency cache hit',
+        status: 'success',
+        data: { key: idempotencyKey, result: 'HIT' }
+      });
+      eventHub.emitTrace({
+        traceId,
+        type: 'HOLD',
+        stage: 'OPERATION_COMPLETED',
+        message: 'Returned cached HOLD response',
+        status: 'success'
+      });
+      return reply.status(stored.status_code).send(stored.response_body);
+    }
+
+    eventHub.emitTrace({
+      traceId,
+      type: 'HOLD',
+      stage: 'IDEMPOTENCY_CHECK',
+      message: 'Idempotency cache miss (new request)',
+      status: 'success',
+      data: { key: idempotencyKey, result: 'MISS' }
+    });
+
     try {
       const hold = await createHold({
         travellerId,
         inventoryId,
         quantity,
-        ttlSeconds
+        ttlSeconds,
+        idempotencyKey,
+        requestHash,
+        traceId
+      });
+
+      eventHub.emitTrace({
+        traceId,
+        type: 'HOLD',
+        stage: 'OPERATION_COMPLETED',
+        message: 'Hold processed successfully',
+        status: 'success',
+        bookingId: hold.bookingId,
+        holdId: hold.holdId,
+        resourceId: inventoryId
       });
 
       return reply.status(201).send({
@@ -37,21 +129,82 @@ export default async function bookingRoutes(fastify: FastifyInstance, _opts: Fas
         hold
       });
     } catch (err: any) {
+      if (err.message === 'IDEMPOTENCY_CONFLICT') {
+        const conflictRes = await query<{
+          key: string;
+          request_hash: string;
+          status_code: number;
+          response_body: any;
+        }>(
+          `SELECT key, request_hash, status_code, response_body 
+           FROM idempotency_keys 
+           WHERE key = $1`,
+          [idempotencyKey]
+        );
+
+        if (conflictRes.rowCount > 0) {
+          const stored = conflictRes.rows[0];
+          if (stored.request_hash !== requestHash) {
+            return reply.status(409).send({
+              error: 'IDEMPOTENCY_KEY_REUSE',
+              message: 'Idempotency key already used for a different request'
+            });
+          }
+          reply.header('X-Cache-Idempotent', 'HIT');
+          eventHub.emitTrace({
+            traceId,
+            type: 'HOLD',
+            stage: 'OPERATION_COMPLETED',
+            message: 'Returned cached HOLD response (resolved concurrent conflict)',
+            status: 'success'
+          });
+          return reply.status(stored.status_code).send(stored.response_body);
+        }
+        return reply.status(500).send({ error: 'Failed to resolve idempotency conflict' });
+      }
+
       if (err.message === 'INSUFFICIENT_INVENTORY') {
+        eventHub.emitTrace({
+          traceId,
+          type: 'HOLD',
+          stage: 'OPERATION_COMPLETED',
+          message: 'Hold failed: Insufficient inventory',
+          status: 'failed',
+          resourceId: inventoryId
+        });
         // Fetch recovery alternatives immediately
         const recovery = await getRecoveryAlternatives('BLR', 'GOI', inventoryId, 'en');
-        return reply.status(409).send({
+        const responsePayload = {
           error: 'INSUFFICIENT_INVENTORY',
           message: 'No available seats left on this flight',
           recovery
-        });
+        };
+        
+        await query(
+          `INSERT INTO idempotency_keys (key, request_hash, status_code, response_body)
+           VALUES ($1, $2, 409, $3)
+           ON CONFLICT (key) DO NOTHING`,
+          [idempotencyKey, requestHash, JSON.stringify(responsePayload)]
+        );
+
+        return reply.status(409).send(responsePayload);
       }
+      
+      eventHub.emitTrace({
+        traceId,
+        type: 'HOLD',
+        stage: 'OPERATION_COMPLETED',
+        message: `Hold failed: ${err.message}`,
+        status: 'failed',
+        resourceId: inventoryId
+      });
       return reply.status(500).send({ error: err.message });
     }
   });
 
   // 2. Confirm booking with strict idempotency guard
   fastify.post('/api/bookings/confirm', async (req, reply) => {
+    const traceId = `trc_${Date.now()}_${Math.random().toString(36).substring(2, 8)}`;
     const idempotencyKey = (req.headers['idempotency-key'] || (req.body as any)?.idempotencyKey) as string;
     const { 
       bookingId, 
@@ -70,6 +223,16 @@ export default async function bookingRoutes(fastify: FastifyInstance, _opts: Fas
     if (!bookingId) {
       return reply.status(400).send({ error: 'bookingId is required' });
     }
+
+    eventHub.emitTrace({
+      traceId,
+      type: 'CONFIRM',
+      stage: 'CONFIRM_REQUEST_RECEIVED',
+      message: `Received CONFIRM request for booking ${bookingId}`,
+      status: 'running',
+      bookingId,
+      data: req.body
+    });
 
     // Compute request hash
     const requestPayload = JSON.stringify({ bookingId, travellerName, passengerDetails, paymentDetails });
@@ -93,8 +256,36 @@ export default async function bookingRoutes(fastify: FastifyInstance, _opts: Fas
         const stored = existingKeyRes.rows[0];
         console.log(`[Idempotency] Key ${idempotencyKey} hit. Replaying stored byte-identical response.`);
         reply.header('X-Cache-Idempotent', 'HIT');
+        
+        eventHub.emitTrace({
+          traceId,
+          type: 'CONFIRM',
+          stage: 'IDEMPOTENCY_CHECK',
+          message: 'Idempotency cache hit',
+          status: 'success',
+          bookingId,
+          data: { key: idempotencyKey, result: 'HIT' }
+        });
+        eventHub.emitTrace({
+          traceId,
+          type: 'CONFIRM',
+          stage: 'OPERATION_COMPLETED',
+          message: 'Returned cached CONFIRM response',
+          status: 'success',
+          bookingId
+        });
         return reply.status(stored.status_code).send(stored.response_body);
       }
+      
+      eventHub.emitTrace({
+        traceId,
+        type: 'CONFIRM',
+        stage: 'IDEMPOTENCY_CHECK',
+        message: 'Idempotency cache miss (new request)',
+        status: 'success',
+        bookingId,
+        data: { key: idempotencyKey, result: 'MISS' }
+      });
     }
 
     // Process new confirmation
@@ -153,11 +344,34 @@ export default async function bookingRoutes(fastify: FastifyInstance, _opts: Fas
 
       // 2. Call external provider via Provider Adapter
       console.log(`[Confirm] Invoking Provider Adapter reserve for booking ${booking.id}...`);
+      
+      eventHub.emitTrace({
+        traceId,
+        type: 'CONFIRM',
+        stage: 'PROVIDER_REQUEST_STARTED',
+        message: 'Invoking airline provider reserve API',
+        status: 'running',
+        bookingId: booking.id,
+        resourceId: booking.inventory_id,
+        data: { flightCode: booking.flight_code }
+      });
+
       const providerRes = await providerAdapter.reserve({
         bookingId: booking.id,
         itemType: 'flight',
         resourceCode: booking.flight_code,
         passengerOrGuestName: travellerName
+      });
+
+      eventHub.emitTrace({
+        traceId,
+        type: 'CONFIRM',
+        stage: 'PROVIDER_RESPONSE_RECEIVED',
+        message: `Provider responded. Success: ${providerRes.success}`,
+        status: providerRes.success ? 'success' : 'failed',
+        bookingId: booking.id,
+        resourceId: booking.inventory_id,
+        data: providerRes
       });
 
       // SCENARIO A: PROVIDER TIMEOUT / AMBIGUOUS
@@ -205,16 +419,35 @@ export default async function bookingRoutes(fastify: FastifyInstance, _opts: Fas
       if (!providerRes.success) {
         console.warn(`[Confirm] Provider REJECTED booking ${booking.id}:`, providerRes.error);
 
+        let deferredBroadcast: any;
+
         await withTransaction(async (tx: TransactionClient) => {
+          // Lock booking
+          const bLock = await tx.query(`SELECT status FROM bookings WHERE id = $1 FOR UPDATE`, [booking.id]);
+          if (bLock.rows[0].status === 'EXPIRED' || bLock.rows[0].status === 'CONFIRMED' || bLock.rows[0].status === 'CANCELLED') {
+             // Cannot fail an already expired/confirmed booking
+             return;
+          }
+
+          // Lock hold (if exists)
+          if (booking.hold_id) {
+            await tx.query(`SELECT id FROM holds WHERE id = $1 FOR UPDATE`, [booking.hold_id]);
+          }
+
+          // Lock inventory
+          await tx.query(`SELECT id FROM inventory WHERE id = $1 FOR UPDATE`, [booking.inventory_id]);
+
           // Move booking to FAILED
-          await transitionBookingState({
+          const tRes = await transitionBookingState({
             bookingId: booking.id,
             toState: 'FAILED',
             reason: providerRes.error || 'Provider rejected seat reservation',
             evidence: providerRes.rawResponse,
             operator: 'PROVIDER_ADAPTER',
-            tx
+            tx,
+            deferBroadcast: true
           });
+          deferredBroadcast = tRes.broadcast;
 
           // Restock inventory
           await tx.query(
@@ -231,6 +464,8 @@ export default async function bookingRoutes(fastify: FastifyInstance, _opts: Fas
             await tx.query(`UPDATE holds SET status = 'RELEASED' WHERE id = $1`, [booking.hold_id]);
           }
         });
+
+        if (deferredBroadcast) deferredBroadcast();
 
         // Clean up Redis hold key
         if (booking.hold_id) {
@@ -265,18 +500,94 @@ export default async function bookingRoutes(fastify: FastifyInstance, _opts: Fas
       // SCENARIO C: PROVIDER SUCCESS -> CONFIRMED
       const providerRef = providerRes.providerRef || `REF-${Math.random().toString(36).substring(2, 8).toUpperCase()}`;
 
+      let confirmationResult = 'SUCCESS';
+      let deferredBroadcast: any;
+
       await withTransaction(async (tx: TransactionClient) => {
-        // 1. Move booking to CONFIRMED
-        await transitionBookingState({
+        eventHub.emitTrace({
+          traceId,
+          type: 'CONFIRM',
+          stage: 'BOOKING_LOCK',
+          message: 'Locking booking row FOR UPDATE',
+          status: 'running',
+          bookingId: booking.id
+        });
+
+        // 1. Lock Booking
+        const bLock = await tx.query(`SELECT status FROM bookings WHERE id = $1 FOR UPDATE`, [booking.id]);
+        const currentStatus = bLock.rows[0].status;
+
+        if (currentStatus === 'CONFIRMED') {
+          confirmationResult = 'ALREADY_CONFIRMED';
+          return;
+        }
+        if (currentStatus === 'EXPIRED') {
+          confirmationResult = 'EXPIRED_DURING_CALL';
+          return;
+        }
+        if (currentStatus === 'CANCELLED' || currentStatus === 'FAILED') {
+          confirmationResult = 'INVALID_STATE';
+          return;
+        }
+
+        eventHub.emitTrace({
+          traceId,
+          type: 'CONFIRM',
+          stage: 'STATE_REVALIDATION',
+          message: `Booking state revalidated as ${currentStatus}`,
+          status: 'success',
+          bookingId: booking.id,
+          data: { status: currentStatus }
+        });
+
+        // 2. Lock Hold (Booking -> Hold -> Inventory lock order)
+        if (booking.hold_id) {
+          eventHub.emitTrace({
+            traceId,
+            type: 'CONFIRM',
+            stage: 'HOLD_LOCK',
+            message: 'Locking hold row FOR UPDATE',
+            status: 'running',
+            bookingId: booking.id,
+            holdId: booking.hold_id
+          });
+          await tx.query(`SELECT id FROM holds WHERE id = $1 FOR UPDATE`, [booking.hold_id]);
+        }
+
+        // 3. Lock Inventory
+        eventHub.emitTrace({
+          traceId,
+          type: 'CONFIRM',
+          stage: 'INVENTORY_LOCK',
+          message: 'Locking inventory row FOR UPDATE',
+          status: 'running',
+          bookingId: booking.id,
+          resourceId: booking.inventory_id
+        });
+        await tx.query(`SELECT id FROM inventory WHERE id = $1 FOR UPDATE`, [booking.inventory_id]);
+
+        // 4. Move booking to CONFIRMED
+        const tRes = await transitionBookingState({
           bookingId: booking.id,
           toState: 'CONFIRMED',
           reason: `Airline reservation confirmed with PNR ${providerRef}`,
           evidence: providerRes.rawResponse,
           operator: 'PROVIDER_ADAPTER',
-          tx
+          tx,
+          deferBroadcast: true
+        });
+        deferredBroadcast = tRes.broadcast;
+        
+        eventHub.emitTrace({
+          traceId,
+          type: 'CONFIRM',
+          stage: 'BOOKING_STATE_TRANSITION',
+          message: `Booking transitioned to CONFIRMED`,
+          status: 'success',
+          bookingId: booking.id
         });
 
-        // 2. Move inventory: held -> confirmed
+        // 5. Move inventory: held -> confirmed
         await tx.query(
           `UPDATE inventory 
            SET held_quantity = held_quantity - $1, 
@@ -286,18 +597,28 @@ export default async function bookingRoutes(fastify: FastifyInstance, _opts: Fas
           [booking.quantity, booking.inventory_id]
         );
 
-        // 3. Mark hold CONFIRMED
+        // 6. Mark hold CONFIRMED
         if (booking.hold_id) {
           await tx.query(`UPDATE holds SET status = 'CONFIRMED' WHERE id = $1`, [booking.hold_id]);
         }
 
-        // 4. Update booking items
+        eventHub.emitTrace({
+          traceId,
+          type: 'CONFIRM',
+          stage: 'INVENTORY_CONFIRMED',
+          message: `Inventory updated. Held -${booking.quantity}, Confirmed +${booking.quantity}`,
+          status: 'success',
+          bookingId: booking.id,
+          resourceId: booking.inventory_id
+        });
+
+        // 7. Update booking items
         await tx.query(
           `UPDATE booking_items SET status = 'CONFIRMED' WHERE booking_id = $1`,
           [booking.id]
         );
 
-        // 5. Store provider reservation record
+        // 8. Store provider reservation record
         await tx.query(
           `INSERT INTO provider_reservations (id, booking_id, provider_name, provider_ref, provider_status, raw_response)
            VALUES ($1, $2, 'Air India Express', $3, 'CONFIRMED', $4)`,
@@ -309,6 +630,77 @@ export default async function bookingRoutes(fastify: FastifyInstance, _opts: Fas
           ]
         );
       });
+      
+      if (confirmationResult === 'SUCCESS') {
+        eventHub.emitTrace({
+          traceId,
+          type: 'CONFIRM',
+          stage: 'TRANSACTION_COMMITTED',
+          message: `PostgreSQL transaction committed successfully`,
+          status: 'success',
+          bookingId: booking.id
+        });
+      }
+
+      if (confirmationResult === 'EXPIRED_DURING_CALL') {
+        console.warn(`[Confirm] Booking ${booking.id} expired during provider call! Cancelling provider reservation ${providerRef}.`);
+        
+        eventHub.emitTrace({
+          traceId,
+          type: 'CONFIRM',
+          stage: 'PROVIDER_FINALIZATION',
+          message: `Phantom reservation aborted (expired). Cancelling provider PNR ${providerRef}`,
+          status: 'running',
+          bookingId: booking.id
+        });
+
+        try {
+          await providerAdapter.cancel(providerRef);
+          eventHub.emitTrace({
+            traceId,
+            type: 'CONFIRM',
+            stage: 'OPERATION_COMPLETED',
+            message: `Provider cancelled successfully. Booking remains EXPIRED.`,
+            status: 'success',
+            bookingId: booking.id
+          });
+        } catch (cancelErr: any) {
+          eventHub.emitTrace({
+            traceId,
+            type: 'CONFIRM',
+            stage: 'OPERATION_COMPLETED',
+            message: `Provider cancel failed! Needs reconciliation. Error: ${cancelErr.message}`,
+            status: 'failed',
+            bookingId: booking.id
+          });
+          throw cancelErr; // Rethrow to match existing 500 behavior
+        }
+        
+        const recovery = await getRecoveryAlternatives('BLR', 'GOI', booking.inventory_id, language);
+        return reply.status(410).send({
+          error: 'HOLD_EXPIRED',
+          message: 'Hold expired while confirming with the airline',
+          recovery
+        });
+      }
+
+      if (confirmationResult === 'ALREADY_CONFIRMED' || confirmationResult === 'INVALID_STATE') {
+        console.warn(`[Confirm] Booking ${booking.id} is ${confirmationResult}. Cancelling redundant provider reservation ${providerRef}.`);
+        await providerAdapter.cancel(providerRef);
+        if (confirmationResult === 'ALREADY_CONFIRMED') {
+          const confRes = {
+            success: true,
+            status: 'CONFIRMED',
+            message: 'Booking is already confirmed',
+            bookingId: booking.id
+          };
+          return reply.send(confRes);
+        } else {
+          return reply.status(400).send({ error: 'INVALID_STATE', message: 'Booking is no longer active' });
+        }
+      }
+
+      if (deferredBroadcast) deferredBroadcast();
 
       // Remove Redis hold key since it's confirmed
       if (booking.hold_id) {
@@ -316,7 +708,8 @@ export default async function bookingRoutes(fastify: FastifyInstance, _opts: Fas
         await redis.del(`hold:${booking.hold_id}`);
       }
 
-      await broadcastInventoryUpdate(booking.inventory_id);
+      // Fire-and-forget inventory broadcast
+      broadcastInventoryUpdate(booking.inventory_id).catch(console.error);
 
       const assignedSeat = passengerDetails?.seatPreference 
         ? `Seat 14B (${passengerDetails.seatPreference})` 
@@ -349,8 +742,25 @@ export default async function bookingRoutes(fastify: FastifyInstance, _opts: Fas
         );
       }
 
+      eventHub.emitTrace({
+        traceId,
+        type: 'CONFIRM',
+        stage: 'OPERATION_COMPLETED',
+        message: 'Booking confirmed successfully',
+        status: 'success',
+        bookingId: booking.id,
+        resourceId: booking.inventory_id
+      });
+
       return reply.status(200).send(responsePayload);
     } catch (err: any) {
+      eventHub.emitTrace({
+        traceId,
+        type: 'CONFIRM',
+        stage: 'OPERATION_COMPLETED',
+        message: `Unexpected error during confirmation: ${err.message}`,
+        status: 'failed'
+      });
       console.error('[Confirm] Unexpected error during confirmation:', err);
       return reply.status(500).send({ error: err.message });
     }

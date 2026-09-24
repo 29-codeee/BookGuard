@@ -5,6 +5,19 @@ interface SSEClient {
   reply: FastifyReply;
 }
 
+export interface TraceEvent {
+  traceId: string;
+  timestamp: string;
+  type: 'HOLD' | 'CONFIRM' | 'EXPIRY' | 'CANCEL';
+  stage: string;
+  message: string;
+  status: 'running' | 'success' | 'failed' | 'info';
+  resourceId?: string;
+  bookingId?: string;
+  holdId?: string;
+  data?: any;
+}
+
 class SSEEventHub {
   private clients = new Map<string, SSEClient>();
   private keepAliveTimer: NodeJS.Timeout | null = null;
@@ -44,6 +57,13 @@ class SSEEventHub {
         this.clients.delete(id);
       }
     }
+  }
+
+  emitTrace(event: Omit<TraceEvent, 'timestamp'>): void {
+    this.broadcast('ops_trace', {
+      ...event,
+      timestamp: new Date().toISOString()
+    });
   }
 
   getClientCount(): number {

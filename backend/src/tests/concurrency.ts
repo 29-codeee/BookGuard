@@ -14,8 +14,20 @@ async function runConcurrencyProof() {
   await applySchemaAndSeed();
   mockAirlineProvider.setMode('SUCCESS');
 
-  const inventoryId = 'flt_blr_goi_ix6534';
+  const inventoryId = 'flt_concurrency_test';
   const totalUsers = 500;
+
+  // Create dedicated deterministic fixture
+  await query(
+    `INSERT INTO inventory (id, resource_type, code, name, origin, destination, travel_date, departure_time, arrival_time, price, total_quantity, available_quantity, held_quantity, confirmed_quantity)
+     VALUES ($1, 'flight', 'TEST 300', 'Concurrency Test Flight', 'BLR', 'GOI', '2026-09-25', '10:00', '11:00', 1000.00, 3, 3, 0, 0)
+     ON CONFLICT (id) DO UPDATE SET 
+       total_quantity = 3, 
+       available_quantity = 3, 
+       held_quantity = 0, 
+       confirmed_quantity = 0`,
+    [inventoryId]
+  );
 
   const initRes = await query<{ available_quantity: number; total_quantity: number }>(
     `SELECT available_quantity, total_quantity FROM inventory WHERE id = $1`,

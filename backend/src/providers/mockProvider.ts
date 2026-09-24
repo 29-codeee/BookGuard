@@ -1,4 +1,4 @@
-export type ProviderMode = 'SUCCESS' | 'FAILURE' | 'TIMEOUT' | 'DELAY';
+export type ProviderMode = 'SUCCESS' | 'FAILURE' | 'TIMEOUT' | 'DELAY' | 'CANCEL_FAILURE';
 
 export interface ProviderReservationRecord {
   providerRef: string;
@@ -45,7 +45,7 @@ class MockAirlineProvider {
   }> {
     console.log(`[MockProvider] reserve() called for booking ${bookingId}, flight ${flightCode}, passenger ${passengerName}, current mode: ${this.mode}`);
 
-    if (this.mode === 'DELAY') {
+    if (this.mode === 'DELAY' || this.mode === 'CANCEL_FAILURE') {
       await new Promise(resolve => setTimeout(resolve, this.delayMs));
     }
 
@@ -109,7 +109,10 @@ class MockAirlineProvider {
   }
 
   async cancel(providerRefOrBookingId: string): Promise<{ success: boolean; rawResponse: any }> {
-    console.log(`[MockProvider] cancel() called for ${providerRefOrBookingId}`);
+    console.log(`[MockProvider] cancel() called for ${providerRefOrBookingId}, mode: ${this.mode}`);
+    if (this.mode === 'CANCEL_FAILURE') {
+      throw new Error('MOCK_CANCEL_FAILED');
+    }
     for (const [bId, record] of this.reservations.entries()) {
       if (record.providerRef === providerRefOrBookingId || bId === providerRefOrBookingId) {
         record.status = 'CANCELLED';

@@ -1,16 +1,29 @@
 FROM node:20-alpine AS builder
+
 WORKDIR /app
-COPY package*.json ./
+
+COPY backend/package*.json ./
+
 RUN npm install
-COPY tsconfig.json ./
-COPY src/ ./src/
+
+COPY backend/tsconfig.json ./
+
+COPY backend/src/ ./src/
+
 RUN npm run build
 
 FROM node:20-alpine AS runner
+
 WORKDIR /app
-COPY package*.json ./
+
+COPY backend/package*.json ./
+
 RUN npm install --omit=dev
+
 COPY --from=builder /app/dist ./dist
-COPY ../db/ ./db/
+
+COPY db/ ./db/
+
 EXPOSE 3001
+
 CMD ["node", "dist/server.js"]

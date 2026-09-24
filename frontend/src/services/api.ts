@@ -10,15 +10,49 @@ export async function fetchInvariants() {
   return await res.json();
 }
 
+export async function fetchDashboardSnapshot(inventoryId?: string) {
+  const url = inventoryId 
+    ? `${BASE_URL}/api/inventory/dashboard-snapshot?inventoryId=${inventoryId}`
+    : `${BASE_URL}/api/inventory/dashboard-snapshot`;
+  const res = await fetch(url);
+  return await res.json();
+}
+
 export async function createHold(inventoryId: string, quantity = 1, ttlSeconds = 600, travellerId = 'traveller_priya') {
-  const res = await fetch(`${BASE_URL}/api/bookings/hold`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ travellerId, inventoryId, quantity, ttlSeconds })
-  });
-  const data = await res.json();
-  if (!res.ok) throw data;
-  return data;
+  const idempotencyKey = crypto.randomUUID();
+  let attempt = 0;
+  const maxAttempts = 3;
+
+  while (attempt < maxAttempts) {
+    try {
+      const res = await fetch(`${BASE_URL}/api/bookings/hold`, {
+        method: 'POST',
+        headers: { 
+          'Content-Type': 'application/json',
+          'Idempotency-Key': idempotencyKey
+        },
+        body: JSON.stringify({ travellerId, inventoryId, quantity, ttlSeconds })
+      });
+      const data = await res.json();
+      
+      if (!res.ok) {
+        if (res.status >= 500 && attempt < maxAttempts - 1) {
+          attempt++;
+          await new Promise(r => setTimeout(r, 500));
+          continue;
+        }
+        throw data;
+      }
+      return data;
+    } catch (err: any) {
+      if (attempt < maxAttempts - 1 && (!err.error || err.status >= 500)) {
+        attempt++;
+        await new Promise(r => setTimeout(r, 500));
+        continue;
+      }
+      throw err;
+    }
+  }
 }
 
 export async function confirmBooking(
