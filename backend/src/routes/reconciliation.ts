@@ -88,8 +88,9 @@ export default async function reconciliationRoutes(fastify: FastifyInstance, _op
       inventory_id: string;
       hold_id: string;
       flight_code: string;
+      quantity: number;
     }>(
-      `SELECT b.id, b.status, bi.inventory_id, h.id as hold_id, i.code as flight_code
+      `SELECT b.id, b.status, bi.inventory_id, h.id as hold_id, i.code as flight_code, COALESCE(h.quantity, 1) AS quantity
        FROM bookings b
        JOIN booking_items bi ON b.id = bi.booking_id
        JOIN inventory i ON bi.inventory_id = i.id
@@ -112,7 +113,7 @@ export default async function reconciliationRoutes(fastify: FastifyInstance, _op
         const pnr = `AIX-${Math.random().toString(36).substring(2, 8).toUpperCase()}`;
 
         // 1. Transition to CONFIRMED
-        await transitionBookingState({
+        const transition = await transitionBookingState({
           bookingId,
           toState: 'CONFIRMED',
           reason: `Reconciliation confirmed by operator ${operatorName} based on provider status inquiry`,
@@ -121,35 +122,41 @@ export default async function reconciliationRoutes(fastify: FastifyInstance, _op
           tx
         });
 
-        // 2. Move inventory: held -> confirmed
-        await tx.query(
-          `UPDATE inventory 
-           SET held_quantity = held_quantity - 1, 
-               confirmed_quantity = confirmed_quantity + 1,
-               updated_at = CURRENT_TIMESTAMP
-           WHERE id = $1`,
-          [booking.inventory_id]
-        );
+        // A concurrent request (e.g. the traveller's own /confirm retry)
+        // already drove this booking to CONFIRMED and already applied the
+        // inventory/hold side effects below — skip re-applying them.
+        if (transition.fromState !== transition.toState) {
+          // 2. Move inventory: held -> confirmed (uses the hold's real
+          // quantity, not a hardcoded 1)
+          await tx.query(
+            `UPDATE inventory
+             SET held_quantity = held_quantity - $1,
+                 confirmed_quantity = confirmed_quantity + $1,
+                 updated_at = CURRENT_TIMESTAMP
+             WHERE id = $2`,
+            [booking.quantity, booking.inventory_id]
+          );
 
-        // 3. Mark hold CONFIRMED
-        if (booking.hold_id) {
-          await tx.query(`UPDATE holds SET status = 'CONFIRMED' WHERE id = $1`, [booking.hold_id]);
+          // 3. Mark hold CONFIRMED
+          if (booking.hold_id) {
+            await tx.query(`UPDATE holds SET status = 'CONFIRMED' WHERE id = $1`, [booking.hold_id]);
+          }
+
+          // 4. Update provider reservation record
+          await tx.query(
+            `INSERT INTO provider_reservations (id, booking_id, provider_name, provider_ref, provider_status, raw_response)
+             VALUES ($1, $2, 'Air India Express', $3, 'CONFIRMED', $4)`,
+            [
+              `prv_${Date.now()}_${Math.random().toString(36).substring(2, 6)}`,
+              bookingId,
+              pnr,
+              JSON.stringify({ status: 'RECONCILED_CONFIRMED', pnr, operator: operatorName })
+            ]
+          );
         }
-
-        // 4. Update provider reservation record
-        await tx.query(
-          `INSERT INTO provider_reservations (id, booking_id, provider_name, provider_ref, provider_status, raw_response)
-           VALUES ($1, $2, 'Air India Express', $3, 'CONFIRMED', $4)`,
-          [
-            `prv_${Date.now()}_${Math.random().toString(36).substring(2, 6)}`,
-            bookingId,
-            pnr,
-            JSON.stringify({ status: 'RECONCILED_CONFIRMED', pnr, operator: operatorName })
-          ]
-        );
       } else {
         // action === 'FAIL'
-        await transitionBookingState({
+        const transition = await transitionBookingState({
           bookingId,
           toState: 'FAILED',
           reason: `Reconciliation operator ${operatorName} verified non-creation at provider; released held seat`,
@@ -158,19 +165,23 @@ export default async function reconciliationRoutes(fastify: FastifyInstance, _op
           tx
         });
 
-        // Restock inventory: held -> available
-        await tx.query(
-          `UPDATE inventory 
-           SET available_quantity = available_quantity + 1, 
-               held_quantity = held_quantity - 1,
-               updated_at = CURRENT_TIMESTAMP
-           WHERE id = $1`,
-          [booking.inventory_id]
-        );
+        // Same guard: don't double-restock if a concurrent request already
+        // resolved this booking to FAILED.
+        if (transition.fromState !== transition.toState) {
+          // Restock inventory: held -> available (real quantity, not hardcoded 1)
+          await tx.query(
+            `UPDATE inventory
+             SET available_quantity = available_quantity + $1,
+                 held_quantity = held_quantity - $1,
+                 updated_at = CURRENT_TIMESTAMP
+             WHERE id = $2`,
+            [booking.quantity, booking.inventory_id]
+          );
 
-        // Mark hold RELEASED
-        if (booking.hold_id) {
-          await tx.query(`UPDATE holds SET status = 'RELEASED' WHERE id = $1`, [booking.hold_id]);
+          // Mark hold RELEASED
+          if (booking.hold_id) {
+            await tx.query(`UPDATE holds SET status = 'RELEASED' WHERE id = $1`, [booking.hold_id]);
+          }
         }
       }
 

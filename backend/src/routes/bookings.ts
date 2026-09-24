@@ -98,6 +98,10 @@ export default async function bookingRoutes(fastify: FastifyInstance, _opts: Fas
     }
 
     // Process new confirmation
+    // Hoisted out of the try block so the catch handler can still build a
+    // recovery response if a concurrent state change (e.g. expiry) is what
+    // caused the failure.
+    let confirmingBooking: { inventory_id: string } | null = null;
     try {
       // 1. Fetch and verify booking state
       const bRes = await query<{
@@ -124,6 +128,7 @@ export default async function bookingRoutes(fastify: FastifyInstance, _opts: Fas
       }
 
       const booking = bRes.rows[0];
+      confirmingBooking = booking;
 
       if (booking.status === 'CONFIRMED') {
         const confRes = {
@@ -207,7 +212,7 @@ export default async function bookingRoutes(fastify: FastifyInstance, _opts: Fas
 
         await withTransaction(async (tx: TransactionClient) => {
           // Move booking to FAILED
-          await transitionBookingState({
+          const transition = await transitionBookingState({
             bookingId: booking.id,
             toState: 'FAILED',
             reason: providerRes.error || 'Provider rejected seat reservation',
@@ -215,6 +220,12 @@ export default async function bookingRoutes(fastify: FastifyInstance, _opts: Fas
             operator: 'PROVIDER_ADAPTER',
             tx
           });
+
+          // Someone else (e.g. a concurrent retry or a reconciliation apply)
+          // already drove this exact booking to FAILED and already ran the
+          // hold-release + restock below once. Applying it again here would
+          // double-restock the inventory.
+          if (transition.fromState === transition.toState) return;
 
           // Mark hold RELEASED (locked before inventory to match the global
           // bookings -> holds -> inventory lock order used everywhere holds
@@ -269,7 +280,7 @@ export default async function bookingRoutes(fastify: FastifyInstance, _opts: Fas
 
       await withTransaction(async (tx: TransactionClient) => {
         // 1. Move booking to CONFIRMED
-        await transitionBookingState({
+        const transition = await transitionBookingState({
           bookingId: booking.id,
           toState: 'CONFIRMED',
           reason: `Airline reservation confirmed with PNR ${providerRef}`,
@@ -277,6 +288,12 @@ export default async function bookingRoutes(fastify: FastifyInstance, _opts: Fas
           operator: 'PROVIDER_ADAPTER',
           tx
         });
+
+        // Someone else already drove this exact booking to CONFIRMED (e.g. a
+        // concurrent retry, or an operator's reconciliation apply) and
+        // already applied the inventory/hold side effects below once.
+        // Re-applying them here would double-count held->confirmed.
+        if (transition.fromState === transition.toState) return;
 
         // 2. Mark hold CONFIRMED (locked before inventory: global lock order is
         // bookings -> holds -> inventory, matching holdManager.expireHold, so a
@@ -355,6 +372,20 @@ export default async function bookingRoutes(fastify: FastifyInstance, _opts: Fas
 
       return reply.status(200).send(responsePayload);
     } catch (err: any) {
+      // A concurrent state change (most commonly: the hold's TTL expired
+      // while we were mid-confirmation with the provider) can make the
+      // state machine reject our transition. That's not a server error —
+      // it's the invariant working as intended — so surface it as a clean
+      // 410 instead of an opaque 500.
+      if (err?.message?.includes('Invalid state transition') && confirmingBooking) {
+        console.warn(`[Confirm] Booking ${bookingId} changed state concurrently during confirmation:`, err.message);
+        const recovery = await getRecoveryAlternatives('BLR', 'GOI', confirmingBooking.inventory_id, language);
+        return reply.status(410).send({
+          error: 'HOLD_NO_LONGER_ACTIVE',
+          message: 'This booking changed state (e.g. the hold expired) while we were confirming it. Please search again and create a new hold.',
+          recovery
+        });
+      }
       console.error('[Confirm] Unexpected error during confirmation:', err);
       return reply.status(500).send({ error: err.message });
     }
@@ -431,11 +462,13 @@ export default async function bookingRoutes(fastify: FastifyInstance, _opts: Fas
       status: string;
       inventory_id: string;
       provider_ref: string;
+      quantity: number;
     }>(
-      `SELECT b.id, b.status, bi.inventory_id, pr.provider_ref
+      `SELECT b.id, b.status, bi.inventory_id, pr.provider_ref, COALESCE(h.quantity, 1) AS quantity
        FROM bookings b
        JOIN booking_items bi ON b.id = bi.booking_id
        LEFT JOIN provider_reservations pr ON b.id = pr.booking_id
+       LEFT JOIN holds h ON b.id = h.booking_id
        WHERE b.id = $1`,
       [bookingId]
     );
@@ -455,7 +488,7 @@ export default async function bookingRoutes(fastify: FastifyInstance, _opts: Fas
     }
 
     await withTransaction(async (tx: TransactionClient) => {
-      await transitionBookingState({
+      const transition = await transitionBookingState({
         bookingId,
         toState: 'CANCELLED',
         reason,
@@ -463,14 +496,19 @@ export default async function bookingRoutes(fastify: FastifyInstance, _opts: Fas
         tx
       });
 
-      // Restock inventory from confirmed
+      // A concurrent duplicate cancel request already transitioned this
+      // booking and already restocked inventory once — skip re-applying it.
+      if (transition.fromState === transition.toState) return;
+
+      // Restock inventory from confirmed (uses the booking's actual held
+      // quantity, not a hardcoded 1, so multi-unit bookings restock correctly)
       await tx.query(
-        `UPDATE inventory 
-         SET confirmed_quantity = confirmed_quantity - 1, 
-             available_quantity = available_quantity + 1,
+        `UPDATE inventory
+         SET confirmed_quantity = confirmed_quantity - $1,
+             available_quantity = available_quantity + $1,
              updated_at = CURRENT_TIMESTAMP
-         WHERE id = $1`,
-        [booking.inventory_id]
+         WHERE id = $2`,
+        [booking.quantity, booking.inventory_id]
       );
     });
 

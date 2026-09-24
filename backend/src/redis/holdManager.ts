@@ -164,6 +164,18 @@ export async function expireHold(holdId: string): Promise<boolean> {
     );
     if (bookingRes.rowCount === 0) return null;
 
+    // 1b. Only a booking still simply HELD may be auto-expired. The state
+    // machine has no RECONCILING -> EXPIRED transition: if the provider
+    // confirmation is in flight (RECONCILING) when the TTL fires, blindly
+    // restocking here could hand the seat to someone else while the
+    // provider is about to confirm it for the original traveller — a real
+    // oversell path. Leave the hold ACTIVE; the periodic sweeper will keep
+    // retrying every few seconds until reconciliation resolves the booking
+    // (at which point its hold is no longer ACTIVE and this stops matching).
+    if (bookingRes.rows[0].status !== 'HELD') {
+      return null;
+    }
+
     // 2. Lock the hold row and re-check it's still ACTIVE (single-winner
     // guard against a concurrent confirm/release that already resolved it).
     const holdRes = await tx.query<{
