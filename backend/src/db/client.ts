@@ -4,6 +4,8 @@ import pg from 'pg';
 import { PGlite } from '@electric-sql/pglite';
 import { config } from '../config.js';
 import { BOOKING_ENGINE_MIGRATION } from './migrations.js';
+import { importKaggleFlightFares } from './kaggleFares.js';
+import { importReferenceData } from './referenceData.js';
 
 export interface QueryResult<T = any> {
   rows: T[];
@@ -32,6 +34,8 @@ export async function initDb(): Promise<void> {
       isPGlite = false;
       console.log('[DB] Connected successfully to native PostgreSQL server.');
       await runMigrations();
+      await importKaggleFlightFares();
+      await importReferenceData();
       return;
     } catch (err) {
       console.warn('[DB] Native PostgreSQL connection failed, falling back to embedded PGlite WASM engine:', (err as Error).message);
@@ -177,6 +181,8 @@ export async function applySchemaAndSeed(forceSchema = false): Promise<void> {
         await pgliteInstance.exec(seedSql);
       }
     }
+    await importKaggleFlightFares();
+    await importReferenceData();
     console.log('[DB] Schema and seed executed successfully.');
   } catch (err) {
     console.error('[DB] Error applying schema or seed:', err);

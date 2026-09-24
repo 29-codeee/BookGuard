@@ -89,6 +89,7 @@ export interface BookingRequestRecord {
   module: string | null;
   message: string | null;
   bookingId: string | null;
+  booking?: { status: string; hold?: { expiresAt: string; secondsRemaining: number; status: string } | null } | null;
   request: Record<string, unknown>;
   next: { action: string; method: string; endpoint: string; body: unknown; note: string } | null;
   duplicate?: boolean;

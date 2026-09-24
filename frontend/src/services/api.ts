@@ -55,6 +55,13 @@ export async function getBooking(id: string) {
   return await res.json();
 }
 
+export async function convertCurrency(amountInr: number, to: 'INR' | 'USD' | 'EUR' | 'GBP') {
+  const res = await fetch(`${BASE_URL}/api/currency/convert?amount=${encodeURIComponent(String(amountInr))}&to=${to}`);
+  const data = await res.json();
+  if (!res.ok) throw data;
+  return data as { success: boolean; baseAmount: number; currency: string; symbol: string; convertedAmount: number; rateType: 'fixed_demo_rate' };
+}
+
 export async function fetchReconciliations() {
   const res = await fetch(`${BASE_URL}/api/reconciliation/pending`);
   return await res.json();
@@ -196,7 +203,9 @@ export async function cancelBooking(bookingId: string, reason?: string) {
 // ---- Booking engine: status / release / inventory detail ----
 export async function getBookingStatus(bookingId: string) {
   const res = await fetch(`${BASE_URL}/api/bookings/${bookingId}/status`);
-  return await res.json();
+  const data = await res.json();
+  if (!res.ok) throw data;
+  return data;
 }
 
 export async function releaseHold(bookingId: string, reason?: string) {

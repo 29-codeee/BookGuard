@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
+import { convertCurrency } from '../../services/api';
 import { 
   X, 
   ShieldCheck, 
@@ -14,7 +15,8 @@ import {
   Phone,
   Calendar,
   AlertTriangle,
-  Zap
+  Zap,
+  Wallet
 } from 'lucide-react';
 
 interface PassengerCheckoutModalProps {
@@ -23,6 +25,8 @@ interface PassengerCheckoutModalProps {
   isOpen: boolean;
   onClose: () => void;
   onConfirmPayment: (passengerDetails: any, paymentDetails: any) => Promise<void>;
+  onHoldExpired: () => Promise<void>;
+  onPaymentFailure: () => Promise<void>;
   isProcessing: boolean;
 }
 
@@ -32,9 +36,42 @@ export const PassengerCheckoutModal: React.FC<PassengerCheckoutModalProps> = ({
   isOpen,
   onClose,
   onConfirmPayment,
+  onHoldExpired,
+  onPaymentFailure,
   isProcessing
 }) => {
   const [step, setStep] = useState<'details' | 'payment'>('details');
+  const [secondsRemaining, setSecondsRemaining] = useState(0);
+  const [expiryMessage, setExpiryMessage] = useState('');
+  const expiryHandled = useRef(false);
+  const [currency, setCurrency] = useState<'INR' | 'USD' | 'EUR' | 'GBP'>('INR');
+  const [converted, setConverted] = useState<{ convertedAmount: number; symbol: string } | null>(null);
+
+  useEffect(() => {
+    if (!isOpen || !item) return;
+    const amount = Number(item.price) * 1.05;
+    convertCurrency(amount, currency)
+      .then(result => setConverted(result.success ? { convertedAmount: result.convertedAmount, symbol: result.symbol } : null))
+      .catch(() => setConverted(null));
+  }, [isOpen, item, currency]);
+
+  useEffect(() => {
+    if (!isOpen || !hold?.expiresAt) return;
+    expiryHandled.current = false;
+    setExpiryMessage('');
+    const tick = () => {
+      const remaining = Math.max(0, Math.ceil((new Date(hold.expiresAt).getTime() - Date.now()) / 1000));
+      setSecondsRemaining(remaining);
+      if (remaining === 0 && !expiryHandled.current) {
+        expiryHandled.current = true;
+        setExpiryMessage('Payment session expired. Verifying hold release…');
+        void onHoldExpired();
+      }
+    };
+    tick();
+    const timer = window.setInterval(tick, 250);
+    return () => window.clearInterval(timer);
+  }, [isOpen, hold?.expiresAt]);
 
   // Passenger Form State
   const [fullName, setFullName] = useState('Priya Sharma');
@@ -47,7 +84,7 @@ export const PassengerCheckoutModal: React.FC<PassengerCheckoutModalProps> = ({
   const [idNumber, setIdNumber] = useState('XXXX-XXXX-4091');
 
   // Payment Form State
-  const [paymentMethod, setPaymentMethod] = useState<'upi_qr' | 'upi_id' | 'card' | 'netbanking'>('upi_qr');
+  const [paymentMethod, setPaymentMethod] = useState<'wallet' | 'upi_qr' | 'upi_id' | 'card' | 'netbanking'>('upi_qr');
   const [upiId, setUpiId] = useState('priyasharma@okhdfcbank');
   const [cardNumber, setCardNumber] = useState('4532 •••• •••• 8821');
   const [cardExpiry, setCardExpiry] = useState('08/29');
@@ -59,6 +96,7 @@ export const PassengerCheckoutModal: React.FC<PassengerCheckoutModalProps> = ({
   const basePrice = parseFloat(item.price);
   const taxAmount = Math.round(basePrice * 0.05); // 5% GST
   const totalAmount = basePrice + taxAmount;
+  const timerText = `${String(Math.floor(secondsRemaining / 60)).padStart(2, '0')}:${String(secondsRemaining % 60).padStart(2, '0')}`;
 
   const handleProceedToPayment = (e: React.FormEvent) => {
     e.preventDefault();
@@ -85,7 +123,7 @@ export const PassengerCheckoutModal: React.FC<PassengerCheckoutModalProps> = ({
       method: paymentMethod === 'upi_qr' ? 'UPI (QR Scan)' : 
               paymentMethod === 'upi_id' ? `UPI (${upiId})` : 
               paymentMethod === 'card' ? 'Visa Credit Card (•••• 8821)' : 
-              `NetBanking (${bankName})`,
+              paymentMethod === 'wallet' ? 'Demo Wallet' : `NetBanking (${bankName})`,
       amount: totalAmount,
       transactionRef: `TXN_RZP_${Date.now().toString().slice(-8)}`,
       paidAt: new Date().toISOString()
@@ -139,6 +177,10 @@ export const PassengerCheckoutModal: React.FC<PassengerCheckoutModalProps> = ({
               }}>
                 STEP {step === 'details' ? '1 OF 2' : '2 OF 2'}
               </span>
+              <span style={{ color: secondsRemaining <= 10 ? '#F87171' : '#FBBF24', fontSize: '0.82rem', fontWeight: 800 }}>
+                Complete payment within {timerText}
+              </span>
+              {expiryMessage && <span role="status" style={{ color: '#F87171', fontSize: '0.8rem' }}>{expiryMessage}</span>}
               <h2 style={{ margin: 0, fontSize: '1.25rem', color: '#f8fafc', fontWeight: 800 }}>
                 {step === 'details' ? 'Passenger & Travel Details' : 'Secure Payment Checkout'}
               </h2>
@@ -379,6 +421,13 @@ export const PassengerCheckoutModal: React.FC<PassengerCheckoutModalProps> = ({
                     ₹{totalAmount.toLocaleString('en-IN')}
                   </span>
                 </div>
+                <div style={{ marginTop: 12, display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12, color: '#CBD5E1' }}>
+                  <label htmlFor="checkout-currency">Display currency</label>
+                  <select id="checkout-currency" value={currency} onChange={e => setCurrency(e.target.value as typeof currency)} style={{ padding: '7px 10px', borderRadius: 8, color: '#F8FAFC', background: '#0F172A', border: '1px solid rgba(255,255,255,.18)' }}>
+                    <option value="INR">INR ₹</option><option value="USD">USD $</option><option value="EUR">EUR €</option><option value="GBP">GBP £</option>
+                  </select>
+                </div>
+                {converted && <div className="opt-meta" style={{ marginTop: 6, textAlign: 'right' }}>Estimate: {converted.symbol}{converted.convertedAmount.toLocaleString()} {currency} · fixed demo rate (not live FX)</div>}
               </div>
 
               {/* Action Button */}
@@ -410,7 +459,8 @@ export const PassengerCheckoutModal: React.FC<PassengerCheckoutModalProps> = ({
               {/* Payment Methods Tabs */}
               <div style={{ display: 'flex', gap: 8, borderBottom: '1px solid rgba(255, 255, 255, 0.08)', paddingBottom: 10 }}>
                 {[
-                  { id: 'upi_qr', label: 'UPI QR Code', icon: <QrCode size={16} /> },
+                  { id: 'wallet', label: 'Wallet', icon: <Wallet size={16} /> },
+                  { id: 'upi_qr', label: 'UPI', icon: <QrCode size={16} /> },
                   { id: 'upi_id', label: 'UPI ID / VPA', icon: <Smartphone size={16} /> },
                   { id: 'card', label: 'Credit / Debit Card', icon: <CreditCard size={16} /> },
                   { id: 'netbanking', label: 'Net Banking', icon: <Building size={16} /> }
@@ -437,6 +487,10 @@ export const PassengerCheckoutModal: React.FC<PassengerCheckoutModalProps> = ({
                   </button>
                 ))}
               </div>
+
+              <div className="opt-meta">Prototype checkout only. No real payment is processed; inventory is held by the backend until its expiry.</div>
+
+              {paymentMethod === 'wallet' && <div className="glass-panel" style={{ padding: 18, color: '#CBD5E1' }}>Demo wallet selected. This prototype does not connect to a wallet or move money.</div>}
 
               {/* UPI QR Code Interface */}
               {paymentMethod === 'upi_qr' && (
@@ -642,10 +696,14 @@ export const PassengerCheckoutModal: React.FC<PassengerCheckoutModalProps> = ({
                   Back
                 </button>
 
+                <button type="button" onClick={onPaymentFailure} disabled={isProcessing || secondsRemaining <= 0} style={{ padding: '12px 14px', borderRadius: 12, border: '1px solid rgba(248,113,113,.5)', background: 'transparent', color: '#FCA5A5', fontWeight: 700 }}>
+                  Simulate payment failure
+                </button>
+
                 <button
                   type="button"
                   onClick={handleFinalPayment}
-                  disabled={isProcessing}
+                  disabled={isProcessing || secondsRemaining <= 0}
                   style={{
                     flex: 1,
                     padding: '14px',

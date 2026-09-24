@@ -7,6 +7,38 @@
  * TypeScript so it ships inside `dist/` without needing the `db/` folder.
  */
 export const BOOKING_ENGINE_MIGRATION = `
+-- Historical Kaggle fare observations (analytics only; never bookable inventory)
+CREATE TABLE IF NOT EXISTS historical_flight_fares (
+  id BIGSERIAL PRIMARY KEY,
+  origin VARCHAR(8) NOT NULL,
+  destination VARCHAR(8) NOT NULL,
+  company VARCHAR(128) NOT NULL,
+  departure_time VARCHAR(16) NOT NULL,
+  arrival_time VARCHAR(16) NOT NULL,
+  duration_minutes INT NOT NULL,
+  price_inr NUMERIC(10, 2) NOT NULL,
+  travel_date DATE NOT NULL,
+  cabin_class VARCHAR(32) NOT NULL,
+  source VARCHAR(256) NOT NULL,
+  UNIQUE (origin, destination, company, departure_time, arrival_time, travel_date, price_inr)
+);
+CREATE INDEX IF NOT EXISTS historical_flight_fares_route_idx
+  ON historical_flight_fares (origin, destination, travel_date);
+
+CREATE TABLE IF NOT EXISTS travel_reference_data (
+  id VARCHAR(256) PRIMARY KEY,
+  category VARCHAR(24) NOT NULL CHECK (category IN ('hotel', 'stay', 'airbnb', 'bus', 'train')),
+  name TEXT NOT NULL,
+  city TEXT,
+  location TEXT,
+  origin TEXT,
+  destination TEXT,
+  details JSONB NOT NULL DEFAULT '{}'::jsonb,
+  source TEXT NOT NULL
+);
+CREATE INDEX IF NOT EXISTS travel_reference_category_city_idx
+  ON travel_reference_data (category, city);
+
 -- bookings: RELEASED status, booking mode, confirm claim
 ALTER TABLE bookings DROP CONSTRAINT IF EXISTS bookings_status_check;
 ALTER TABLE bookings ADD CONSTRAINT bookings_status_check CHECK (

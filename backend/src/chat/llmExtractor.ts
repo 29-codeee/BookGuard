@@ -1,13 +1,14 @@
 /**
- * AI SERVICE: Claude-based travel intent extraction.
+ * AI SERVICE: configurable provider for travel intent extraction.
  *
  * The LLM's ONLY job is to understand the latest user message and return a
  * schema-validated TravelIntent (structured outputs). It never decides prices,
  * availability or bookings; the planner/orchestrator do that from real data.
  *
  * Configuration (backend/.env, never the frontend):
- *   ANTHROPIC_API_KEY   - enables LLM mode
- *   CHAT_AI_MODEL       - optional, defaults to claude-opus-5
+ *   CHAT_AI_PROVIDER    - anthropic (default) or gemini
+ *   ANTHROPIC_API_KEY / GEMINI_API_KEY - enables the selected provider
+ *   CHAT_AI_MODEL       - optional, provider-specific model override
  *   CHAT_AI_MODE=demo   - force the offline demo extractor even when a key exists
  */
 import Anthropic from '@anthropic-ai/sdk';
@@ -17,6 +18,20 @@ import { DESTINATIONS, ORIGIN_CITIES } from './demoData.js';
 import type { ChatMessage, TravelIntent, TripState } from './types.js';
 
 export const DEFAULT_CHAT_MODEL = 'claude-opus-5';
+export const DEFAULT_GEMINI_MODEL = 'gemini-3.8-flash';
+const geminiUsage = { calls: 0, callsWithUsage: 0, inputTokens: 0, outputTokens: 0, totalTokens: 0 };
+
+export function getGeminiUsage() {
+  return { ...geminiUsage, provider: 'gemini', note: 'Process-local totals; counts only usage returned by Google.' };
+}
+
+export function chatProvider(): 'anthropic' | 'gemini' {
+  return (process.env.CHAT_AI_PROVIDER || '').toLowerCase() === 'gemini' ? 'gemini' : 'anthropic';
+}
+
+export function chatModel(): string {
+  return process.env.CHAT_AI_MODEL || (chatProvider() === 'gemini' ? DEFAULT_GEMINI_MODEL : DEFAULT_CHAT_MODEL);
+}
 
 /** Mirrors TravelIntent. Every field is required-but-nullable, as structured outputs expect. */
 export const TravelIntentSchema = z.object({
@@ -135,7 +150,9 @@ export function buildUserContent(input: ExtractInput): string {
 
 export function isLlmConfigured(): boolean {
   if ((process.env.CHAT_AI_MODE || '').toLowerCase() === 'demo') return false;
-  return Boolean(process.env.ANTHROPIC_API_KEY || process.env.ANTHROPIC_AUTH_TOKEN);
+  return chatProvider() === 'gemini'
+    ? Boolean(process.env.GEMINI_API_KEY)
+    : Boolean(process.env.ANTHROPIC_API_KEY || process.env.ANTHROPIC_AUTH_TOKEN);
 }
 
 let client: Anthropic | null = null;
@@ -146,7 +163,8 @@ function getClient(): Anthropic {
 }
 
 export async function extractIntentWithLlm(input: ExtractInput): Promise<TravelIntent> {
-  const model = process.env.CHAT_AI_MODEL || DEFAULT_CHAT_MODEL;
+  if (chatProvider() === 'gemini') return extractIntentWithGemini(input);
+  const model = chatModel();
   try {
     const response = await getClient().beta.messages.parse({
       model,
@@ -183,5 +201,49 @@ export async function extractIntentWithLlm(input: ExtractInput): Promise<TravelI
       throw new AiServiceError(`api_${err.status ?? 'error'}`, `AI service error: ${err.message}`);
     }
     throw new AiServiceError('unexpected', (err as Error)?.message || 'Unknown AI service error');
+  }
+}
+
+async function extractIntentWithGemini(input: ExtractInput): Promise<TravelIntent> {
+  const apiKey = process.env.GEMINI_API_KEY;
+  if (!apiKey) throw new AiServiceError('auth', 'Gemini API key is not configured');
+  const model = chatModel();
+  try {
+    geminiUsage.calls += 1;
+    const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(model)}:generateContent`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'x-goog-api-key': apiKey },
+      body: JSON.stringify({
+        systemInstruction: { parts: [{ text: `${SYSTEM_PROMPT}\n\nReturn only a JSON object matching the TravelIntent fields. Use null for unknown scalar values and empty arrays for unknown list values.` }] },
+        contents: [{ role: 'user', parts: [{ text: buildUserContent(input) }] }],
+        // Gemini 3.8 Flash works best with its default sampling configuration.
+        generationConfig: { responseMimeType: 'application/json' }
+      }),
+      signal: AbortSignal.timeout(25_000)
+    });
+    const payload = await response.json() as { candidates?: Array<{ content?: { parts?: Array<{ text?: string }> }; finishReason?: string }>; error?: { message?: string }; usageMetadata?: { promptTokenCount?: number; candidatesTokenCount?: number; totalTokenCount?: number } };
+    if (payload.usageMetadata) {
+      const usage = payload.usageMetadata;
+      geminiUsage.callsWithUsage += 1;
+      geminiUsage.inputTokens += usage.promptTokenCount ?? 0;
+      geminiUsage.outputTokens += usage.candidatesTokenCount ?? 0;
+      geminiUsage.totalTokens += usage.totalTokenCount ?? 0;
+    }
+    if (!response.ok) {
+      if (response.status === 401 || response.status === 403) throw new AiServiceError('auth', 'Gemini credentials were rejected');
+      if (response.status === 429) throw new AiServiceError('rate_limited', 'Gemini API is rate limited');
+      throw new AiServiceError(`api_${response.status}`, `Gemini API error: ${payload.error?.message || response.statusText}`);
+    }
+    const text = payload.candidates?.[0]?.content?.parts?.map(part => part.text ?? '').join('').trim();
+    if (!text) throw new AiServiceError('unparseable', 'Gemini returned an empty response');
+    let parsed: unknown;
+    try { parsed = JSON.parse(text); }
+    catch { throw new AiServiceError('unparseable', 'Gemini returned invalid JSON'); }
+    const validated = TravelIntentSchema.safeParse(parsed);
+    if (!validated.success) throw new AiServiceError('unparseable', 'Gemini response did not match the travel intent format');
+    return validated.data as TravelIntent;
+  } catch (err) {
+    if (err instanceof AiServiceError) throw err;
+    throw new AiServiceError('unreachable', `Gemini API could not be reached: ${(err as Error)?.message || 'unknown error'}`);
   }
 }

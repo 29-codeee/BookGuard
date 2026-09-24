@@ -138,7 +138,7 @@ Visit **`http://localhost:3000/`** in your browser.
 ### 0. 🤖 AI Planner (chatbot)
 Type a request such as *"I want to visit Goa for 3 days with 2 friends"*. The planner asks only for missing details, builds a day-by-day itinerary, and suggests stays, transport and places. You can then adjust it by chatting ("show cheaper hotels", "add a train", "make it 4 days") or with the card buttons (Select / Book / Change / Remove). **Book** creates a demo booking request for the booking modules; items from live inventory are reserved through the booking engine. The **Current Trip Plan** panel updates as the conversation changes the plan.
 
-- **AI mode:** put `ANTHROPIC_API_KEY` in `backend/.env` (see `backend/.env.example`). Keys stay on the server.
+- **AI mode:** configure `CHAT_AI_PROVIDER` and the matching key in `backend/.env` (see `backend/.env.example`). Use `CHAT_AI_PROVIDER=gemini` with `GEMINI_API_KEY`, or `CHAT_AI_PROVIDER=anthropic` with `ANTHROPIC_API_KEY`. Keys stay on the server.
 - **Demo mode:** with no key, an offline extractor keeps the chatbot fully working with sample data.
 
 Details, API formats and teammate integration: **[docs/AI_TRAVEL_PLANNER.md](docs/AI_TRAVEL_PLANNER.md)**.

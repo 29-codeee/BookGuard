@@ -13,6 +13,8 @@ import sseRoutes from './routes/sse.js';
 import pluginSdkRoutes from './routes/pluginSdk.js';
 import preparedBookingRoutes from './routes/preparedBookings.js';
 import chatRoutes from './routes/chat.js';
+import referenceDataRoutes from './routes/referenceData.js';
+import currencyRoutes from './routes/currency.js';
 
 export async function buildApp() {
   const fastify = Fastify({
@@ -43,6 +45,8 @@ export async function buildApp() {
   await fastify.register(pluginSdkRoutes);
   await fastify.register(preparedBookingRoutes);
   await fastify.register(chatRoutes);
+  await fastify.register(referenceDataRoutes);
+  await fastify.register(currencyRoutes);
 
   return fastify;
 }

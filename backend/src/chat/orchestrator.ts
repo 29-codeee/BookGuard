@@ -1016,7 +1016,11 @@ async function addItem(trip: TripState, intent: TravelIntent, turn: Turn) {
 
 async function book(session: Session, intent: TravelIntent, turn: Turn) {
   const trip = session.trip;
-  const missing = requiredMissing(trip);
+  const explicit = inferTarget(trip, { ...intent, target: intent.target === 'trip' ? null : intent.target });
+  const target = intent.target === 'trip' ? 'trip' : explicit;
+  // A hotel booking does not require a departure city. Ask only for the fields
+  // its request actually needs; transport and whole-trip requests need origin.
+  const missing = requiredMissing(trip).filter(field => field !== 'origin' || target === 'transport' || target === 'trip');
   if (missing.length > 0) {
     for (const f of missing) if (!trip.askedFor.includes(f)) trip.askedFor.push(f);
     turn.say(`Before I can create a booking request, tell me ${joinParts(missing.map(f => QUESTION[f]))}.`);
@@ -1024,7 +1028,6 @@ async function book(session: Session, intent: TravelIntent, turn: Turn) {
   }
 
   let targets: Array<'hotel' | 'transport'>;
-  const explicit = inferTarget(trip, { ...intent, target: intent.target === 'trip' ? null : intent.target });
   if (intent.target === 'trip') targets = ['transport', 'hotel'];
   else if (explicit === 'hotel' || explicit === 'transport') targets = [explicit];
   else if (trip.hotel && !trip.transport) targets = ['hotel'];
@@ -1096,7 +1099,7 @@ function describeBooking(r: BookingRequestRecord): string {
   if (r.duplicate) return `You already have a booking request for ${what} (status: ${r.status}).`;
   switch (r.status) {
     case 'HELD':
-      return `Demo booking request created for ${what}. The booking module reserved it for 10 minutes (booking ${r.bookingId}). The next step is the demo payment; nothing has been charged.`;
+      return `Demo booking request created for ${what}. The booking module reserved it for 45 seconds (booking ${r.bookingId}). Complete the demo payment before the hold expires; nothing has been charged.`;
     case 'PENDING_MODULE':
       return `Demo booking request created for ${what} and sent to the ${r.module}. This is a demo option, so no real booking has been made yet.`;
     case 'REJECTED':

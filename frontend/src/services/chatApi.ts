@@ -47,6 +47,7 @@ export type PlannerTarget = 'hotel' | 'transport' | 'place' | 'itinerary' | 'tri
 
 export const chatApi = {
   status: () => request<{ aiMode: 'llm' | 'demo'; model: string | null; demoDataNotice: string }>('GET', '/api/chat/status'),
+  usage: () => request<{ success: boolean; usage: { calls: number; callsWithUsage: number; inputTokens: number; outputTokens: number; totalTokens: number; provider: string; note: string } }>('GET', '/api/chat/usage'),
 
   send: (sessionId: string | null, message: string) =>
     request<ChatTurn>('POST', '/api/chat', { sessionId, message }),

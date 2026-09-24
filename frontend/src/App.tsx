@@ -29,13 +29,16 @@ import {
   fetchReconciliations, 
   applyReconciliation,
   getProviderMode,
-  getBooking
+  getBooking,
+  getBookingStatus,
+  releaseHold
 } from './services/api';
 import { sseManager } from './services/sse';
 import { AiPlannerView } from './components/AiPlanner/AiPlannerView';
+import { DataCatalogView } from './components/DataCatalog/DataCatalogView';
 
 export const App: React.FC = () => {
-  const [currentView, setCurrentView] = useState<'trip_guide' | 'ai_planner' | 'my_trips' | 'sentinel' | 'plugin_sdk' | 'ops' | 'demo'>('trip_guide');
+  const [currentView, setCurrentView] = useState<'trip_guide' | 'ai_planner' | 'data_catalog' | 'my_trips' | 'sentinel' | 'plugin_sdk' | 'ops' | 'demo'>('trip_guide');
   const [lang, setLang] = useState<Language>('en');
 
   // Inventory & System State
@@ -183,7 +186,7 @@ export const App: React.FC = () => {
 
     setIsHolding(true);
     try {
-      const res = await createHold(targetInvId, 1, 600, 'traveller_priya');
+      const res = await createHold(targetInvId, 1, 45, 'traveller_priya');
       if (res.success) {
         const heldItem = inventoryItems.find(i => i.id === targetInvId) || primaryFlight;
         setSelectedInventoryItem(heldItem);
@@ -257,6 +260,41 @@ export const App: React.FC = () => {
       alert('Confirmation failed: ' + (err.message || 'Unknown error'));
     } finally {
       setIsConfirming(false);
+    }
+  };
+
+  const handleHoldExpired = async () => {
+    if (!currentBookingId) return;
+    try {
+      // Status reads apply expiry using the database clock and the shared booking engine.
+      const status = await getBookingStatus(currentBookingId);
+      if (status.status === 'EXPIRED' || status.status === 'RELEASED') {
+        setIsCheckoutModalOpen(false);
+        setRecoveryInfo({ message: 'Payment session expired. The backend released the hold and returned the inventory.', alternatives: [] });
+        setTravellerStep('FAILED');
+        loadData();
+      } else if (status.status === 'HELD') {
+        window.setTimeout(() => { void handleHoldExpired(); }, 750);
+      }
+    } catch {
+      setRecoveryInfo({ message: 'Payment session expired, but the backend could not be reached to verify the hold. Reconnect and check booking status before retrying.', alternatives: [] });
+    }
+  };
+
+  const handleDemoPaymentFailure = async () => {
+    if (!currentBookingId) return;
+    try {
+      const result = await releaseHold(currentBookingId, 'Demo payment failed; release the inventory hold');
+      if (result.success) {
+        setIsCheckoutModalOpen(false);
+        setRecoveryInfo({ message: 'Demo payment failed. The backend released the hold; you can retry or choose another option.', alternatives: [] });
+        setTravellerStep('FAILED');
+        loadData();
+      } else {
+        showToast(result.message || 'Could not release the hold. Check booking status.');
+      }
+    } catch {
+      showToast('Could not reach the backend to release this hold. Check booking status before retrying.');
     }
   };
 
@@ -335,6 +373,7 @@ export const App: React.FC = () => {
 
         {/* AI TRAVEL PLANNER CHATBOT */}
         {currentView === 'ai_planner' && <AiPlannerView />}
+        {currentView === 'data_catalog' && <DataCatalogView />}
 
         {/* VIEW 1: UNIFIED MULTI-MODAL TRIP GUIDE & PLANNER */}
         {currentView === 'trip_guide' && (
@@ -451,6 +490,8 @@ export const App: React.FC = () => {
         isOpen={isCheckoutModalOpen}
         onClose={() => setIsCheckoutModalOpen(false)}
         onConfirmPayment={handleConfirmBooking}
+        onHoldExpired={handleHoldExpired}
+        onPaymentFailure={handleDemoPaymentFailure}
         isProcessing={isConfirming}
       />
 

@@ -1,5 +1,6 @@
-import React from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import type { PlannerAction, PlannerTarget } from '../../services/chatApi';
+import { confirmBooking, getBookingStatus, releaseHold } from '../../services/api';
 import {
   BookingRequestRecord,
   DayPlan,
@@ -133,6 +134,58 @@ export function PlaceCards({ places, trip, busy, onAction }: { places: PlaceOpti
 }
 
 export function BookingRequestCard({ record }: { record: BookingRequestRecord }) {
+  const [secondsRemaining, setSecondsRemaining] = useState(0);
+  const [method, setMethod] = useState<'WALLET' | 'UPI' | 'CARD'>('UPI');
+  const [paymentBusy, setPaymentBusy] = useState(false);
+  const [paymentMessage, setPaymentMessage] = useState('');
+  const expiryChecked = useRef(false);
+  const bookingId = record.bookingId;
+  const expiresAt = record.booking?.hold?.expiresAt;
+  useEffect(() => {
+    if (record.status !== 'HELD' || !bookingId || !expiresAt) return;
+    expiryChecked.current = false;
+    const tick = () => {
+      const remaining = Math.max(0, Math.ceil((new Date(expiresAt).getTime() - Date.now()) / 1000));
+      setSecondsRemaining(remaining);
+      if (remaining === 0 && !expiryChecked.current) {
+        expiryChecked.current = true;
+        getBookingStatus(bookingId).then(s => {
+          if (s.status === 'EXPIRED' || s.status === 'RELEASED') setPaymentMessage('Payment session expired. The backend released the hold.');
+          else if (s.status === 'CONFIRMED') setPaymentMessage('Booking confirmed.');
+          else setPaymentMessage('The backend is still checking this hold. Refresh booking status before retrying.');
+        }).catch(() => setPaymentMessage('Could not verify the hold status. Reconnect before retrying.'));
+      }
+    };
+    tick();
+    const timer = window.setInterval(tick, 250);
+    return () => window.clearInterval(timer);
+  }, [record.status, bookingId, expiresAt]);
+
+  const pay = async () => {
+    if (!bookingId) return;
+    setPaymentBusy(true); setPaymentMessage('');
+    try {
+      const { data: body } = await confirmBooking(bookingId, 'BookGuard traveller', `planner-pay-${bookingId}`, 'en', undefined, { method, demo: true });
+      if (body.status === 'CONFIRMED') setPaymentMessage('Demo payment successful. Booking confirmed by the backend.');
+      else if (body.status === 'RECONCILING') setPaymentMessage('The booking is still being verified. Your inventory remains held while the backend reconciles.');
+      else setPaymentMessage(body.message || 'Payment or booking failed. The backend released the hold when appropriate.');
+    } catch { setPaymentMessage('Could not reach the booking backend. Check booking status before retrying.'); }
+    finally { setPaymentBusy(false); }
+  };
+
+  const failPayment = async () => {
+    if (!bookingId) return;
+    setPaymentBusy(true);
+    try {
+      const body = await releaseHold(bookingId, 'Demo payment failed; release inventory hold');
+      setPaymentMessage(body.success ? 'Demo payment failed. The backend released the hold.' : body.message || 'Could not release this hold. Check booking status.');
+    } catch { setPaymentMessage('Could not reach the backend to release the hold. Check booking status.'); }
+    finally { setPaymentBusy(false); }
+  };
+
+  const request = record.request as Record<string, any>;
+  const paymentActive = record.status === 'HELD' && record.booking?.status === 'HELD' && !!expiresAt;
+  const timer = `${String(Math.floor(secondsRemaining / 60)).padStart(2, '0')}:${String(secondsRemaining % 60).padStart(2, '0')}`;
   return (
     <div className="booking-card">
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 8 }}>
@@ -144,6 +197,18 @@ export function BookingRequestCard({ record }: { record: BookingRequestRecord })
         Sent to: <strong>{record.module ?? 'booking module'}</strong>
         {record.bookingId ? <> · booking <code>{record.bookingId}</code></> : null}
       </div>
+      {paymentActive && <div style={{ marginTop: 12, padding: 14, borderRadius: 12, border: '1px solid rgba(56,189,248,.25)', background: 'rgba(14,165,233,.08)' }}>
+        <strong>Trip payment summary</strong>
+        <div className="opt-meta" style={{ marginTop: 6 }}>{request.destination || request.to || request.from || 'Selected travel item'} · {request.checkIn ? `${request.checkIn} – ${request.checkOut}` : request.date || ''} · {request.travellers} traveller(s) · {formatInr(Number(request.estimatedTotal || 0))}</div>
+        <div style={{ marginTop: 8, color: secondsRemaining <= 10 ? '#F87171' : '#FBBF24', fontWeight: 800 }}>Complete payment within {timer}</div>
+        <div className="opt-meta">Inventory is held by the backend until its database-clock expiry. Demo payment only; no money is processed.</div>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap', marginTop: 10 }}>
+          <label>Method <select value={method} onChange={e => setMethod(e.target.value as typeof method)}><option value="WALLET">Wallet</option><option value="UPI">UPI</option><option value="CARD">Card</option></select></label>
+          <button className="btn-sm" disabled={paymentBusy || secondsRemaining <= 0} onClick={() => void pay()}>{paymentBusy ? 'Processing…' : 'Pay & confirm'}</button>
+          <button className="btn-sm danger" disabled={paymentBusy || secondsRemaining <= 0} onClick={() => void failPayment()}>Simulate failure</button>
+        </div>
+        {paymentMessage && <div role="status" className="opt-meta" style={{ marginTop: 8 }}>{paymentMessage}</div>}
+      </div>}
       <details>
         <summary className="opt-meta" style={{ cursor: 'pointer' }}>Request payload (JSON)</summary>
         <pre>{JSON.stringify(record.request, null, 2)}</pre>

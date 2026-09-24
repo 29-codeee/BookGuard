@@ -24,7 +24,7 @@ import { addDaysIso, nightsFor, roomsFor } from './planner.js';
 
 export const DEMO_TRAVELLER_ID = process.env.CHAT_DEMO_TRAVELLER_ID || 'traveller_priya';
 const ENGINE_MAX_UNITS = 6;
-const HOLD_TTL_SECONDS = 600;
+const HOLD_TTL_SECONDS = 45;
 
 export interface HotelBookingRequest {
   type: 'hotel_booking';

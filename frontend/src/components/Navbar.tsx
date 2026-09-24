@@ -1,10 +1,10 @@
 import React from 'react';
-import { ShieldCheck, Plane, LayoutDashboard, Cpu, Globe, Check } from 'lucide-react';
+import { ShieldCheck, Plane, LayoutDashboard, Cpu, Globe, Check, Database } from 'lucide-react';
 import { Language, translate } from '../i18n';
 
 interface NavbarProps {
-  currentView: 'trip_guide' | 'ai_planner' | 'my_trips' | 'sentinel' | 'plugin_sdk' | 'ops' | 'demo';
-  setCurrentView: (view: 'trip_guide' | 'ai_planner' | 'my_trips' | 'sentinel' | 'plugin_sdk' | 'ops' | 'demo') => void;
+  currentView: 'trip_guide' | 'ai_planner' | 'data_catalog' | 'my_trips' | 'sentinel' | 'plugin_sdk' | 'ops' | 'demo';
+  setCurrentView: (view: 'trip_guide' | 'ai_planner' | 'data_catalog' | 'my_trips' | 'sentinel' | 'plugin_sdk' | 'ops' | 'demo') => void;
   lang: Language;
   setLang: (lang: Language) => void;
   oversoldCount: number;
@@ -129,6 +129,20 @@ export const Navbar: React.FC<NavbarProps> = ({
           >
             <span>🤖</span>
             <span>AI Planner</span>
+          </button>
+
+          <button
+            id="nav-data-catalog"
+            onClick={() => setCurrentView('data_catalog')}
+            style={{
+              display: 'flex', alignItems: 'center', gap: 6, padding: '8px 14px', borderRadius: 8,
+              border: 'none', background: currentView === 'data_catalog' ? 'linear-gradient(135deg, #0ea5e9, #2563eb)' : 'transparent',
+              color: currentView === 'data_catalog' ? '#FFFFFF' : '#94A3B8', fontWeight: 700, fontSize: '0.84rem',
+              cursor: 'pointer', transition: 'all 0.18s'
+            }}
+          >
+            <Database size={15} />
+            <span>Data Library</span>
           </button>
 
           <button

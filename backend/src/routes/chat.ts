@@ -21,7 +21,7 @@ import {
 } from '../chat/bookingGateway.js';
 import { destinationById, listDestinations, listHotels, listPlaces, listTransport, rankHotels, rankTransport, resolveCity, resolveDestination } from '../chat/catalog.js';
 import { findSession } from '../chat/orchestrator.js';
-import { DEFAULT_CHAT_MODEL } from '../chat/llmExtractor.js';
+import { chatModel, chatProvider, getGeminiUsage } from '../chat/llmExtractor.js';
 import crypto from 'crypto';
 
 /**
@@ -44,10 +44,14 @@ export default async function chatRoutes(fastify: FastifyInstance, _opts: Fastif
   fastify.get('/api/chat/status', async () => ({
     success: true,
     aiMode: currentAiMode(),
-    model: currentAiMode() === 'llm' ? process.env.CHAT_AI_MODEL || DEFAULT_CHAT_MODEL : null,
+    model: currentAiMode() === 'llm' ? chatModel() : null,
+    provider: currentAiMode() === 'llm' ? chatProvider() : null,
     destinations: listDestinations(),
     demoDataNotice: DEMO_DATA_NOTICE
   }));
+
+  // Developer diagnostics use only usageMetadata returned by Gemini; no estimated tokens.
+  fastify.get('/api/chat/usage', async () => ({ success: true, usage: getGeminiUsage() }));
 
   // Conversational entry point
   fastify.post('/api/chat', (req, reply) =>

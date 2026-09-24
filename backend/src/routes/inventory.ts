@@ -3,6 +3,31 @@ import { query } from '../db/client.js';
 import { checkInvariants } from '../booking/engine.js';
 
 export default async function inventoryRoutes(fastify: FastifyInstance, _opts: FastifyPluginOptions) {
+  // Historical Kaggle fares are for route-price context only; they are never inventory.
+  fastify.get('/api/analytics/historical-fares', async (req, reply) => {
+    const { origin, destination } = req.query as { origin?: string; destination?: string };
+    const params: string[] = [];
+    let where = '';
+    if (origin) { params.push(origin.trim().toUpperCase()); where += ` AND origin = $${params.length}`; }
+    if (destination) { params.push(destination.trim().toUpperCase()); where += ` AND destination = $${params.length}`; }
+    const summary = await query(`
+      SELECT origin, destination, COUNT(*)::int AS observations,
+             ROUND(AVG(price_inr), 0)::int AS average_price_inr,
+             MIN(price_inr)::int AS min_price_inr, MAX(price_inr)::int AS max_price_inr,
+             MIN(travel_date)::text AS first_travel_date, MAX(travel_date)::text AS last_travel_date,
+             MIN(source) AS source
+      FROM historical_flight_fares WHERE 1=1 ${where}
+      GROUP BY origin, destination ORDER BY origin, destination
+    `, params);
+    return reply.send({
+      success: true,
+      dataType: 'historical_reference_only',
+      currentAvailability: false,
+      currency: 'INR',
+      items: summary.rows
+    });
+  });
+
   // Get all inventory items with invariant verification
   fastify.get('/api/inventory', async (_req, reply) => {
     const res = await query(`

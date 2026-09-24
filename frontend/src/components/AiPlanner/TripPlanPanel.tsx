@@ -1,10 +1,24 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { TripState, formatDate, formatInr } from './chatTypes';
+
+type HistoricalFareSummary = { observations: number; average_price_inr: number; min_price_inr: number; max_price_inr: number; first_travel_date: string; last_travel_date: string; source: string };
 
 const TIER_LABEL = { budget: 'Budget', medium: 'Mid-range', luxury: 'Luxury' } as const;
 
 export function TripPlanPanel({ trip, onReset, busy }: { trip: TripState | null; onReset: () => void; busy: boolean }) {
   const t = trip;
+  const [historicalFare, setHistoricalFare] = useState<HistoricalFareSummary | null>(null);
+  useEffect(() => {
+    const origin = t?.origin?.code;
+    const destination = t?.destination?.code;
+    if (!origin || !destination) { setHistoricalFare(null); return; }
+    const controller = new AbortController();
+    fetch(`${import.meta.env.VITE_API_URL || ''}/api/analytics/historical-fares?origin=${encodeURIComponent(origin)}&destination=${encodeURIComponent(destination)}`, { signal: controller.signal })
+      .then(r => r.ok ? r.json() : null)
+      .then(data => setHistoricalFare(data?.items?.[0] ?? null))
+      .catch(() => {});
+    return () => controller.abort();
+  }, [t?.origin?.code, t?.destination?.code]);
   const dash = <span style={{ color: 'var(--text-muted)', fontWeight: 400 }}>Not set</span>;
   const est = t?.estimate;
 
@@ -43,6 +57,15 @@ export function TripPlanPanel({ trip, onReset, busy }: { trip: TripState | null;
           <span>Local & sightseeing</span><span>{formatInr(est.localAndSightseeing)}</span>
           <span>Per person</span><span>{formatInr(est.perPerson)}</span>
           {est.withinBudget === false && <span style={{ gridColumn: '1 / -1', color: '#fbbf24' }}>Above your budget</span>}
+        </div>
+      )}
+
+      {historicalFare && (
+        <div className="opt-meta" style={{ borderTop: '1px solid var(--border-color, rgba(255,255,255,.12))', paddingTop: 10 }}>
+          <strong>Historical fare reference</strong>
+          <div>{formatInr(historicalFare.min_price_inr)}–{formatInr(historicalFare.max_price_inr)} · average {formatInr(historicalFare.average_price_inr)}</div>
+          <div>{historicalFare.observations} observations · 14–28 Feb 2022</div>
+          <div>Archived Kaggle fares; not current prices or availability.</div>
         </div>
       )}
 

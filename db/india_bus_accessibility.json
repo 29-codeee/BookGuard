@@ -1,0 +1,668 @@
+﻿[
+    {
+        "_id":  1,
+        "City Name":  "Agartala",
+        "Type Of Bus (Ac / Non Ac)":  "AC",
+        "No. of buses of that type":  "11",
+        "No. of bus terminals":  "3",
+        "No. of bus stands":  "6",
+        "No. of bus stops":  "48"
+    },
+    {
+        "_id":  2,
+        "City Name":  "Agartala",
+        "Type Of Bus (Ac / Non Ac)":  "Non AC",
+        "No. of buses of that type":  "162",
+        "No. of bus terminals":  "3",
+        "No. of bus stands":  "6",
+        "No. of bus stops":  "48"
+    },
+    {
+        "_id":  3,
+        "City Name":  "Agra",
+        "Type Of Bus (Ac / Non Ac)":  "Non AC",
+        "No. of buses of that type":  "170",
+        "No. of bus terminals":  "20",
+        "No. of bus stands":  "5",
+        "No. of bus stops":  "30"
+    },
+    {
+        "_id":  4,
+        "City Name":  "Ahmedabad",
+        "Type Of Bus (Ac / Non Ac)":  "AC",
+        "No. of buses of that type":  "189",
+        "No. of bus terminals":  "16",
+        "No. of bus stands":  "1157",
+        "No. of bus stops":  "1157"
+    },
+    {
+        "_id":  5,
+        "City Name":  "Ahmedabad",
+        "Type Of Bus (Ac / Non Ac)":  "Non AC",
+        "No. of buses of that type":  "751",
+        "No. of bus terminals":  "16",
+        "No. of bus stands":  "1157",
+        "No. of bus stops":  "1157"
+    },
+    {
+        "_id":  6,
+        "City Name":  "Belagavi",
+        "Type Of Bus (Ac / Non Ac)":  "Non AC",
+        "No. of buses of that type":  "65",
+        "No. of bus terminals":  "1",
+        "No. of bus stands":  "2",
+        "No. of bus stops":  "33"
+    },
+    {
+        "_id":  7,
+        "City Name":  "Bengaluru",
+        "Type Of Bus (Ac / Non Ac)":  "AC",
+        "No. of buses of that type":  "850",
+        "No. of bus terminals":  "13",
+        "No. of bus stands":  "40",
+        "No. of bus stops":  "2212"
+    },
+    {
+        "_id":  8,
+        "City Name":  "Bengaluru",
+        "Type Of Bus (Ac / Non Ac)":  "Non AC",
+        "No. of buses of that type":  "5827",
+        "No. of bus terminals":  "13",
+        "No. of bus stands":  "40",
+        "No. of bus stops":  "2212"
+    },
+    {
+        "_id":  9,
+        "City Name":  "Bhopal",
+        "Type Of Bus (Ac / Non Ac)":  "AC",
+        "No. of buses of that type":  "20",
+        "No. of bus terminals":  "1",
+        "No. of bus stands":  "3",
+        "No. of bus stops":  "322"
+    },
+    {
+        "_id":  10,
+        "City Name":  "Bhopal",
+        "Type Of Bus (Ac / Non Ac)":  "Non AC",
+        "No. of buses of that type":  "205",
+        "No. of bus terminals":  "1",
+        "No. of bus stands":  "3",
+        "No. of bus stops":  "322"
+    },
+    {
+        "_id":  11,
+        "City Name":  "Bhopal",
+        "Type Of Bus (Ac / Non Ac)":  "Midi Buses",
+        "No. of buses of that type":  "62",
+        "No. of bus terminals":  "1",
+        "No. of bus stands":  "3",
+        "No. of bus stops":  "322"
+    },
+    {
+        "_id":  12,
+        "City Name":  "Chandigarh",
+        "Type Of Bus (Ac / Non Ac)":  "AC",
+        "No. of buses of that type":  "193",
+        "No. of bus terminals":  "2",
+        "No. of bus stands":  "2",
+        "No. of bus stops":  "268"
+    },
+    {
+        "_id":  13,
+        "City Name":  "Chandigarh",
+        "Type Of Bus (Ac / Non Ac)":  "Non AC",
+        "No. of buses of that type":  "199",
+        "No. of bus terminals":  "2",
+        "No. of bus stands":  "2",
+        "No. of bus stops":  "268"
+    },
+    {
+        "_id":  14,
+        "City Name":  "Chennai",
+        "Type Of Bus (Ac / Non Ac)":  "AC",
+        "No. of buses of that type":  "NA",
+        "No. of bus terminals":  "44",
+        "No. of bus stands":  "44",
+        "No. of bus stops":  "2415"
+    },
+    {
+        "_id":  15,
+        "City Name":  "Chennai",
+        "Type Of Bus (Ac / Non Ac)":  "Non AC",
+        "No. of buses of that type":  "3740",
+        "No. of bus terminals":  "44",
+        "No. of bus stands":  "44",
+        "No. of bus stops":  "2415"
+    },
+    {
+        "_id":  16,
+        "City Name":  "Dehradun",
+        "Type Of Bus (Ac / Non Ac)":  "Non AC",
+        "No. of buses of that type":  "245",
+        "No. of bus terminals":  "NA",
+        "No. of bus stands":  "29",
+        "No. of bus stops":  "57"
+    },
+    {
+        "_id":  17,
+        "City Name":  "Erode",
+        "Type Of Bus (Ac / Non Ac)":  "Non AC",
+        "No. of buses of that type":  "114",
+        "No. of bus terminals":  "7",
+        "No. of bus stands":  "1",
+        "No. of bus stops":  "180"
+    },
+    {
+        "_id":  18,
+        "City Name":  "Faridabad",
+        "Type Of Bus (Ac / Non Ac)":  "AC",
+        "No. of buses of that type":  "30",
+        "No. of bus terminals":  "2",
+        "No. of bus stands":  "2",
+        "No. of bus stops":  "26"
+    },
+    {
+        "_id":  19,
+        "City Name":  "Faridabad",
+        "Type Of Bus (Ac / Non Ac)":  "Non AC",
+        "No. of buses of that type":  "35",
+        "No. of bus terminals":  "2",
+        "No. of bus stands":  "2",
+        "No. of bus stops":  "20"
+    },
+    {
+        "_id":  20,
+        "City Name":  "Gwalior",
+        "Type Of Bus (Ac / Non Ac)":  "Non AC",
+        "No. of buses of that type":  "2",
+        "No. of bus terminals":  "1",
+        "No. of bus stands":  "1",
+        "No. of bus stops":  "48"
+    },
+    {
+        "_id":  21,
+        "City Name":  "Indore",
+        "Type Of Bus (Ac / Non Ac)":  "AC",
+        "No. of buses of that type":  "42",
+        "No. of bus terminals":  "1",
+        "No. of bus stands":  "4",
+        "No. of bus stops":  "529"
+    },
+    {
+        "_id":  22,
+        "City Name":  "Indore",
+        "Type Of Bus (Ac / Non Ac)":  "Non AC",
+        "No. of buses of that type":  "247",
+        "No. of bus terminals":  "1",
+        "No. of bus stands":  "4",
+        "No. of bus stops":  "529"
+    },
+    {
+        "_id":  23,
+        "City Name":  "Jabalpur",
+        "Type Of Bus (Ac / Non Ac)":  "Non AC",
+        "No. of buses of that type":  "119",
+        "No. of bus terminals":  "1",
+        "No. of bus stands":  "2",
+        "No. of bus stops":  "75"
+    },
+    {
+        "_id":  24,
+        "City Name":  "Jabalpur",
+        "Type Of Bus (Ac / Non Ac)":  "AC",
+        "No. of buses of that type":  "2",
+        "No. of bus terminals":  "1",
+        "No. of bus stands":  "2",
+        "No. of bus stops":  "12"
+    },
+    {
+        "_id":  25,
+        "City Name":  "Kakinada",
+        "Type Of Bus (Ac / Non Ac)":  "Amaravathi Ac",
+        "No. of buses of that type":  "2",
+        "No. of bus terminals":  "1",
+        "No. of bus stands":  "1",
+        "No. of bus stops":  "13"
+    },
+    {
+        "_id":  26,
+        "City Name":  "Kakinada",
+        "Type Of Bus (Ac / Non Ac)":  "Indra  Ac",
+        "No. of buses of that type":  "2",
+        "No. of bus terminals":  "1",
+        "No. of bus stands":  "1",
+        "No. of bus stops":  "13"
+    },
+    {
+        "_id":  27,
+        "City Name":  "Kakinada",
+        "Type Of Bus (Ac / Non Ac)":  "Garuda  Ac",
+        "No. of buses of that type":  "10",
+        "No. of bus terminals":  "1",
+        "No. of bus stands":  "1",
+        "No. of bus stops":  "13"
+    },
+    {
+        "_id":  28,
+        "City Name":  "Kakinada",
+        "Type Of Bus (Ac / Non Ac)":  "Super Luxury",
+        "No. of buses of that type":  "46",
+        "No. of bus terminals":  "1",
+        "No. of bus stands":  "1",
+        "No. of bus stops":  "13"
+    },
+    {
+        "_id":  29,
+        "City Name":  "Kakinada",
+        "Type Of Bus (Ac / Non Ac)":  "Ultra Delux",
+        "No. of buses of that type":  "28",
+        "No. of bus terminals":  "1",
+        "No. of bus stands":  "1",
+        "No. of bus stops":  "13"
+    },
+    {
+        "_id":  30,
+        "City Name":  "Kakinada",
+        "Type Of Bus (Ac / Non Ac)":  "Express",
+        "No. of buses of that type":  "22",
+        "No. of bus terminals":  "1",
+        "No. of bus stands":  "1",
+        "No. of bus stops":  "13"
+    },
+    {
+        "_id":  31,
+        "City Name":  "Kakinada",
+        "Type Of Bus (Ac / Non Ac)":  "Telugu Velugu",
+        "No. of buses of that type":  "67",
+        "No. of bus terminals":  "1",
+        "No. of bus stands":  "1",
+        "No. of bus stops":  "13"
+    },
+    {
+        "_id":  32,
+        "City Name":  "Kanpur",
+        "Type Of Bus (Ac / Non Ac)":  "AC",
+        "No. of buses of that type":  "10",
+        "No. of bus terminals":  "22",
+        "No. of bus stands":  "12",
+        "No. of bus stops":  "20"
+    },
+    {
+        "_id":  33,
+        "City Name":  "Kanpur",
+        "Type Of Bus (Ac / Non Ac)":  "Non AC",
+        "No. of buses of that type":  "10",
+        "No. of bus terminals":  "22",
+        "No. of bus stands":  "14",
+        "No. of bus stops":  "21"
+    },
+    {
+        "_id":  34,
+        "City Name":  "Kohima",
+        "Type Of Bus (Ac / Non Ac)":  "Non AC",
+        "No. of buses of that type":  "89",
+        "No. of bus terminals":  "NA",
+        "No. of bus stands":  "5",
+        "No. of bus stops":  "9"
+    },
+    {
+        "_id":  35,
+        "City Name":  "Kota",
+        "Type Of Bus (Ac / Non Ac)":  "Non AC",
+        "No. of buses of that type":  "34",
+        "No. of bus terminals":  "1",
+        "No. of bus stands":  "54",
+        "No. of bus stops":  "54"
+    },
+    {
+        "_id":  36,
+        "City Name":  "Lucknow",
+        "Type Of Bus (Ac / Non Ac)":  "AC",
+        "No. of buses of that type":  "15",
+        "No. of bus terminals":  "2",
+        "No. of bus stands":  "200",
+        "No. of bus stops":  "230"
+    },
+    {
+        "_id":  37,
+        "City Name":  "Lucknow",
+        "Type Of Bus (Ac / Non Ac)":  "Non AC",
+        "No. of buses of that type":  "30",
+        "No. of bus terminals":  "2",
+        "No. of bus stands":  "200",
+        "No. of bus stops":  "230"
+    },
+    {
+        "_id":  38,
+        "City Name":  "Lucknow",
+        "Type Of Bus (Ac / Non Ac)":  "Tata Big Buses",
+        "No. of buses of that type":  "90",
+        "No. of bus terminals":  "2",
+        "No. of bus stands":  "200",
+        "No. of bus stops":  "230"
+    },
+    {
+        "_id":  39,
+        "City Name":  "Lucknow",
+        "Type Of Bus (Ac / Non Ac)":  "Swaraj Mazda",
+        "No. of buses of that type":  "125",
+        "No. of bus terminals":  "2",
+        "No. of bus stands":  "200",
+        "No. of bus stops":  "230"
+    },
+    {
+        "_id":  40,
+        "City Name":  "Ludhiana",
+        "Type Of Bus (Ac / Non Ac)":  "AC",
+        "No. of buses of that type":  "5",
+        "No. of bus terminals":  "1",
+        "No. of bus stands":  "1",
+        "No. of bus stops":  "75"
+    },
+    {
+        "_id":  41,
+        "City Name":  "Ludhiana",
+        "Type Of Bus (Ac / Non Ac)":  "Non AC",
+        "No. of buses of that type":  "75",
+        "No. of bus terminals":  "1",
+        "No. of bus stands":  "1",
+        "No. of bus stops":  "75"
+    },
+    {
+        "_id":  42,
+        "City Name":  "Ludhiana",
+        "Type Of Bus (Ac / Non Ac)":  "Midi Buses",
+        "No. of buses of that type":  "40",
+        "No. of bus terminals":  "1",
+        "No. of bus stands":  "1",
+        "No. of bus stops":  "75"
+    },
+    {
+        "_id":  43,
+        "City Name":  "Madurai   City",
+        "Type Of Bus (Ac / Non Ac)":  "Non AC",
+        "No. of buses of that type":  "621",
+        "No. of bus terminals":  "391",
+        "No. of bus stands":  "6",
+        "No. of bus stops":  "884"
+    },
+    {
+        "_id":  44,
+        "City Name":  "Nagpur",
+        "Type Of Bus (Ac / Non Ac)":  "Non AC",
+        "No. of buses of that type":  "387",
+        "No. of bus terminals":  "1",
+        "No. of bus stands":  "NA",
+        "No. of bus stops":  "NA"
+    },
+    {
+        "_id":  45,
+        "City Name":  "Pimpri Chichwad",
+        "Type Of Bus (Ac / Non Ac)":  "AC",
+        "No. of buses of that type":  "10",
+        "No. of bus terminals":  "92",
+        "No. of bus stands":  "100",
+        "No. of bus stops":  "2622"
+    },
+    {
+        "_id":  46,
+        "City Name":  "Pimpri Chichwad",
+        "Type Of Bus (Ac / Non Ac)":  "Non AC",
+        "No. of buses of that type":  "2025",
+        "No. of bus terminals":  "92",
+        "No. of bus stands":  "100",
+        "No. of bus stops":  "2622"
+    },
+    {
+        "_id":  47,
+        "City Name":  "Pune",
+        "Type Of Bus (Ac / Non Ac)":  "AC",
+        "No. of buses of that type":  "10",
+        "No. of bus terminals":  "92",
+        "No. of bus stands":  "100",
+        "No. of bus stops":  "2622"
+    },
+    {
+        "_id":  48,
+        "City Name":  "Pune",
+        "Type Of Bus (Ac / Non Ac)":  "Non AC",
+        "No. of buses of that type":  "2025",
+        "No. of bus terminals":  "92",
+        "No. of bus stands":  "100",
+        "No. of bus stops":  "2622"
+    },
+    {
+        "_id":  49,
+        "City Name":  "Raipur",
+        "Type Of Bus (Ac / Non Ac)":  "AC",
+        "No. of buses of that type":  "30",
+        "No. of bus terminals":  "NA",
+        "No. of bus stands":  "NA",
+        "No. of bus stops":  "NA"
+    },
+    {
+        "_id":  50,
+        "City Name":  "Raipur",
+        "Type Of Bus (Ac / Non Ac)":  "Non AC",
+        "No. of buses of that type":  "127",
+        "No. of bus terminals":  "NA",
+        "No. of bus stands":  "NA",
+        "No. of bus stops":  "NA"
+    },
+    {
+        "_id":  51,
+        "City Name":  "Ranchi",
+        "Type Of Bus (Ac / Non Ac)":  "Non AC",
+        "No. of buses of that type":  "91",
+        "No. of bus terminals":  "35",
+        "No. of bus stands":  "3",
+        "No. of bus stops":  "63"
+    },
+    {
+        "_id":  52,
+        "City Name":  "Rourkela",
+        "Type Of Bus (Ac / Non Ac)":  "Non Ac",
+        "No. of buses of that type":  "Non AC",
+        "No. of bus terminals":  "2",
+        "No. of bus stands":  "2",
+        "No. of bus stops":  "30"
+    },
+    {
+        "_id":  53,
+        "City Name":  "Salem",
+        "Type Of Bus (Ac / Non Ac)":  null,
+        "No. of buses of that type":  "317",
+        "No. of bus terminals":  "6",
+        "No. of bus stands":  "2",
+        "No. of bus stops":  "96"
+    },
+    {
+        "_id":  54,
+        "City Name":  "Shillong",
+        "Type Of Bus (Ac / Non Ac)":  "Non AC",
+        "No. of buses of that type":  "206",
+        "No. of bus terminals":  "4",
+        "No. of bus stands":  "4",
+        "No. of bus stops":  "54"
+    },
+    {
+        "_id":  55,
+        "City Name":  "Shivamogga",
+        "Type Of Bus (Ac / Non Ac)":  "Non AC",
+        "No. of buses of that type":  "32",
+        "No. of bus terminals":  "1",
+        "No. of bus stands":  "1",
+        "No. of bus stops":  "0"
+    },
+    {
+        "_id":  56,
+        "City Name":  "Solapur",
+        "Type Of Bus (Ac / Non Ac)":  "AC",
+        "No. of buses of that type":  "10",
+        "No. of bus terminals":  "5",
+        "No. of bus stands":  "0",
+        "No. of bus stops":  "217"
+    },
+    {
+        "_id":  57,
+        "City Name":  "Solapur",
+        "Type Of Bus (Ac / Non Ac)":  "Non AC",
+        "No. of buses of that type":  "94",
+        "No. of bus terminals":  "5",
+        "No. of bus stands":  "0",
+        "No. of bus stops":  "217"
+    },
+    {
+        "_id":  58,
+        "City Name":  "Srinagar",
+        "Type Of Bus (Ac / Non Ac)":  "Non AC",
+        "No. of buses of that type":  "1536",
+        "No. of bus terminals":  "2",
+        "No. of bus stands":  "1",
+        "No. of bus stops":  "NA"
+    },
+    {
+        "_id":  59,
+        "City Name":  "Thane",
+        "Type Of Bus (Ac / Non Ac)":  "AC",
+        "No. of buses of that type":  "40",
+        "No. of bus terminals":  "20",
+        "No. of bus stands":  "403",
+        "No. of bus stops":  "1170"
+    },
+    {
+        "_id":  60,
+        "City Name":  "Thane",
+        "Type Of Bus (Ac / Non Ac)":  "Non AC",
+        "No. of buses of that type":  "427",
+        "No. of bus terminals":  "20",
+        "No. of bus stands":  "403",
+        "No. of bus stops":  "1170"
+    },
+    {
+        "_id":  61,
+        "City Name":  "Thanjavur",
+        "Type Of Bus (Ac / Non Ac)":  "Non AC",
+        "No. of buses of that type":  "152",
+        "No. of bus terminals":  "131",
+        "No. of bus stands":  "3",
+        "No. of bus stops":  "80"
+    },
+    {
+        "_id":  62,
+        "City Name":  "Thiruvananthapuram",
+        "Type Of Bus (Ac / Non Ac)":  "AC",
+        "No. of buses of that type":  "56",
+        "No. of bus terminals":  "4",
+        "No. of bus stands":  "13",
+        "No. of bus stops":  "1232"
+    },
+    {
+        "_id":  63,
+        "City Name":  "Thiruvananthapuram",
+        "Type Of Bus (Ac / Non Ac)":  "Non AC",
+        "No. of buses of that type":  "321",
+        "No. of bus terminals":  "4",
+        "No. of bus stands":  "13",
+        "No. of bus stops":  "1232"
+    },
+    {
+        "_id":  64,
+        "City Name":  "Tiruchirappalli",
+        "Type Of Bus (Ac / Non Ac)":  "Non AC",
+        "No. of buses of that type":  "3253",
+        "No. of bus terminals":  "2",
+        "No. of bus stands":  "2",
+        "No. of bus stops":  "274"
+    },
+    {
+        "_id":  65,
+        "City Name":  "Tirupati",
+        "Type Of Bus (Ac / Non Ac)":  "Non AC",
+        "No. of buses of that type":  "50",
+        "No. of bus terminals":  "3",
+        "No. of bus stands":  "3",
+        "No. of bus stops":  "55"
+    },
+    {
+        "_id":  66,
+        "City Name":  "Tiruppur",
+        "Type Of Bus (Ac / Non Ac)":  "Non AC",
+        "No. of buses of that type":  "316",
+        "No. of bus terminals":  "7",
+        "No. of bus stands":  "2",
+        "No. of bus stops":  "77"
+    },
+    {
+        "_id":  67,
+        "City Name":  "Tumakuru",
+        "Type Of Bus (Ac / Non Ac)":  "Non AC",
+        "No. of buses of that type":  "48",
+        "No. of bus terminals":  "1",
+        "No. of bus stands":  "1",
+        "No. of bus stops":  "142"
+    },
+    {
+        "_id":  68,
+        "City Name":  "Udaipur",
+        "Type Of Bus (Ac / Non Ac)":  "AC",
+        "No. of buses of that type":  "NA",
+        "No. of bus terminals":  "2",
+        "No. of bus stands":  "18",
+        "No. of bus stops":  "18"
+    },
+    {
+        "_id":  69,
+        "City Name":  "Vadodara",
+        "Type Of Bus (Ac / Non Ac)":  "Non AC",
+        "No. of buses of that type":  "130",
+        "No. of bus terminals":  "1",
+        "No. of bus stands":  "10",
+        "No. of bus stops":  "300"
+    },
+    {
+        "_id":  70,
+        "City Name":  "Vadodara",
+        "Type Of Bus (Ac / Non Ac)":  "AC",
+        "No. of buses of that type":  "20",
+        "No. of bus terminals":  "1",
+        "No. of bus stands":  "10",
+        "No. of bus stops":  "300"
+    },
+    {
+        "_id":  71,
+        "City Name":  "Visakhapatnam",
+        "Type Of Bus (Ac / Non Ac)":  "AC",
+        "No. of buses of that type":  "17",
+        "No. of bus terminals":  "126",
+        "No. of bus stands":  "9",
+        "No. of bus stops":  "294"
+    },
+    {
+        "_id":  72,
+        "City Name":  "Visakhapatnam",
+        "Type Of Bus (Ac / Non Ac)":  "CO",
+        "No. of buses of that type":  "296",
+        "No. of bus terminals":  "126",
+        "No. of bus stands":  "9",
+        "No. of bus stops":  "294"
+    },
+    {
+        "_id":  73,
+        "City Name":  "Visakhapatnam",
+        "Type Of Bus (Ac / Non Ac)":  "ME",
+        "No. of buses of that type":  "352",
+        "No. of bus terminals":  "126",
+        "No. of bus stands":  "9",
+        "No. of bus stops":  "294"
+    },
+    {
+        "_id":  74,
+        "City Name":  "Warangal",
+        "Type Of Bus (Ac / Non Ac)":  "Non AC",
+        "No. of buses of that type":  "110",
+        "No. of bus terminals":  "8",
+        "No. of bus stands":  "2",
+        "No. of bus stops":  "194"
+    }
+]

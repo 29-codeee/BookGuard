@@ -928,6 +928,11 @@ export async function getBookingStatus(bookingId: string) {
   );
 
   const h = holdRes.rows[0];
+  // A status read at/after the database-clock deadline finalizes expiry through
+  // the same locked engine transition used by Redis and the periodic sweeper.
+  if (h?.status === 'ACTIVE' && Number(h.seconds_remaining) <= 0) {
+    if (await expireHold(h.id)) return getBookingStatus(bookingId);
+  }
   return {
     bookingId: b.id,
     status: b.status,

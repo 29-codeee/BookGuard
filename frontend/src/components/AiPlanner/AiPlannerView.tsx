@@ -35,15 +35,18 @@ export const AiPlannerView: React.FC = () => {
   const [trip, setTrip] = useState<TripState | null>(null);
   const [input, setInput] = useState('');
   const [busy, setBusy] = useState(false);
+  const [restoring, setRestoring] = useState(true);
   const [suggestions, setSuggestions] = useState<string[]>(STARTER_PROMPTS);
   const [aiMode, setAiMode] = useState<'llm' | 'demo' | null>(null);
+  const [geminiUsage, setGeminiUsage] = useState<{ calls: number; callsWithUsage: number; inputTokens: number; outputTokens: number; totalTokens: number } | null>(null);
   const endRef = useRef<HTMLDivElement>(null);
 
   // Restore an existing session (text history + trip state) after a page reload.
   useEffect(() => {
     chatApi.status().then(s => setAiMode(s.aiMode)).catch(() => setAiMode(null));
+    chatApi.usage().then(result => setGeminiUsage(result.usage)).catch(() => undefined);
     const saved = storage.get();
-    if (!saved) return;
+    if (!saved) { setRestoring(false); return; }
     chatApi
       .session(saved)
       .then(s => {
@@ -53,7 +56,11 @@ export const AiPlannerView: React.FC = () => {
           setMessages([WELCOME, ...s.history.map(h => ({ id: newId(), role: h.role, text: h.text }) as UiMessage)]);
         }
       })
-      .catch(() => storage.clear());
+      .catch(() => {
+        storage.clear();
+        setMessages(prev => prev.length > 1 ? prev : [WELCOME, { id: newId(), role: 'assistant', text: 'Your previous planner session is no longer available. Your trip details may need to be entered again.' }]);
+      })
+      .finally(() => setRestoring(false));
   }, []);
 
   useEffect(() => {
@@ -67,6 +74,7 @@ export const AiPlannerView: React.FC = () => {
     setAiMode(prev => prev ?? turn.aiMode); // header shows configured mode; per-turn fallbacks show aiNotice
     if (turn.suggestions?.length) setSuggestions(turn.suggestions);
     setMessages(prev => [...prev, { id: newId(), role: 'assistant', text: turn.reply, turn }]);
+    chatApi.usage().then(result => setGeminiUsage(result.usage)).catch(() => undefined);
   };
 
   const fail = (err: unknown) => {
@@ -79,7 +87,7 @@ export const AiPlannerView: React.FC = () => {
 
   const send = async (text: string) => {
     const message = text.trim();
-    if (!message || busy) return;
+    if (!message || busy || restoring) return;
     setInput('');
     setMessages(prev => [...prev, { id: newId(), role: 'user', text: message }]);
     setBusy(true);
@@ -93,7 +101,7 @@ export const AiPlannerView: React.FC = () => {
   };
 
   const act = async (action: PlannerAction, target: PlannerTarget, itemId?: string) => {
-    if (!sessionId || busy) return;
+    if (!sessionId || busy || restoring) return;
     const label = { select: 'Select', book: 'Book', remove: 'Remove', change: 'Change', cheaper: 'Cheaper options', add: 'Add', show: 'Show' }[action];
     setMessages(prev => [...prev, { id: newId(), role: 'user', text: `${label} ${target}` }]);
     setBusy(true);
@@ -142,13 +150,20 @@ export const AiPlannerView: React.FC = () => {
             </span>
           )}
         </div>
+        <details style={{ padding: '0 18px 10px', color: 'var(--text-muted)', fontSize: 12 }}>
+          <summary style={{ cursor: 'pointer' }}>Developer usage</summary>
+          <div style={{ paddingTop: 8 }}>
+            Gemini calls: {geminiUsage?.calls ?? '—'} · input tokens: {geminiUsage?.inputTokens ?? '—'} · output tokens: {geminiUsage?.outputTokens ?? '—'} · total: {geminiUsage?.totalTokens ?? '—'}
+            <div>Usage counts come from Gemini responses when available; totals reset when the backend restarts.</div>
+          </div>
+        </details>
 
         <div className="planner-messages" aria-live="polite">
           {messages.map(m => (
             <div key={m.id} className={`msg ${m.role === 'user' ? 'user' : m.role === 'error' ? 'error' : 'assistant'}`}>
               <div className="msg-bubble">{m.text}</div>
               {m.turn?.aiNotice && <div className="msg-notice">{m.turn.aiNotice}</div>}
-              {m.turn && liveTrip && <TurnCards turn={m.turn} trip={liveTrip} busy={busy} onAction={act} />}
+              {m.turn && liveTrip && <TurnCards turn={m.turn} trip={liveTrip} busy={busy || restoring} onAction={act} />}
             </div>
           ))}
           {busy && (
@@ -162,7 +177,7 @@ export const AiPlannerView: React.FC = () => {
         <div className="planner-input">
           <div className="quick-prompts">
             {suggestions.map(s => (
-              <button key={s} className="chip" disabled={busy} onClick={() => send(s)}>{s}</button>
+              <button key={s} className="chip" disabled={busy || restoring} onClick={() => send(s)}>{s}</button>
             ))}
           </div>
           <form
@@ -175,18 +190,19 @@ export const AiPlannerView: React.FC = () => {
             <input
               value={input}
               onChange={e => setInput(e.target.value)}
-              placeholder='Try "Plan a 3-day Goa trip from Bengaluru for 3 people"'
+              placeholder={restoring ? 'Restoring your trip…' : 'Try "Plan a 3-day Goa trip from Bengaluru for 3 people"'}
               maxLength={1000}
               aria-label="Message"
+              disabled={restoring}
             />
-            <button className="btn btn-primary" type="submit" disabled={busy || !input.trim()} aria-label="Send">
+            <button className="btn btn-primary" type="submit" disabled={busy || restoring || !input.trim()} aria-label="Send">
               <Send size={16} /> Send
             </button>
           </form>
         </div>
       </section>
 
-      <TripPlanPanel trip={trip} onReset={reset} busy={busy} />
+      <TripPlanPanel trip={trip} onReset={reset} busy={busy || restoring} />
     </div>
   );
 };
