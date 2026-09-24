@@ -216,20 +216,22 @@ export default async function bookingRoutes(fastify: FastifyInstance, _opts: Fas
             tx
           });
 
+          // Mark hold RELEASED (locked before inventory to match the global
+          // bookings -> holds -> inventory lock order used everywhere holds
+          // and inventory are touched in the same transaction; see holdManager.expireHold)
+          if (booking.hold_id) {
+            await tx.query(`UPDATE holds SET status = 'RELEASED' WHERE id = $1`, [booking.hold_id]);
+          }
+
           // Restock inventory
           await tx.query(
-            `UPDATE inventory 
-             SET available_quantity = available_quantity + $1, 
+            `UPDATE inventory
+             SET available_quantity = available_quantity + $1,
                  held_quantity = held_quantity - $1,
                  updated_at = CURRENT_TIMESTAMP
              WHERE id = $2`,
             [booking.quantity, booking.inventory_id]
           );
-
-          // Mark hold RELEASED
-          if (booking.hold_id) {
-            await tx.query(`UPDATE holds SET status = 'RELEASED' WHERE id = $1`, [booking.hold_id]);
-          }
         });
 
         // Clean up Redis hold key
@@ -276,20 +278,22 @@ export default async function bookingRoutes(fastify: FastifyInstance, _opts: Fas
           tx
         });
 
-        // 2. Move inventory: held -> confirmed
+        // 2. Mark hold CONFIRMED (locked before inventory: global lock order is
+        // bookings -> holds -> inventory, matching holdManager.expireHold, so a
+        // concurrent expiry on the same hold can never deadlock against this transaction)
+        if (booking.hold_id) {
+          await tx.query(`UPDATE holds SET status = 'CONFIRMED' WHERE id = $1`, [booking.hold_id]);
+        }
+
+        // 3. Move inventory: held -> confirmed
         await tx.query(
-          `UPDATE inventory 
-           SET held_quantity = held_quantity - $1, 
+          `UPDATE inventory
+           SET held_quantity = held_quantity - $1,
                confirmed_quantity = confirmed_quantity + $1,
                updated_at = CURRENT_TIMESTAMP
            WHERE id = $2`,
           [booking.quantity, booking.inventory_id]
         );
-
-        // 3. Mark hold CONFIRMED
-        if (booking.hold_id) {
-          await tx.query(`UPDATE holds SET status = 'CONFIRMED' WHERE id = $1`, [booking.hold_id]);
-        }
 
         // 4. Update booking items
         await tx.query(

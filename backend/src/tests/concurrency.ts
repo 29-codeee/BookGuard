@@ -63,13 +63,15 @@ async function runConcurrencyProof() {
   const row = finalRes.rows[0];
   const oversold = row.available_quantity < 0 ? Math.abs(row.available_quantity) : 0;
   const invariantCheck = (row.available_quantity + row.held_quantity + row.confirmed_quantity === row.total_quantity);
+  const initialAvailable = initRes.rows[0].available_quantity;
+  const grantedMatchesSupply = granted === initialAvailable;
 
   console.log('================================================================');
   console.log('                    FINAL VERIFIED AUDIT PROOF                  ');
   console.log('================================================================');
   console.log(`Virtual Users Attempted:   ${totalUsers}`);
   console.log(`Initial Available Seats:   ${initRes.rows[0].available_quantity}`);
-  console.log(`Holds Successfully Granted:${granted}`);
+  console.log(`Holds Successfully Granted:${granted} (matches initial supply of ${initialAvailable}: ${grantedMatchesSupply ? 'YES' : 'NO'})`);
   console.log(`Excess Requests Rejected:  ${rejected}`);
   console.log(`Oversold Seats:            ${oversold}  <--- [CRITICAL: MUST BE 0]`);
   console.log(`Duplicate Bookings:        0  <--- [CRITICAL: MUST BE 0]`);
@@ -78,11 +80,11 @@ async function runConcurrencyProof() {
   console.log(`Total Execution Time:      ${duration}ms (${Math.round(totalUsers / (duration / 1000))} req/sec)`);
   console.log('================================================================\n');
 
-  if (oversold === 0 && granted === 3 && invariantCheck) {
+  if (oversold === 0 && grantedMatchesSupply && invariantCheck) {
     console.log('SUCCESS: BookGuard successfully prevented overselling under high concurrency!');
     process.exit(0);
   } else {
-    console.error('FAILURE: Invariant violated!');
+    console.error(`FAILURE: oversold=${oversold} grantedMatchesSupply=${grantedMatchesSupply} invariantCheck=${invariantCheck}`);
     process.exit(1);
   }
 }

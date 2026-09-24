@@ -128,9 +128,44 @@ export async function createHold(params: CreateHoldParams): Promise<HoldResult> 
   return result;
 }
 
+interface ExpiredHoldInfo {
+  bookingId: string;
+  inventoryId: string;
+  quantity: number;
+}
+
 export async function expireHold(holdId: string): Promise<boolean> {
-  return await withTransaction(async (tx: TransactionClient) => {
-    // 1. Lock hold row
+  // IMPORTANT: nothing in this transaction callback may call the top-level
+  // query()/broadcastInventoryUpdate() (as opposed to tx.query()) — PGlite is
+  // a single-connection embedded engine, so issuing a query outside the open
+  // transaction's own connection while that transaction is still uncommitted
+  // deadlocks the whole process forever. Collect what a post-commit broadcast
+  // needs here, and only actually broadcast after withTransaction returns.
+  const expired = await withTransaction(async (tx: TransactionClient): Promise<ExpiredHoldInfo | null> => {
+    // 0. Unlocked lookup to discover the owning booking, so we can take the
+    // bookings lock first below. This row can be stale by the time we act on
+    // it, but the ACTIVE re-check under lock (step 2) is what actually decides.
+    const lookupRes = await tx.query<{ booking_id: string }>(
+      `SELECT booking_id FROM holds WHERE id = $1`,
+      [holdId]
+    );
+    if (lookupRes.rowCount === 0) return null;
+    const bookingId = lookupRes.rows[0].booking_id;
+
+    // 1. Lock the booking row FIRST. Global lock order across every
+    // transaction that touches bookings + holds + inventory together is
+    // bookings -> holds -> inventory (see bookings.ts /confirm). Locking
+    // holds before bookings here would let this transaction and a
+    // concurrent /confirm transaction wait on each other in opposite
+    // orders -> deadlock under real concurrent Postgres connections.
+    const bookingRes = await tx.query<{ id: string; status: string }>(
+      `SELECT id, status FROM bookings WHERE id = $1 FOR UPDATE`,
+      [bookingId]
+    );
+    if (bookingRes.rowCount === 0) return null;
+
+    // 2. Lock the hold row and re-check it's still ACTIVE (single-winner
+    // guard against a concurrent confirm/release that already resolved it).
     const holdRes = await tx.query<{
       id: string;
       booking_id: string;
@@ -142,34 +177,33 @@ export async function expireHold(holdId: string): Promise<boolean> {
       [holdId]
     );
 
-    if (holdRes.rowCount === 0) return false;
+    if (holdRes.rowCount === 0) return null;
     const hold = holdRes.rows[0];
 
-    // Single-winner check: only expire if currently ACTIVE
     if (hold.status !== 'ACTIVE') {
-      return false; // Already confirmed, expired, or released
+      return null; // Already confirmed, expired, or released
     }
 
-    // 2. Lock and restock inventory
+    // 3. Restock inventory (locked last in the global order)
     await tx.query(
-      `UPDATE inventory 
-       SET available_quantity = available_quantity + $1, 
+      `UPDATE inventory
+       SET available_quantity = available_quantity + $1,
            held_quantity = held_quantity - $1,
            updated_at = CURRENT_TIMESTAMP
        WHERE id = $2`,
       [hold.quantity, hold.inventory_id]
     );
 
-    // 3. Mark hold EXPIRED
+    // 4. Mark hold EXPIRED
     await tx.query(`UPDATE holds SET status = 'EXPIRED' WHERE id = $1`, [holdId]);
 
-    // 4. Transition booking to EXPIRED
+    // 5. Transition booking to EXPIRED (row already locked in step 1)
     await tx.query(
       `UPDATE bookings SET status = 'EXPIRED', updated_at = CURRENT_TIMESTAMP WHERE id = $1`,
       [hold.booking_id]
     );
 
-    // 5. Audit event
+    // 6. Audit event
     await tx.query(
       `INSERT INTO booking_events (id, booking_id, from_state, to_state, reason, evidence, operator)
        VALUES ($1, $2, 'HELD', 'EXPIRED', $3, $4, 'HOLD_SWEEPER')`,
@@ -181,28 +215,32 @@ export async function expireHold(holdId: string): Promise<boolean> {
       ]
     );
 
-    console.log(`[HoldManager] Hold ${holdId} expired. Booking ${hold.booking_id} -> EXPIRED. Restocked ${hold.quantity} seat(s).`);
-
-    // Broadcast
-    eventHub.broadcast('booking_state_changed', {
-      bookingId: hold.booking_id,
-      fromState: 'HELD',
-      toState: 'EXPIRED',
-      reason: 'Hold TTL expired; seat released',
-      operator: 'HOLD_SWEEPER',
-      timestamp: new Date().toISOString()
-    });
-
-    eventHub.broadcast('hold_expired', {
-      holdId,
-      bookingId: hold.booking_id,
-      inventoryId: hold.inventory_id
-    });
-
-    await broadcastInventoryUpdate(hold.inventory_id);
-
-    return true;
+    return { bookingId: hold.booking_id, inventoryId: hold.inventory_id, quantity: hold.quantity };
   });
+
+  if (!expired) return false;
+
+  console.log(`[HoldManager] Hold ${holdId} expired. Booking ${expired.bookingId} -> EXPIRED. Restocked ${expired.quantity} seat(s).`);
+
+  // Broadcast only after the transaction has committed.
+  eventHub.broadcast('booking_state_changed', {
+    bookingId: expired.bookingId,
+    fromState: 'HELD',
+    toState: 'EXPIRED',
+    reason: 'Hold TTL expired; seat released',
+    operator: 'HOLD_SWEEPER',
+    timestamp: new Date().toISOString()
+  });
+
+  eventHub.broadcast('hold_expired', {
+    holdId,
+    bookingId: expired.bookingId,
+    inventoryId: expired.inventoryId
+  });
+
+  await broadcastInventoryUpdate(expired.inventoryId);
+
+  return true;
 }
 
 export async function broadcastInventoryUpdate(inventoryId?: string): Promise<void> {
