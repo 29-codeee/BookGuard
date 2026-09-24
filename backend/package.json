@@ -12,6 +12,7 @@
     "start:mock": "tsx src/providers/mockServer.ts"
   },
   "dependencies": {
+    "@anthropic-ai/sdk": "^0.128.0",
     "@electric-sql/pglite": "^0.2.14",
     "@fastify/cors": "^10.0.1",
     "dotenv": "^16.4.7",

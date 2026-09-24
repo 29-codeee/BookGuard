@@ -135,6 +135,14 @@ Visit **`http://localhost:3000/`** in your browser.
 
 ## 🖥️ User Guide: Navigating the Platform
 
+### 0. 🤖 AI Planner (chatbot)
+Type a request such as *"I want to visit Goa for 3 days with 2 friends"*. The planner asks only for missing details, builds a day-by-day itinerary, and suggests stays, transport and places. You can then adjust it by chatting ("show cheaper hotels", "add a train", "make it 4 days") or with the card buttons (Select / Book / Change / Remove). **Book** creates a demo booking request for the booking modules; items from live inventory are reserved through the booking engine. The **Current Trip Plan** panel updates as the conversation changes the plan.
+
+- **AI mode:** put `ANTHROPIC_API_KEY` in `backend/.env` (see `backend/.env.example`). Keys stay on the server.
+- **Demo mode:** with no key, an offline extractor keeps the chatbot fully working with sample data.
+
+Details, API formats and teammate integration: **[docs/AI_TRAVEL_PLANNER.md](docs/AI_TRAVEL_PLANNER.md)**.
+
 ### 1. 🌴 Explore & Book (`/`)
 - **Category Filter Tabs**: Switch seamlessly between **All Modes**, **Flights**, **IRCTC Trains**, **RedBus Buses**, **Hotels & Stays**, and **Holiday Bundles**.
 - **Search Console**: Select origin and destination cities, travel date, and passenger count.
@@ -206,6 +214,12 @@ npm run test:concurrency     # 500 virtual users vs limited seats
 - `POST /api/trip/disruption-simulate` — Simulate airline disruption for a multi-leg itinerary.
 - `POST /api/trip/resolve-disruption` — Accept alternate flight or trigger partner compensation.
 - `GET /api/trip/audit-ledger` — Retrieve financial compensation audit trail.
+
+### AI Travel Planner (Chatbot)
+- `POST /api/chat`: `{ sessionId?, message }` → reply, updated trip state, recommendations, booking request.
+- `POST /api/chat/action`: card buttons (`select | book | remove | change | cheaper | add`).
+- `POST /api/travel-plan`, `GET /api/recommendations`: structured planning without chat.
+- `POST /api/booking-request`, `GET /api/booking-requests`, `PATCH /api/booking-requests/:id`: hand-off to hotel / transport / payment modules.
 
 ### Real-Time Streams
 - `GET /api/events` — Server-Sent Events (SSE) stream for live inventory updates, state transitions, and hold expiries.
