@@ -69,7 +69,7 @@ async function runConcurrencyProof() {
   console.log('================================================================');
   console.log(`Virtual Users Attempted:   ${totalUsers}`);
   console.log(`Initial Available Seats:   ${initRes.rows[0].available_quantity}`);
-  console.log(`Holds Successfully Granted:${granted}`);
+  console.log(`Holds Successfully Granted:${granted} (matches initial supply of ${initRes.rows[0].available_quantity}: ${granted === initRes.rows[0].available_quantity ? 'YES' : 'NO'})`);
   console.log(`Excess Requests Rejected:  ${rejected}`);
   console.log(`Oversold Seats:            ${oversold}  <--- [CRITICAL: MUST BE 0]`);
   console.log(`Duplicate Bookings:        0  <--- [CRITICAL: MUST BE 0]`);
