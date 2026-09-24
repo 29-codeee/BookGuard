@@ -32,9 +32,10 @@ import {
   getBooking
 } from './services/api';
 import { sseManager } from './services/sse';
+import { AiPlannerView } from './components/AiPlanner/AiPlannerView';
 
 export const App: React.FC = () => {
-  const [currentView, setCurrentView] = useState<'trip_guide' | 'my_trips' | 'sentinel' | 'plugin_sdk' | 'ops' | 'demo'>('trip_guide');
+  const [currentView, setCurrentView] = useState<'trip_guide' | 'ai_planner' | 'my_trips' | 'sentinel' | 'plugin_sdk' | 'ops' | 'demo'>('trip_guide');
   const [lang, setLang] = useState<Language>('en');
 
   // Inventory & System State
@@ -331,6 +332,9 @@ export const App: React.FC = () => {
         
         {/* Real-Time Live Activity Ticker Feed */}
         <LiveActivityTicker />
+
+        {/* AI TRAVEL PLANNER CHATBOT */}
+        {currentView === 'ai_planner' && <AiPlannerView />}
 
         {/* VIEW 1: UNIFIED MULTI-MODAL TRIP GUIDE & PLANNER */}
         {currentView === 'trip_guide' && (

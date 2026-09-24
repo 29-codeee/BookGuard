@@ -3,8 +3,8 @@ import { ShieldCheck, Plane, LayoutDashboard, Cpu, Globe, Check } from 'lucide-r
 import { Language, translate } from '../i18n';
 
 interface NavbarProps {
-  currentView: 'trip_guide' | 'my_trips' | 'sentinel' | 'plugin_sdk' | 'ops' | 'demo';
-  setCurrentView: (view: 'trip_guide' | 'my_trips' | 'sentinel' | 'plugin_sdk' | 'ops' | 'demo') => void;
+  currentView: 'trip_guide' | 'ai_planner' | 'my_trips' | 'sentinel' | 'plugin_sdk' | 'ops' | 'demo';
+  setCurrentView: (view: 'trip_guide' | 'ai_planner' | 'my_trips' | 'sentinel' | 'plugin_sdk' | 'ops' | 'demo') => void;
   lang: Language;
   setLang: (lang: Language) => void;
   oversoldCount: number;
@@ -83,7 +83,9 @@ export const Navbar: React.FC<NavbarProps> = ({
           padding: 4,
           borderRadius: 12,
           border: '1px solid var(--border)',
-          gap: 4
+          gap: 4,
+          flexWrap: 'wrap',
+          maxWidth: '100%'
         }}>
           <button
             id="nav-trips"
@@ -105,6 +107,28 @@ export const Navbar: React.FC<NavbarProps> = ({
           >
             <span>🌴</span>
             <span>Explore & Book</span>
+          </button>
+
+          <button
+            id="nav-ai-planner"
+            onClick={() => setCurrentView('ai_planner')}
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: 6,
+              padding: '8px 14px',
+              borderRadius: 8,
+              border: 'none',
+              background: currentView === 'ai_planner' ? 'linear-gradient(135deg, #0ea5e9, #2563eb)' : 'transparent',
+              color: currentView === 'ai_planner' ? '#FFFFFF' : '#94A3B8',
+              fontWeight: 700,
+              fontSize: '0.84rem',
+              cursor: 'pointer',
+              transition: 'all 0.18s'
+            }}
+          >
+            <span>🤖</span>
+            <span>AI Planner</span>
           </button>
 
           <button

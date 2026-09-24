@@ -7,6 +7,8 @@ DROP VIEW IF EXISTS v_reconciliation_context CASCADE;
 DROP VIEW IF EXISTS v_active_holds CASCADE;
 DROP VIEW IF EXISTS v_inventory CASCADE;
 
+DROP TABLE IF EXISTS booking_requests CASCADE;
+DROP TABLE IF EXISTS booking_preparations CASCADE;
 DROP TABLE IF EXISTS ai_decisions CASCADE;
 DROP TABLE IF EXISTS booking_events CASCADE;
 DROP TABLE IF EXISTS booking_items CASCADE;
@@ -53,15 +55,18 @@ CREATE TABLE inventory (
 );
 
 -- 3. Bookings
--- States: PENDING, HELD, RECONCILING, CONFIRMED, FAILED, EXPIRED, CANCELLED
+-- States: PENDING, HELD, RECONCILING, CONFIRMED, FAILED, EXPIRED, RELEASED, CANCELLED
 CREATE TABLE bookings (
     id VARCHAR(64) PRIMARY KEY,
     traveller_id VARCHAR(64) NOT NULL REFERENCES travellers(id),
-    status VARCHAR(32) NOT NULL CHECK (
-        status IN ('PENDING', 'HELD', 'RECONCILING', 'CONFIRMED', 'FAILED', 'EXPIRED', 'CANCELLED')
+    status VARCHAR(32) NOT NULL CONSTRAINT bookings_status_check CHECK (
+        status IN ('PENDING', 'HELD', 'RECONCILING', 'CONFIRMED', 'FAILED', 'EXPIRED', 'RELEASED', 'CANCELLED')
     ),
     total_amount NUMERIC(10, 2) NOT NULL,
     currency VARCHAR(8) DEFAULT 'INR' NOT NULL,
+    booking_mode VARCHAR(16) DEFAULT 'NORMAL' NOT NULL, -- 'NORMAL' or 'TATKAL' / 'HIGH_DEMAND'
+    confirm_token VARCHAR(64),                          -- set while a confirm attempt is talking to the provider
+    confirm_started_at TIMESTAMP WITH TIME ZONE,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP NOT NULL,
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP NOT NULL
 );
@@ -73,18 +78,22 @@ CREATE TABLE holds (
     inventory_id VARCHAR(64) NOT NULL REFERENCES inventory(id),
     quantity INT NOT NULL DEFAULT 1 CHECK (quantity > 0),
     expires_at TIMESTAMP WITH TIME ZONE NOT NULL,
-    status VARCHAR(32) NOT NULL DEFAULT 'ACTIVE' CHECK (status IN ('ACTIVE', 'CONFIRMED', 'EXPIRED', 'RELEASED')),
+    status VARCHAR(32) NOT NULL DEFAULT 'ACTIVE' CONSTRAINT holds_status_check
+        CHECK (status IN ('ACTIVE', 'CONFIRMED', 'EXPIRED', 'RELEASED', 'CANCELLED')),
     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP NOT NULL
 );
 
 -- 5. Idempotency Keys
 CREATE TABLE idempotency_keys (
     key VARCHAR(128) PRIMARY KEY,
+    scope VARCHAR(32) DEFAULT 'confirm' NOT NULL,       -- 'hold', 'confirm', 'prepared_execute'
     request_hash VARCHAR(128) NOT NULL,
     booking_id VARCHAR(64) REFERENCES bookings(id),
+    state VARCHAR(16) DEFAULT 'COMPLETED' NOT NULL CHECK (state IN ('IN_PROGRESS', 'COMPLETED')),
     status_code INT NOT NULL,
     response_body JSONB NOT NULL,
-    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP NOT NULL
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP NOT NULL,
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP NOT NULL
 );
 
 -- 6. Booking Items (Supports multi-leg: Flight + Hotel)
@@ -93,8 +102,8 @@ CREATE TABLE booking_items (
     booking_id VARCHAR(64) NOT NULL REFERENCES bookings(id) ON DELETE CASCADE,
     inventory_id VARCHAR(64) NOT NULL REFERENCES inventory(id),
     item_type VARCHAR(32) NOT NULL, -- 'flight' or 'hotel'
-    status VARCHAR(32) NOT NULL DEFAULT 'HELD' CHECK (
-        status IN ('HELD', 'CONFIRMED', 'FAILED', 'COMPENSATED', 'CANCELLED')
+    status VARCHAR(32) NOT NULL DEFAULT 'HELD' CONSTRAINT booking_items_status_check CHECK (
+        status IN ('HELD', 'CONFIRMED', 'FAILED', 'COMPENSATED', 'CANCELLED', 'EXPIRED', 'RELEASED')
     ),
     price NUMERIC(10, 2) NOT NULL,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP NOT NULL
@@ -137,6 +146,54 @@ CREATE TABLE ai_decisions (
     applied_at TIMESTAMP WITH TIME ZONE,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP NOT NULL
 );
+
+-- 10. Booking Preparations (High-Demand / Tatkal prepared booking flow)
+-- DRAFT -> READY -> APPROVED -> SUBMITTED (hold created via the normal engine)
+--                            \-> CANCELLED
+CREATE TABLE booking_preparations (
+    id VARCHAR(64) PRIMARY KEY,
+    traveller_id VARCHAR(64) NOT NULL REFERENCES travellers(id),
+    mode VARCHAR(16) NOT NULL DEFAULT 'TATKAL' CHECK (mode IN ('TATKAL', 'HIGH_DEMAND')),
+    status VARCHAR(16) NOT NULL DEFAULT 'DRAFT' CHECK (
+        status IN ('DRAFT', 'READY', 'APPROVED', 'SUBMITTED', 'CANCELLED')
+    ),
+    trip JSONB,
+    passengers JSONB,
+    inventory_id VARCHAR(64) REFERENCES inventory(id),
+    payment_preference JSONB,
+    window_opens_at TIMESTAMP WITH TIME ZONE,
+    approved_at TIMESTAMP WITH TIME ZONE,
+    booking_id VARCHAR(64) REFERENCES bookings(id) ON DELETE SET NULL,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP NOT NULL,
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP NOT NULL
+);
+
+-- 11. Chatbot booking requests (hand-off from the AI Travel Planner to booking modules)
+-- RECEIVED -> HELD (reserved via the BookGuard engine) | PENDING_MODULE (awaiting an external module) | REJECTED
+-- Modules then report CONFIRMED / FAILED / CANCELLED via PATCH /api/booking-requests/:id
+CREATE TABLE IF NOT EXISTS booking_requests (
+    id VARCHAR(64) PRIMARY KEY,
+    session_id VARCHAR(64),
+    type VARCHAR(32) NOT NULL CHECK (type IN ('hotel_booking', 'transport_booking')),
+    payload JSONB NOT NULL,
+    status VARCHAR(32) NOT NULL DEFAULT 'RECEIVED' CHECK (
+        status IN ('RECEIVED', 'HELD', 'PENDING_MODULE', 'REJECTED', 'CONFIRMED', 'FAILED', 'CANCELLED')
+    ),
+    module VARCHAR(64),
+    booking_id VARCHAR(64) REFERENCES bookings(id) ON DELETE SET NULL,
+    external_ref VARCHAR(128),
+    message TEXT,
+    dedupe_key VARCHAR(128) UNIQUE,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP NOT NULL,
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP NOT NULL
+);
+CREATE INDEX IF NOT EXISTS ix_booking_requests_status ON booking_requests (status, type);
+
+-- A booking can own at most one live (ACTIVE or CONFIRMED) hold.
+CREATE UNIQUE INDEX ux_holds_one_live_per_booking ON holds (booking_id) WHERE status IN ('ACTIVE', 'CONFIRMED');
+CREATE INDEX ix_holds_active_expiry ON holds (expires_at) WHERE status = 'ACTIVE';
+CREATE INDEX ix_holds_booking ON holds (booking_id);
+CREATE INDEX ix_booking_items_booking ON booking_items (booking_id);
 
 -- Views for safe read-only queries
 CREATE VIEW v_inventory AS

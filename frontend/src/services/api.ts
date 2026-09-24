@@ -10,10 +10,19 @@ export async function fetchInvariants() {
   return await res.json();
 }
 
-export async function createHold(inventoryId: string, quantity = 1, ttlSeconds = 600, travellerId = 'traveller_priya') {
+export async function createHold(
+  inventoryId: string,
+  quantity = 1,
+  ttlSeconds = 600,
+  travellerId = 'traveller_priya',
+  idempotencyKey?: string
+) {
   const res = await fetch(`${BASE_URL}/api/bookings/hold`, {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
+    headers: {
+      'Content-Type': 'application/json',
+      ...(idempotencyKey ? { 'Idempotency-Key': idempotencyKey } : {})
+    },
     body: JSON.stringify({ travellerId, inventoryId, quantity, ttlSeconds })
   });
   const data = await res.json();
@@ -183,3 +192,52 @@ export async function cancelBooking(bookingId: string, reason?: string) {
 }
 
 
+
+// ---- Booking engine: status / release / inventory detail ----
+export async function getBookingStatus(bookingId: string) {
+  const res = await fetch(`${BASE_URL}/api/bookings/${bookingId}/status`);
+  return await res.json();
+}
+
+export async function releaseHold(bookingId: string, reason?: string) {
+  const res = await fetch(`${BASE_URL}/api/bookings/${bookingId}/release`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ reason })
+  });
+  return await res.json();
+}
+
+export async function fetchInventoryItem(inventoryId: string) {
+  const res = await fetch(`${BASE_URL}/api/inventory/${inventoryId}`);
+  return await res.json();
+}
+
+// ---- High-Demand / Tatkal prepared booking ----
+async function prepRequest(method: 'GET' | 'POST' | 'PUT', path: string, body?: unknown) {
+  const res = await fetch(`${BASE_URL}/api/prepared-bookings${path}`, {
+    method,
+    headers: body !== undefined ? { 'Content-Type': 'application/json' } : undefined,
+    body: body !== undefined ? JSON.stringify(body) : undefined
+  });
+  const data = await res.json();
+  return { status: res.status, ok: res.ok, data };
+}
+
+export const preparedBookings = {
+  create: (travellerId = 'traveller_priya', mode: 'TATKAL' | 'HIGH_DEMAND' = 'TATKAL', windowOpensAt?: string) =>
+    prepRequest('POST', '', { travellerId, mode, windowOpensAt }),
+  get: (id: string) => prepRequest('GET', `/${id}`),
+  list: (travellerId = 'traveller_priya') => prepRequest('GET', `?travellerId=${encodeURIComponent(travellerId)}`),
+  setTrip: (id: string, trip: { origin: string; destination: string; travelDate: string; travelClass?: string }) =>
+    prepRequest('PUT', `/${id}/trip`, trip),
+  setPassengers: (id: string, passengers: Array<{ name: string; age: number; gender?: string; berthPreference?: string }>) =>
+    prepRequest('PUT', `/${id}/passengers`, { passengers }),
+  selectInventory: (id: string, inventoryId: string) => prepRequest('PUT', `/${id}/selection`, { inventoryId }),
+  setPayment: (id: string, method: 'UPI' | 'CARD' | 'NETBANKING' | 'WALLET', label?: string) =>
+    prepRequest('PUT', `/${id}/payment`, { method, label }),
+  setWindow: (id: string, windowOpensAt: string | null) => prepRequest('PUT', `/${id}/window`, { windowOpensAt }),
+  approve: (id: string) => prepRequest('POST', `/${id}/approve`, { userApproved: true }),
+  execute: (id: string, ttlSeconds?: number) => prepRequest('POST', `/${id}/execute`, { ttlSeconds }),
+  cancel: (id: string) => prepRequest('POST', `/${id}/cancel`, {})
+};

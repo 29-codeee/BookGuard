@@ -49,6 +49,9 @@ services:
       REDIS_URL: redis://redis:6379
       MOCK_PROVIDER_URL: http://mock-provider:3002
       CORS_ORIGIN: "*"
+      # AI Travel Planner: set in your shell or a root .env; empty = offline demo mode
+      ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY:-}
+      CHAT_AI_MODEL: ${CHAT_AI_MODEL:-claude-opus-5}
     depends_on:
       postgres:
         condition: service_healthy

@@ -7,10 +7,12 @@
     "dev": "tsx watch src/server.ts",
     "build": "tsc",
     "start": "node dist/server.js",
+    "test": "node --import tsx --test --test-force-exit --test-concurrency=1 src/tests/*.test.ts",
     "test:concurrency": "tsx src/tests/concurrency.ts",
     "start:mock": "tsx src/providers/mockServer.ts"
   },
   "dependencies": {
+    "@anthropic-ai/sdk": "^0.128.0",
     "@electric-sql/pglite": "^0.2.14",
     "@fastify/cors": "^10.0.1",
     "dotenv": "^16.4.7",

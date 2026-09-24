@@ -11,6 +11,8 @@ import compensationRoutes from './routes/compensation.js';
 import demoRoutes from './routes/demo.js';
 import sseRoutes from './routes/sse.js';
 import pluginSdkRoutes from './routes/pluginSdk.js';
+import preparedBookingRoutes from './routes/preparedBookings.js';
+import chatRoutes from './routes/chat.js';
 
 export async function buildApp() {
   const fastify = Fastify({
@@ -22,7 +24,7 @@ export async function buildApp() {
   // Enable CORS
   await fastify.register(cors, {
     origin: true,
-    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+    methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
     credentials: true
   });
 
@@ -39,6 +41,8 @@ export async function buildApp() {
   await fastify.register(demoRoutes);
   await fastify.register(sseRoutes);
   await fastify.register(pluginSdkRoutes);
+  await fastify.register(preparedBookingRoutes);
+  await fastify.register(chatRoutes);
 
   return fastify;
 }
