@@ -1,0 +1,12 @@
+{
+  "success": true,
+  "transactionId": "0c25eb26-dbad-4151-8a9f-d4608b206d03",
+  "state": "COMPLETED",
+  "failedService": null,
+  "matchCriteria": null,
+  "alternatives": [],
+  "alternativesSupported": false,
+  "replacementSupported": false,
+  "mode": "NOT_APPLICABLE",
+  "reason": "No customer resolution is needed for state COMPLETED."
+}

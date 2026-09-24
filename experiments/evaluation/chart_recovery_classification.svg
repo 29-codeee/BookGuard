@@ -1,0 +1,74 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 400" width="800" height="400" font-family="system-ui, -apple-system, sans-serif">
+  <rect width="100%" height="100%" fill="#ffffff" />
+  <text x="180" y="32" font-size="16" font-weight="700" fill="#0f172a">Recovery Intelligence Decision Grounding (E14)</text>
+  <text x="180" y="48" font-size="12" fill="#64748b">Rule-based recommendation category, severity, and deterministic confidence score</text>
+
+  <!-- Legend -->
+  <rect x="380" y="20" width="10" height="10" fill="#3b82f6" rx="2" />
+  <text x="395" y="29" font-size="11" fill="#334155">AUTOMATIC_RETRY</text>
+  <rect x="520" y="20" width="10" height="10" fill="#8b5cf6" rx="2" />
+  <text x="535" y="29" font-size="11" fill="#334155">ALTERNATIVE_PROVIDER</text>
+  <rect x="670" y="20" width="10" height="10" fill="#f97316" rx="2" />
+  <text x="685" y="29" font-size="11" fill="#334155">MANUAL_REVIEW</text>
+
+  <!-- Axes -->
+  <line x1="180" y1="60" x2="180" y2="360" stroke="#94a3b8" />
+  <line x1="450" y1="60" x2="450" y2="360" stroke="#e2e8f0" stroke-dasharray="3" />
+  <line x1="720" y1="60" x2="720" y2="360" stroke="#e2e8f0" />
+
+  
+      <text x="168" y="83.33333333333333" font-size="11" text-anchor="end" fill="#334155" font-weight="500">transient-timeout</text>
+      <rect x="180" y="63" width="486" height="25.333333333333336" fill="#3b82f6" rx="3">
+        <title>transient-timeout: AUTOMATIC_RETRY (90%)</title>
+      </rect>
+      <text x="674" y="83.33333333333333" font-size="11" fill="#334155" font-weight="600">AUTOMATIC_RETRY (90%)</text>
+    
+      <text x="168" y="116.66666666666667" font-size="11" text-anchor="end" fill="#334155" font-weight="500">maintenance-error</text>
+      <rect x="180" y="96.33333333333334" width="475.2" height="25.333333333333336" fill="#8b5cf6" rx="3">
+        <title>maintenance-error: ALTERNATIVE_PROVIDER (88%)</title>
+      </rect>
+      <text x="663.2" y="116.66666666666667" font-size="11" fill="#334155" font-weight="600">ALTERNATIVE_PROVIDER (88%)</text>
+    
+      <text x="168" y="150" font-size="11" text-anchor="end" fill="#334155" font-weight="500">maintenance-telemetry</text>
+      <rect x="180" y="129.66666666666669" width="475.2" height="25.333333333333336" fill="#8b5cf6" rx="3">
+        <title>maintenance-telemetry: ALTERNATIVE_PROVIDER (88%)</title>
+      </rect>
+      <text x="663.2" y="150" font-size="11" fill="#334155" font-weight="600">ALTERNATIVE_PROVIDER (88%)</text>
+    
+      <text x="168" y="183.33333333333334" font-size="11" text-anchor="end" fill="#334155" font-weight="500">repeated-failures</text>
+      <rect x="180" y="163" width="475.2" height="25.333333333333336" fill="#8b5cf6" rx="3">
+        <title>repeated-failures: ALTERNATIVE_PROVIDER (88%)</title>
+      </rect>
+      <text x="663.2" y="183.33333333333334" font-size="11" fill="#334155" font-weight="600">ALTERNATIVE_PROVIDER (88%)</text>
+    
+      <text x="168" y="216.66666666666669" font-size="11" text-anchor="end" fill="#334155" font-weight="500">no-rollback-support</text>
+      <rect x="180" y="196.33333333333334" width="507.59999999999997" height="25.333333333333336" fill="#f97316" rx="3">
+        <title>no-rollback-support: MANUAL_OPERATOR_REVIEW (94%)</title>
+      </rect>
+      <text x="695.5999999999999" y="216.66666666666669" font-size="11" fill="#334155" font-weight="600">MANUAL_OPERATOR_REVIEW (94%)</text>
+    
+      <text x="168" y="250.00000000000003" font-size="11" text-anchor="end" fill="#334155" font-weight="500">allocation-rejected</text>
+      <rect x="180" y="229.66666666666669" width="405" height="25.333333333333336" fill="#f97316" rx="3">
+        <title>allocation-rejected: MANUAL_OPERATOR_REVIEW (75%)</title>
+      </rect>
+      <text x="593" y="250.00000000000003" font-size="11" fill="#334155" font-weight="600">MANUAL_OPERATOR_REVIEW (75%)</text>
+    
+      <text x="168" y="283.3333333333333" font-size="11" text-anchor="end" fill="#334155" font-weight="500">ambiguous</text>
+      <rect x="180" y="263" width="405" height="25.333333333333336" fill="#f97316" rx="3">
+        <title>ambiguous: MANUAL_OPERATOR_REVIEW (75%)</title>
+      </rect>
+      <text x="593" y="283.3333333333333" font-size="11" fill="#334155" font-weight="600">MANUAL_OPERATOR_REVIEW (75%)</text>
+    
+      <text x="168" y="316.6666666666667" font-size="11" text-anchor="end" fill="#334155" font-weight="500">compensation-failure</text>
+      <rect x="180" y="296.33333333333337" width="529.2" height="25.333333333333336" fill="#f97316" rx="3">
+        <title>compensation-failure: MANUAL_OPERATOR_REVIEW (98%)</title>
+      </rect>
+      <text x="717.2" y="316.6666666666667" font-size="11" fill="#334155" font-weight="600">MANUAL_OPERATOR_REVIEW (98%)</text>
+    
+      <text x="168" y="350" font-size="11" text-anchor="end" fill="#334155" font-weight="500">refund-failure</text>
+      <rect x="180" y="329.6666666666667" width="507.59999999999997" height="25.333333333333336" fill="#f97316" rx="3">
+        <title>refund-failure: MANUAL_OPERATOR_REVIEW (94%)</title>
+      </rect>
+      <text x="695.5999999999999" y="350" font-size="11" fill="#334155" font-weight="600">MANUAL_OPERATOR_REVIEW (94%)</text>
+    
+</svg>

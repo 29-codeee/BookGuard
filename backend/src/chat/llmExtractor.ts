@@ -61,10 +61,11 @@ export const TravelIntentSchema = z.object({
   preferences: z.array(z.string()),
   target: z.enum(['hotel', 'transport', 'place', 'itinerary', 'trip']).nullable(),
   transportMode: z.enum(['flight', 'train', 'bus']).nullable(),
+  bookingPriority: z.enum(['flight', 'hotel', 'train', 'bus']).nullable().optional().default(null),
   optionIndex: z.number().int().nullable(),
   optionId: z.string().nullable(),
   optionWhich: z.enum(['next', 'cheaper', 'better', 'current']).nullable(),
-  pendingField: z.enum(['destination', 'origin', 'startDate', 'durationDays', 'travellers', 'budget']).nullable(),
+  pendingField: z.enum(['destination', 'origin', 'startDate', 'durationDays', 'travellers', 'budget', 'priority']).nullable(),
   missingInformation: z.array(z.string()),
   action: z.enum([
     'ask_missing',

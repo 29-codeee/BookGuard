@@ -171,6 +171,7 @@ function normaliseIntent(i: TravelIntent): TravelIntent {
     optionIndex: int(i.optionIndex),
     budgetAmount: typeof i.budgetAmount === 'number' && i.budgetAmount > 0 ? i.budgetAmount : null,
     startDate: i.startDate && /^\d{4}-\d{2}-\d{2}$/.test(i.startDate) ? i.startDate : null,
+    bookingPriority: i.bookingPriority && ['flight', 'hotel', 'train', 'bus'].includes(i.bookingPriority) ? i.bookingPriority : null,
     preferences: Array.isArray(i.preferences) ? i.preferences.map(p => String(p).toLowerCase()).slice(0, 8) : [],
     missingInformation: Array.isArray(i.missingInformation) ? i.missingInformation : []
   };
@@ -205,6 +206,51 @@ export async function handleUiAction(
   body: { action: UiAction; target: PlanTarget; itemId?: string | null; mode?: TransportMode | null }
 ): Promise<ChatTurnResult> {
   const session = getOrCreateSession(sessionId);
+  if (body.target === 'priority') {
+    if (body.action === 'change' || (!body.mode && !body.itemId)) {
+      session.trip.bookingPriority = null;
+      session.history.push({
+        role: 'user',
+        text: '[Change booking priority]',
+        at: new Date().toISOString()
+      });
+      const turn = new Turn();
+      turn.say('Which component would you like to set as your primary booking priority: **Flight**, **Hotel**, **Train**, or **Bus**?');
+      turn.show.add('itinerary');
+      turn.show.add('hotels');
+      turn.show.add('transport');
+      turn.show.add('places');
+      return finish(session, turn, null, 'demo', null);
+    }
+    const p = (body.mode || body.itemId) as string;
+    if (['flight', 'hotel', 'train', 'bus'].includes(p)) {
+      session.trip.bookingPriority = p as any;
+      session.history.push({
+        role: 'user',
+        text: `[Priority: ${p.toUpperCase()} first]`,
+        at: new Date().toISOString()
+      });
+      const turn = new Turn();
+      turn.say(`Primary booking priority set to **${p.toUpperCase()}**! In BookGuard's multi-provider Saga, this leg will be reserved and locked first before confirming other accommodations.`);
+      turn.show.add('itinerary');
+      turn.show.add('hotels');
+      turn.show.add('transport');
+      turn.show.add('places');
+      return finish(session, turn, null, 'demo', null);
+    }
+  }
+
+  if (body.target === 'place' && body.action === 'change') {
+    session.history.push({
+      role: 'user',
+      text: '[Change places to visit]',
+      at: new Date().toISOString()
+    });
+    const turn = new Turn();
+    turn.say('Here are the recommended places to visit and activities. Click **Add to package** or **Remove from package** to customize your sightseeing itinerary.');
+    turn.show.add('places');
+    return finish(session, turn, null, 'demo', null);
+  }
   const intent = blankIntent();
   intent.target = body.target;
   intent.optionId = body.itemId ?? null;
@@ -220,7 +266,11 @@ export async function handleUiAction(
   };
   switch (body.action) {
     case 'select': intent.intent = 'select_option'; break;
-    case 'book': intent.intent = 'book'; intent.action = 'create_booking_request'; break;
+    case 'book':
+      intent.intent = 'book';
+      intent.action = 'create_booking_request';
+      if (body.target === 'package') intent.target = 'trip';
+      break;
     case 'remove': intent.intent = 'remove_item'; break;
     case 'change': intent.intent = 'show_options'; intent.optionWhich = 'next'; break;
     case 'cheaper': intent.intent = 'show_options'; intent.optionWhich = 'cheaper'; break;
@@ -348,14 +398,17 @@ function suggestionsFor(trip: TripState): string[] {
   if (trip.bookingRequests.length > 0) {
     return ['Book the transport', 'Show cheaper hotels', 'Make the trip 4 days instead', 'Start over'];
   }
-  return ['Show cheaper hotels', 'Add a train', 'Make the trip 4 days instead', 'Book the recommended hotel'];
+  if (!trip.bookingPriority) {
+    return ['Flight first', 'Hotel first', 'Train first', 'Bus first'];
+  }
+  return ['Show cheaper hotels', 'Show flights', 'Show trains', 'Show buses'];
 }
 
 function blankIntent(): TravelIntent {
   return {
     intent: 'unknown', destination: null, origin: null, startDate: null, durationDays: null, durationDelta: null,
     travellers: null, travellersDelta: null, budgetTier: null, budgetAmount: null, preferences: [], target: null,
-    transportMode: null, optionIndex: null, optionId: null, optionWhich: null, pendingField: null,
+    transportMode: null, bookingPriority: null, optionIndex: null, optionId: null, optionWhich: null, pendingField: null,
     missingInformation: [], action: 'none', reply: null
   };
 }
@@ -576,6 +629,13 @@ function applyFieldChanges(trip: TripState, intent: TravelIntent, turn: Turn): {
     }
   }
 
+  if (intent.bookingPriority) {
+    if (trip.bookingPriority !== intent.bookingPriority) {
+      trip.bookingPriority = intent.bookingPriority;
+      changed.add('priority');
+    }
+  }
+
   return { changed, blocked: false };
 }
 
@@ -594,7 +654,8 @@ const QUESTION: Record<PlanField, string> = {
   startDate: 'when you would like to travel',
   durationDays: 'how many days the trip should be',
   travellers: 'how many people are going',
-  budget: 'your approximate budget (budget, mid-range or luxury)'
+  budget: 'your approximate budget (budget, mid-range or luxury)',
+  priority: 'which is your first priority to be booked first (Flight, Hotel, Train, or Bus)'
 };
 
 function askForMissing(trip: TripState, turn: Turn, justStarted: boolean, afterAction: boolean) {
@@ -639,7 +700,12 @@ function describeNewPlan(trip: TripState, turn: Turn) {
   ].filter(Boolean) as string[];
   if (picks.length) turn.say(`I have pre-selected ${joinParts(picks)}.`);
   turn.say(estimateLine(trip));
-  turn.say('Tap Select on any option to change it, or just tell me what to adjust.');
+  if (trip.bookingPriority) {
+    turn.say(`Your primary booking priority is set to **${trip.bookingPriority.toUpperCase()}** (will be secured first in BookGuard Saga).`);
+  } else {
+    turn.say('Which is your first priority to be booked first: Flight, Hotel, Train, or Bus?');
+  }
+  turn.say('Tap Select on any option to customize your package, or just tell me what to adjust.');
   turn.show.add('itinerary');
   turn.show.add('hotels');
   turn.show.add('transport');
@@ -658,6 +724,7 @@ function describeChanges(trip: TripState, changed: Set<string>, rebuilt: boolean
   }
   if (changed.has('preferences')) parts.push(`focusing on ${trip.preferences.join(', ')}`);
   if (changed.has('mode') && trip.preferredTransportMode) parts.push(`preferring ${trip.preferredTransportMode} travel`);
+  if (changed.has('priority') && trip.bookingPriority) parts.push(`booking priority set to ${trip.bookingPriority} first`);
   if (parts.length === 0) return;
 
   turn.say(`Updated your plan: ${joinParts(parts)}.`);

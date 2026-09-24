@@ -1,0 +1,117 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 450" width="800" height="450" font-family="system-ui, -apple-system, sans-serif">
+  <rect width="100%" height="100%" fill="#ffffff" />
+  <text x="180" y="32" font-size="16" font-weight="700" fill="#0f172a">Deterministic Risk Scoring Across Provider Telemetry (E13)</text>
+  <text x="180" y="48" font-size="12" fill="#64748b">Measured risk score (0–100) and advisory level under controlled telemetry conditions</text>
+
+  <!-- Legend -->
+  <rect x="530" y="20" width="10" height="10" fill="#22c55e" rx="2" />
+  <text x="545" y="29" font-size="11" fill="#334155">LOW (&lt;40)</text>
+  <rect x="620" y="20" width="10" height="10" fill="#eab308" rx="2" />
+  <text x="635" y="29" font-size="11" fill="#334155">MED (40-69)</text>
+  <rect x="710" y="20" width="10" height="10" fill="#ef4444" rx="2" />
+  <text x="725" y="29" font-size="11" fill="#334155">HIGH (&ge;70)</text>
+
+  <!-- Grid lines -->
+  <line x1="180" y1="60" x2="180" y2="410" stroke="#94a3b8" />
+  <line x1="404" y1="60" x2="404" y2="410" stroke="#e2e8f0" stroke-dasharray="3" />
+  <line x1="572" y1="60" x2="572" y2="410" stroke="#e2e8f0" stroke-dasharray="3" />
+  <line x1="740" y1="60" x2="740" y2="410" stroke="#e2e8f0" />
+
+  
+      <text x="168" y="75.3125" font-size="11" text-anchor="end" fill="#334155" font-weight="500">baseline</text>
+      <rect x="180" y="62" width="168" height="15.875" fill="#22c55e" rx="3">
+        <title>baseline: score=30, level=LOW</title>
+      </rect>
+      <text x="356" y="75.3125" font-size="11" fill="#475569" font-weight="600">30</text>
+    
+      <text x="168" y="97.1875" font-size="11" text-anchor="end" fill="#334155" font-weight="500">reliability-0.92</text>
+      <rect x="180" y="83.875" width="420" height="15.875" fill="#ef4444" rx="3">
+        <title>reliability-0.92: score=75, level=HIGH</title>
+      </rect>
+      <text x="608" y="97.1875" font-size="11" fill="#475569" font-weight="600">75</text>
+    
+      <text x="168" y="119.0625" font-size="11" text-anchor="end" fill="#334155" font-weight="500">reliability-0.85</text>
+      <rect x="180" y="105.75" width="560" height="15.875" fill="#ef4444" rx="3">
+        <title>reliability-0.85: score=100, level=HIGH</title>
+      </rect>
+      <text x="748" y="119.0625" font-size="11" fill="#475569" font-weight="600">100</text>
+    
+      <text x="168" y="140.9375" font-size="11" text-anchor="end" fill="#334155" font-weight="500">maintenance</text>
+      <rect x="180" y="127.625" width="560" height="15.875" fill="#ef4444" rx="3">
+        <title>maintenance: score=100, level=HIGH</title>
+      </rect>
+      <text x="748" y="140.9375" font-size="11" fill="#475569" font-weight="600">100</text>
+    
+      <text x="168" y="162.8125" font-size="11" text-anchor="end" fill="#334155" font-weight="500">suspended</text>
+      <rect x="180" y="149.5" width="560" height="15.875" fill="#ef4444" rx="3">
+        <title>suspended: score=100, level=HIGH</title>
+      </rect>
+      <text x="748" y="162.8125" font-size="11" fill="#475569" font-weight="600">100</text>
+    
+      <text x="168" y="184.6875" font-size="11" text-anchor="end" fill="#334155" font-weight="500">no-rollback</text>
+      <rect x="180" y="171.375" width="504" height="15.875" fill="#ef4444" rx="3">
+        <title>no-rollback: score=90, level=HIGH</title>
+      </rect>
+      <text x="692" y="184.6875" font-size="11" fill="#475569" font-weight="600">90</text>
+    
+      <text x="168" y="206.5625" font-size="11" text-anchor="end" fill="#334155" font-weight="500">latency-1500ms</text>
+      <rect x="180" y="193.25" width="252" height="15.875" fill="#eab308" rx="3">
+        <title>latency-1500ms: score=45, level=MEDIUM</title>
+      </rect>
+      <text x="440" y="206.5625" font-size="11" fill="#475569" font-weight="600">45</text>
+    
+      <text x="168" y="228.4375" font-size="11" text-anchor="end" fill="#334155" font-weight="500">latency-2500ms</text>
+      <rect x="180" y="215.125" width="336" height="15.875" fill="#eab308" rx="3">
+        <title>latency-2500ms: score=60, level=MEDIUM</title>
+      </rect>
+      <text x="524" y="228.4375" font-size="11" fill="#475569" font-weight="600">60</text>
+    
+      <text x="168" y="250.3125" font-size="11" text-anchor="end" fill="#334155" font-weight="500">historical-failures-2</text>
+      <rect x="180" y="237" width="420" height="15.875" fill="#ef4444" rx="3">
+        <title>historical-failures-2: score=75, level=HIGH</title>
+      </rect>
+      <text x="608" y="250.3125" font-size="11" fill="#475569" font-weight="600">75</text>
+    
+      <text x="168" y="272.1875" font-size="11" text-anchor="end" fill="#334155" font-weight="500">historical-rollback-failure</text>
+      <rect x="180" y="258.875" width="504" height="15.875" fill="#ef4444" rx="3">
+        <title>historical-rollback-failure: score=90, level=HIGH</title>
+      </rect>
+      <text x="692" y="272.1875" font-size="11" fill="#475569" font-weight="600">90</text>
+    
+      <text x="168" y="294.0625" font-size="11" text-anchor="end" fill="#334155" font-weight="500">worst-case</text>
+      <rect x="180" y="280.75" width="560" height="15.875" fill="#ef4444" rx="3">
+        <title>worst-case: score=100, level=HIGH</title>
+      </rect>
+      <text x="748" y="294.0625" font-size="11" fill="#475569" font-weight="600">100</text>
+    
+      <text x="168" y="315.9375" font-size="11" text-anchor="end" fill="#334155" font-weight="500">k=1</text>
+      <rect x="180" y="302.625" width="56" height="15.875" fill="#22c55e" rx="3">
+        <title>k=1: score=10, level=LOW</title>
+      </rect>
+      <text x="244" y="315.9375" font-size="11" fill="#475569" font-weight="600">10</text>
+    
+      <text x="168" y="337.8125" font-size="11" text-anchor="end" fill="#334155" font-weight="500">k=2</text>
+      <rect x="180" y="324.5" width="112" height="15.875" fill="#22c55e" rx="3">
+        <title>k=2: score=20, level=LOW</title>
+      </rect>
+      <text x="300" y="337.8125" font-size="11" fill="#475569" font-weight="600">20</text>
+    
+      <text x="168" y="359.6875" font-size="11" text-anchor="end" fill="#334155" font-weight="500">k=3</text>
+      <rect x="180" y="346.375" width="168" height="15.875" fill="#22c55e" rx="3">
+        <title>k=3: score=30, level=LOW</title>
+      </rect>
+      <text x="356" y="359.6875" font-size="11" fill="#475569" font-weight="600">30</text>
+    
+      <text x="168" y="381.5625" font-size="11" text-anchor="end" fill="#334155" font-weight="500">k=4</text>
+      <rect x="180" y="368.25" width="224" height="15.875" fill="#eab308" rx="3">
+        <title>k=4: score=40, level=MEDIUM</title>
+      </rect>
+      <text x="412" y="381.5625" font-size="11" fill="#475569" font-weight="600">40</text>
+    
+      <text x="168" y="403.4375" font-size="11" text-anchor="end" fill="#334155" font-weight="500">capacity-pressure</text>
+      <rect x="180" y="390.125" width="252" height="15.875" fill="#eab308" rx="3">
+        <title>capacity-pressure: score=45, level=MEDIUM</title>
+      </rect>
+      <text x="440" y="403.4375" font-size="11" fill="#475569" font-weight="600">45</text>
+    
+</svg>

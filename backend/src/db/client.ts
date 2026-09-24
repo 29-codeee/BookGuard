@@ -193,3 +193,20 @@ export async function applySchemaAndSeed(forceSchema = false): Promise<void> {
 export function isEnginePGlite(): boolean {
   return isPGlite;
 }
+
+/** Max connections of the native PostgreSQL pool, or null on PGlite (single embedded connection). */
+export function getPoolMax(): number | null {
+  return pgPool ? (pgPool as unknown as { options: { max: number } }).options.max : null;
+}
+
+/** Closes the active database client (used by the experiment runner before dropping its isolated database). */
+export async function closeDb(): Promise<void> {
+  if (pgPool) {
+    await pgPool.end();
+    pgPool = null;
+  }
+  if (pgliteInstance) {
+    await pgliteInstance.close();
+    pgliteInstance = null;
+  }
+}

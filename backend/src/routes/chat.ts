@@ -68,10 +68,10 @@ export default async function chatRoutes(fastify: FastifyInstance, _opts: Fastif
       const actions: UiAction[] = ['select', 'book', 'remove', 'change', 'cheaper', 'add', 'show'];
       if (!body.sessionId) return fail(reply, 400, 'INVALID_REQUEST', 'sessionId is required');
       if (!body.action || !actions.includes(body.action)) return fail(reply, 400, 'INVALID_REQUEST', `action must be one of ${actions.join(', ')}`);
-      if (!['hotel', 'transport', 'place', 'itinerary', 'trip'].includes(body.target ?? '')) {
-        return fail(reply, 400, 'INVALID_REQUEST', 'target must be hotel, transport, place, itinerary or trip');
+      if (!['hotel', 'transport', 'place', 'itinerary', 'trip', 'priority', 'package'].includes(body.target ?? '')) {
+        return fail(reply, 400, 'INVALID_REQUEST', 'target must be hotel, transport, place, itinerary, trip, priority or package');
       }
-      const mode = ['flight', 'train', 'bus'].includes(body.mode ?? '') ? (body.mode as any) : null;
+      const mode = ['flight', 'train', 'bus', 'hotel'].includes(body.mode ?? '') ? (body.mode as any) : null;
       return { success: true, ...(await handleUiAction(body.sessionId, { action: body.action, target: body.target as any, itemId: body.itemId, mode })) };
     })
   );

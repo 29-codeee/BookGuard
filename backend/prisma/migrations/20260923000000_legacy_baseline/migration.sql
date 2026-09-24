@@ -1,0 +1,10 @@
+-- BookGuard legacy/application-owned database baseline.
+--
+-- The pre-existing public tables are managed by db/schema.sql,
+-- backend/src/db/migrations.ts, and the application's pg client. They are
+-- intentionally outside Prisma's 21 dataset_* models. This baseline is
+-- bookkeeping only: it must never create, alter, or drop legacy objects.
+--
+-- Prisma-owned dataset tables are introduced separately by
+-- 20260924000000_dataset_layer and must remain pending until that migration
+-- is actually deployed.

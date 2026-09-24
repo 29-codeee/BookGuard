@@ -1,0 +1,581 @@
+hotel_id,name,city,location,rating,reviews,price_per_night,currency,hotel_type
+HOT00001,Grand Chennai Heights 1,Chennai,"Chennai, Tamil Nadu, India",3.3,2311,4258,INR,Luxury Hotel
+HOT00002,Royal Varanasi Hotel 2,Varanasi,"Varanasi, Uttar Pradesh, India",2.9,1560,8064,INR,Resort
+HOT00003,Green Ooty Inn 3,Ooty,"Ooty, Tamil Nadu, India",4.0,6898,8123,INR,Business Hotel
+HOT00004,Central Agra Inn 4,Agra,"Agra, Uttar Pradesh, India",4.4,2640,14748,INR,Boutique Hotel
+HOT00005,City Goa Palace 5,Goa,"Goa, Goa, India",4.8,5539,4249,INR,Hotel
+HOT00006,Royal Lucknow Retreat 6,Lucknow,"Lucknow, Uttar Pradesh, India",4.6,4358,2323,INR,Luxury Hotel
+HOT00007,Skyline Manali Residency 7,Manali,"Manali, Himachal Pradesh, India",4.8,6226,3482,INR,Budget Hotel
+HOT00008,Urban Kochi Retreat 8,Kochi,"Kochi, Kerala, India",4.0,1164,2401,INR,Luxury Hotel
+HOT00009,Central Jaipur Residency 9,Jaipur,"Jaipur, Rajasthan, India",4.6,1679,13355,INR,Boutique Hotel
+HOT00010,Urban Manali Retreat 10,Manali,"Manali, Himachal Pradesh, India",3.1,5845,7765,INR,Luxury Hotel
+HOT00011,Comfort Goa Residency 11,Goa,"Goa, Goa, India",4.1,2828,8921,INR,Resort
+HOT00012,Palm Manali Heights 12,Manali,"Manali, Himachal Pradesh, India",4.9,3623,11526,INR,Hotel
+HOT00013,Grand Jaipur Retreat 13,Jaipur,"Jaipur, Rajasthan, India",3.6,1109,7813,INR,Budget Hotel
+HOT00014,Lakeview Mysuru Resort 14,Mysuru,"Mysuru, Karnataka, India",3.6,7542,5581,INR,Boutique Hotel
+HOT00015,Lakeview Hyderabad Lodge 15,Hyderabad,"Hyderabad, Telangana, India",3.9,7044,13987,INR,Boutique Hotel
+HOT00016,City Jaipur Lodge 16,Jaipur,"Jaipur, Rajasthan, India",3.8,796,4492,INR,Resort
+HOT00017,Urban Kolkata Hotel 17,Kolkata,"Kolkata, West Bengal, India",4.1,6329,13404,INR,Budget Hotel
+HOT00018,Skyline Manali Heights 18,Manali,"Manali, Himachal Pradesh, India",4.8,213,4653,INR,Luxury Hotel
+HOT00019,Central Varanasi Retreat 19,Varanasi,"Varanasi, Uttar Pradesh, India",3.0,7148,6082,INR,Business Hotel
+HOT00020,Comfort Bengaluru Heights 20,Bengaluru,"Bengaluru, Karnataka, India",4.8,2952,17535,INR,Hotel
+HOT00021,Urban Kochi Lodge 21,Kochi,"Kochi, Kerala, India",4.1,2529,13152,INR,Resort
+HOT00022,Skyline Varanasi Inn 22,Varanasi,"Varanasi, Uttar Pradesh, India",4.1,8030,1538,INR,Hotel
+HOT00023,Central Ahmedabad Palace 23,Ahmedabad,"Ahmedabad, Gujarat, India",2.9,1315,3706,INR,Luxury Hotel
+HOT00024,Royal Shimla Lodge 24,Shimla,"Shimla, Himachal Pradesh, India",4.4,2128,16474,INR,Budget Hotel
+HOT00025,Central Kolkata Lodge 25,Kolkata,"Kolkata, West Bengal, India",4.6,6957,7840,INR,Budget Hotel
+HOT00026,Comfort Pune Heights 26,Pune,"Pune, Maharashtra, India",3.6,6143,15255,INR,Budget Hotel
+HOT00027,Royal Manali Palace 27,Manali,"Manali, Himachal Pradesh, India",3.3,5564,1589,INR,Budget Hotel
+HOT00028,Lakeview Varanasi Palace 28,Varanasi,"Varanasi, Uttar Pradesh, India",2.8,989,8401,INR,Hotel
+HOT00029,Regal Mumbai Residency 29,Mumbai,"Mumbai, Maharashtra, India",3.9,4587,16806,INR,Resort
+HOT00030,City Varanasi Resort 30,Varanasi,"Varanasi, Uttar Pradesh, India",3.3,7774,14238,INR,Resort
+HOT00031,Royal Chennai Hotel 31,Chennai,"Chennai, Tamil Nadu, India",3.5,6760,16203,INR,Luxury Hotel
+HOT00032,Urban Mumbai Residency 32,Mumbai,"Mumbai, Maharashtra, India",2.9,5584,4480,INR,Resort
+HOT00033,Lakeview Pune Lodge 33,Pune,"Pune, Maharashtra, India",3.7,6937,6912,INR,Boutique Hotel
+HOT00034,Lakeview Manali Residency 34,Manali,"Manali, Himachal Pradesh, India",3.7,1629,2557,INR,Luxury Hotel
+HOT00035,Grand Varanasi Residency 35,Varanasi,"Varanasi, Uttar Pradesh, India",4.7,3897,6349,INR,Business Hotel
+HOT00036,Heritage Shimla Palace 36,Shimla,"Shimla, Himachal Pradesh, India",4.6,985,6294,INR,Business Hotel
+HOT00037,Palm Bengaluru Heights 37,Bengaluru,"Bengaluru, Karnataka, India",4.7,7479,10247,INR,Business Hotel
+HOT00038,Urban Varanasi Resort 38,Varanasi,"Varanasi, Uttar Pradesh, India",3.1,4886,8033,INR,Hotel
+HOT00039,Comfort Agra Lodge 39,Agra,"Agra, Uttar Pradesh, India",2.9,5163,2773,INR,Hotel
+HOT00040,Heritage Agra Lodge 40,Agra,"Agra, Uttar Pradesh, India",4.7,2604,2763,INR,Budget Hotel
+HOT00041,City Delhi Residency 41,Delhi,"Delhi, Delhi, India",4.0,3878,14130,INR,Hotel
+HOT00042,Lakeview Agra Inn 42,Agra,"Agra, Uttar Pradesh, India",4.1,6893,11266,INR,Boutique Hotel
+HOT00043,Urban Pune Retreat 43,Pune,"Pune, Maharashtra, India",3.3,6509,5188,INR,Luxury Hotel
+HOT00044,Heritage Kochi Retreat 44,Kochi,"Kochi, Kerala, India",4.8,1213,1205,INR,Business Hotel
+HOT00045,Green Rishikesh Residency 45,Rishikesh,"Rishikesh, Uttarakhand, India",3.0,3517,17476,INR,Boutique Hotel
+HOT00046,Regal Hyderabad Residency 46,Hyderabad,"Hyderabad, Telangana, India",4.6,6079,10238,INR,Resort
+HOT00047,Skyline Manali Heights 47,Manali,"Manali, Himachal Pradesh, India",4.1,153,10710,INR,Luxury Hotel
+HOT00048,City Chennai Heights 48,Chennai,"Chennai, Tamil Nadu, India",3.0,1778,5993,INR,Boutique Hotel
+HOT00049,Green Kochi Palace 49,Kochi,"Kochi, Kerala, India",4.3,3360,9550,INR,Budget Hotel
+HOT00050,Central Shimla Inn 50,Shimla,"Shimla, Himachal Pradesh, India",3.0,6964,9966,INR,Hotel
+HOT00051,Regal Bengaluru Suites 51,Bengaluru,"Bengaluru, Karnataka, India",4.1,4316,6194,INR,Luxury Hotel
+HOT00052,Skyline Manali Hotel 52,Manali,"Manali, Himachal Pradesh, India",4.0,1857,3365,INR,Luxury Hotel
+HOT00053,Skyline Hyderabad Inn 53,Hyderabad,"Hyderabad, Telangana, India",4.6,2451,14983,INR,Resort
+HOT00054,Central Mumbai Retreat 54,Mumbai,"Mumbai, Maharashtra, India",4.7,678,12624,INR,Resort
+HOT00055,Urban Jaipur Residency 55,Jaipur,"Jaipur, Rajasthan, India",3.5,6683,5964,INR,Resort
+HOT00056,City Kolkata Hotel 56,Kolkata,"Kolkata, West Bengal, India",2.9,5467,14391,INR,Luxury Hotel
+HOT00057,Central Jaipur Suites 57,Jaipur,"Jaipur, Rajasthan, India",4.5,1796,13435,INR,Hotel
+HOT00058,Lakeview Shimla Palace 58,Shimla,"Shimla, Himachal Pradesh, India",4.5,7566,12357,INR,Boutique Hotel
+HOT00059,Lakeview Jaipur Inn 59,Jaipur,"Jaipur, Rajasthan, India",4.2,6553,11656,INR,Boutique Hotel
+HOT00060,Central Delhi Retreat 60,Delhi,"Delhi, Delhi, India",4.1,6573,11751,INR,Hotel
+HOT00061,Central Chennai Suites 61,Chennai,"Chennai, Tamil Nadu, India",4.0,4374,2153,INR,Hotel
+HOT00062,Palm Rishikesh Retreat 62,Rishikesh,"Rishikesh, Uttarakhand, India",4.3,5164,15199,INR,Budget Hotel
+HOT00063,Royal Ooty Hotel 63,Ooty,"Ooty, Tamil Nadu, India",4.7,3139,9246,INR,Hotel
+HOT00064,Grand Udaipur Lodge 64,Udaipur,"Udaipur, Rajasthan, India",4.7,3253,12834,INR,Business Hotel
+HOT00065,Urban Delhi Retreat 65,Delhi,"Delhi, Delhi, India",4.1,2066,10740,INR,Budget Hotel
+HOT00066,Urban Kochi Hotel 66,Kochi,"Kochi, Kerala, India",3.5,4869,5070,INR,Resort
+HOT00067,Urban Udaipur Hotel 67,Udaipur,"Udaipur, Rajasthan, India",4.2,2876,10761,INR,Business Hotel
+HOT00068,Grand Varanasi Heights 68,Varanasi,"Varanasi, Uttar Pradesh, India",3.4,7068,11459,INR,Business Hotel
+HOT00069,Heritage Manali Palace 69,Manali,"Manali, Himachal Pradesh, India",3.9,2805,3678,INR,Boutique Hotel
+HOT00070,Urban Ooty Retreat 70,Ooty,"Ooty, Tamil Nadu, India",3.0,3873,11071,INR,Resort
+HOT00071,City Pune Inn 71,Pune,"Pune, Maharashtra, India",2.9,7809,3286,INR,Business Hotel
+HOT00072,Urban Udaipur Palace 72,Udaipur,"Udaipur, Rajasthan, India",4.3,6316,17099,INR,Business Hotel
+HOT00073,City Jaipur Inn 73,Jaipur,"Jaipur, Rajasthan, India",4.7,1771,14831,INR,Resort
+HOT00074,Comfort Kolkata Lodge 74,Kolkata,"Kolkata, West Bengal, India",3.8,4107,4876,INR,Business Hotel
+HOT00075,Heritage Hyderabad Lodge 75,Hyderabad,"Hyderabad, Telangana, India",4.9,5223,15402,INR,Budget Hotel
+HOT00076,Palm Ooty Lodge 76,Ooty,"Ooty, Tamil Nadu, India",3.7,2632,16454,INR,Business Hotel
+HOT00077,Lakeview Goa Heights 77,Goa,"Goa, Goa, India",4.4,7964,8739,INR,Boutique Hotel
+HOT00078,Royal Manali Heights 78,Manali,"Manali, Himachal Pradesh, India",3.3,5527,11376,INR,Budget Hotel
+HOT00079,City Delhi Suites 79,Delhi,"Delhi, Delhi, India",3.3,2528,7910,INR,Hotel
+HOT00080,Palm Udaipur Retreat 80,Udaipur,"Udaipur, Rajasthan, India",3.9,6837,2940,INR,Resort
+HOT00081,Palm Udaipur Inn 81,Udaipur,"Udaipur, Rajasthan, India",4.6,6257,16529,INR,Hotel
+HOT00082,Central Ahmedabad Hotel 82,Ahmedabad,"Ahmedabad, Gujarat, India",4.6,6890,8126,INR,Business Hotel
+HOT00083,Central Jaipur Hotel 83,Jaipur,"Jaipur, Rajasthan, India",3.8,6396,11914,INR,Luxury Hotel
+HOT00084,Comfort Lucknow Suites 84,Lucknow,"Lucknow, Uttar Pradesh, India",4.6,2116,1783,INR,Business Hotel
+HOT00085,Green Agra Inn 85,Agra,"Agra, Uttar Pradesh, India",3.0,7047,5346,INR,Business Hotel
+HOT00086,Grand Kolkata Heights 86,Kolkata,"Kolkata, West Bengal, India",3.6,3492,15799,INR,Boutique Hotel
+HOT00087,Palm Mysuru Heights 87,Mysuru,"Mysuru, Karnataka, India",4.4,6931,9166,INR,Hotel
+HOT00088,Grand Shimla Lodge 88,Shimla,"Shimla, Himachal Pradesh, India",2.9,5758,8247,INR,Luxury Hotel
+HOT00089,Urban Delhi Inn 89,Delhi,"Delhi, Delhi, India",4.4,4076,7432,INR,Hotel
+HOT00090,City Rishikesh Palace 90,Rishikesh,"Rishikesh, Uttarakhand, India",3.1,1899,8042,INR,Business Hotel
+HOT00091,Regal Goa Suites 91,Goa,"Goa, Goa, India",4.1,1901,6266,INR,Boutique Hotel
+HOT00092,Green Chennai Inn 92,Chennai,"Chennai, Tamil Nadu, India",4.8,6174,13897,INR,Luxury Hotel
+HOT00093,Royal Pune Palace 93,Pune,"Pune, Maharashtra, India",3.0,4966,4866,INR,Budget Hotel
+HOT00094,Regal Mumbai Lodge 94,Mumbai,"Mumbai, Maharashtra, India",3.7,6096,3159,INR,Budget Hotel
+HOT00095,Grand Mysuru Hotel 95,Mysuru,"Mysuru, Karnataka, India",4.5,1754,15105,INR,Boutique Hotel
+HOT00096,Comfort Manali Suites 96,Manali,"Manali, Himachal Pradesh, India",3.7,4450,16743,INR,Business Hotel
+HOT00097,Comfort Udaipur Heights 97,Udaipur,"Udaipur, Rajasthan, India",3.5,4047,3739,INR,Boutique Hotel
+HOT00098,Lakeview Manali Resort 98,Manali,"Manali, Himachal Pradesh, India",4.0,6234,11923,INR,Hotel
+HOT00099,Regal Shimla Suites 99,Shimla,"Shimla, Himachal Pradesh, India",3.8,5838,9365,INR,Boutique Hotel
+HOT00100,Green Goa Heights 100,Goa,"Goa, Goa, India",4.0,8489,7160,INR,Hotel
+HOT00101,Comfort Jaipur Hotel 101,Jaipur,"Jaipur, Rajasthan, India",3.8,3962,16500,INR,Luxury Hotel
+HOT00102,Heritage Shimla Inn 102,Shimla,"Shimla, Himachal Pradesh, India",3.0,3655,14151,INR,Luxury Hotel
+HOT00103,Central Jaipur Retreat 103,Jaipur,"Jaipur, Rajasthan, India",3.8,5657,14842,INR,Luxury Hotel
+HOT00104,Regal Varanasi Retreat 104,Varanasi,"Varanasi, Uttar Pradesh, India",4.3,4463,10947,INR,Boutique Hotel
+HOT00105,Royal Jaipur Palace 105,Jaipur,"Jaipur, Rajasthan, India",3.5,3058,7176,INR,Resort
+HOT00106,Central Shimla Lodge 106,Shimla,"Shimla, Himachal Pradesh, India",4.1,1672,7260,INR,Boutique Hotel
+HOT00107,Regal Jaipur Suites 107,Jaipur,"Jaipur, Rajasthan, India",3.4,2098,9888,INR,Hotel
+HOT00108,Skyline Mumbai Heights 108,Mumbai,"Mumbai, Maharashtra, India",4.3,2093,16985,INR,Hotel
+HOT00109,Green Bengaluru Heights 109,Bengaluru,"Bengaluru, Karnataka, India",3.8,7241,12064,INR,Resort
+HOT00110,Central Mumbai Resort 110,Mumbai,"Mumbai, Maharashtra, India",3.0,1095,14030,INR,Business Hotel
+HOT00111,Green Delhi Inn 111,Delhi,"Delhi, Delhi, India",3.1,5003,3691,INR,Resort
+HOT00112,Skyline Chennai Hotel 112,Chennai,"Chennai, Tamil Nadu, India",4.1,3722,13364,INR,Business Hotel
+HOT00113,Central Manali Hotel 113,Manali,"Manali, Himachal Pradesh, India",3.4,1011,4151,INR,Resort
+HOT00114,Central Pune Residency 114,Pune,"Pune, Maharashtra, India",3.1,2872,3359,INR,Resort
+HOT00115,Palm Bengaluru Resort 115,Bengaluru,"Bengaluru, Karnataka, India",4.2,7724,10443,INR,Hotel
+HOT00116,Central Jaipur Heights 116,Jaipur,"Jaipur, Rajasthan, India",4.3,7463,3232,INR,Luxury Hotel
+HOT00117,Central Jaipur Palace 117,Jaipur,"Jaipur, Rajasthan, India",3.7,3708,5782,INR,Boutique Hotel
+HOT00118,Royal Hyderabad Inn 118,Hyderabad,"Hyderabad, Telangana, India",3.1,5064,10357,INR,Business Hotel
+HOT00119,Heritage Chennai Heights 119,Chennai,"Chennai, Tamil Nadu, India",4.3,4485,17299,INR,Budget Hotel
+HOT00120,Heritage Shimla Residency 120,Shimla,"Shimla, Himachal Pradesh, India",4.1,7103,11461,INR,Budget Hotel
+HOT00121,Grand Goa Residency 121,Goa,"Goa, Goa, India",3.3,364,9731,INR,Budget Hotel
+HOT00122,City Mumbai Resort 122,Mumbai,"Mumbai, Maharashtra, India",3.9,7270,10014,INR,Resort
+HOT00123,Palm Agra Resort 123,Agra,"Agra, Uttar Pradesh, India",4.8,7725,12301,INR,Business Hotel
+HOT00124,Regal Mysuru Residency 124,Mysuru,"Mysuru, Karnataka, India",4.6,5428,14388,INR,Luxury Hotel
+HOT00125,Central Shimla Hotel 125,Shimla,"Shimla, Himachal Pradesh, India",4.5,626,15803,INR,Hotel
+HOT00126,Central Mysuru Retreat 126,Mysuru,"Mysuru, Karnataka, India",3.0,6647,17762,INR,Hotel
+HOT00127,Heritage Varanasi Hotel 127,Varanasi,"Varanasi, Uttar Pradesh, India",2.9,5952,17234,INR,Luxury Hotel
+HOT00128,Grand Manali Palace 128,Manali,"Manali, Himachal Pradesh, India",3.4,2171,10338,INR,Business Hotel
+HOT00129,Royal Shimla Inn 129,Shimla,"Shimla, Himachal Pradesh, India",4.8,3945,6089,INR,Boutique Hotel
+HOT00130,Grand Varanasi Lodge 130,Varanasi,"Varanasi, Uttar Pradesh, India",3.7,3706,4617,INR,Business Hotel
+HOT00131,Urban Chennai Suites 131,Chennai,"Chennai, Tamil Nadu, India",3.8,4806,17574,INR,Luxury Hotel
+HOT00132,Palm Goa Resort 132,Goa,"Goa, Goa, India",4.9,4018,15867,INR,Budget Hotel
+HOT00133,Palm Hyderabad Palace 133,Hyderabad,"Hyderabad, Telangana, India",4.7,8352,5373,INR,Hotel
+HOT00134,Palm Goa Retreat 134,Goa,"Goa, Goa, India",4.8,8343,9654,INR,Hotel
+HOT00135,Comfort Kochi Heights 135,Kochi,"Kochi, Kerala, India",4.6,8047,5769,INR,Business Hotel
+HOT00136,Heritage Varanasi Retreat 136,Varanasi,"Varanasi, Uttar Pradesh, India",3.5,6205,15820,INR,Boutique Hotel
+HOT00137,Comfort Pune Palace 137,Pune,"Pune, Maharashtra, India",4.0,3851,14360,INR,Hotel
+HOT00138,Comfort Mysuru Resort 138,Mysuru,"Mysuru, Karnataka, India",4.3,6271,13551,INR,Luxury Hotel
+HOT00139,Heritage Hyderabad Inn 139,Hyderabad,"Hyderabad, Telangana, India",3.1,5464,4188,INR,Business Hotel
+HOT00140,Skyline Chennai Resort 140,Chennai,"Chennai, Tamil Nadu, India",2.8,2386,14334,INR,Luxury Hotel
+HOT00141,Royal Hyderabad Resort 141,Hyderabad,"Hyderabad, Telangana, India",4.4,4367,11993,INR,Budget Hotel
+HOT00142,Urban Lucknow Residency 142,Lucknow,"Lucknow, Uttar Pradesh, India",4.6,6251,11276,INR,Luxury Hotel
+HOT00143,Skyline Shimla Inn 143,Shimla,"Shimla, Himachal Pradesh, India",4.1,3871,10316,INR,Resort
+HOT00144,Palm Delhi Residency 144,Delhi,"Delhi, Delhi, India",4.4,1671,15438,INR,Resort
+HOT00145,Grand Kochi Inn 145,Kochi,"Kochi, Kerala, India",3.5,944,10513,INR,Boutique Hotel
+HOT00146,Palm Ahmedabad Suites 146,Ahmedabad,"Ahmedabad, Gujarat, India",3.3,6776,6800,INR,Resort
+HOT00147,Royal Kolkata Hotel 147,Kolkata,"Kolkata, West Bengal, India",4.1,3970,17207,INR,Budget Hotel
+HOT00148,Lakeview Hyderabad Resort 148,Hyderabad,"Hyderabad, Telangana, India",4.1,7554,9266,INR,Luxury Hotel
+HOT00149,Heritage Bengaluru Heights 149,Bengaluru,"Bengaluru, Karnataka, India",4.2,2613,3320,INR,Business Hotel
+HOT00150,Green Ahmedabad Heights 150,Ahmedabad,"Ahmedabad, Gujarat, India",4.1,6976,9095,INR,Business Hotel
+HOT00151,Lakeview Kochi Hotel 151,Kochi,"Kochi, Kerala, India",4.6,1772,8672,INR,Business Hotel
+HOT00152,Regal Agra Heights 152,Agra,"Agra, Uttar Pradesh, India",4.9,4862,1618,INR,Luxury Hotel
+HOT00153,Central Lucknow Inn 153,Lucknow,"Lucknow, Uttar Pradesh, India",4.0,828,17176,INR,Boutique Hotel
+HOT00154,Green Jaipur Retreat 154,Jaipur,"Jaipur, Rajasthan, India",3.3,3140,9112,INR,Luxury Hotel
+HOT00155,Urban Hyderabad Residency 155,Hyderabad,"Hyderabad, Telangana, India",4.7,670,11023,INR,Business Hotel
+HOT00156,Green Mumbai Retreat 156,Mumbai,"Mumbai, Maharashtra, India",4.3,1501,10570,INR,Boutique Hotel
+HOT00157,City Udaipur Palace 157,Udaipur,"Udaipur, Rajasthan, India",3.1,6019,17342,INR,Boutique Hotel
+HOT00158,Central Kolkata Resort 158,Kolkata,"Kolkata, West Bengal, India",4.8,4860,11999,INR,Hotel
+HOT00159,Royal Manali Suites 159,Manali,"Manali, Himachal Pradesh, India",4.4,3721,13922,INR,Budget Hotel
+HOT00160,Royal Ahmedabad Hotel 160,Ahmedabad,"Ahmedabad, Gujarat, India",2.8,2049,15802,INR,Boutique Hotel
+HOT00161,Green Goa Hotel 161,Goa,"Goa, Goa, India",4.5,6111,4450,INR,Luxury Hotel
+HOT00162,Heritage Jaipur Inn 162,Jaipur,"Jaipur, Rajasthan, India",4.1,5399,8153,INR,Luxury Hotel
+HOT00163,Urban Delhi Resort 163,Delhi,"Delhi, Delhi, India",4.7,4976,14279,INR,Hotel
+HOT00164,Grand Hyderabad Inn 164,Hyderabad,"Hyderabad, Telangana, India",3.4,8096,4705,INR,Hotel
+HOT00165,Skyline Jaipur Suites 165,Jaipur,"Jaipur, Rajasthan, India",3.6,6103,14633,INR,Budget Hotel
+HOT00166,Palm Hyderabad Residency 166,Hyderabad,"Hyderabad, Telangana, India",4.6,6711,10066,INR,Hotel
+HOT00167,Lakeview Ahmedabad Resort 167,Ahmedabad,"Ahmedabad, Gujarat, India",3.7,3893,12784,INR,Hotel
+HOT00168,Skyline Ahmedabad Retreat 168,Ahmedabad,"Ahmedabad, Gujarat, India",2.9,4545,7119,INR,Hotel
+HOT00169,Royal Manali Palace 169,Manali,"Manali, Himachal Pradesh, India",4.1,374,2557,INR,Boutique Hotel
+HOT00170,City Jaipur Palace 170,Jaipur,"Jaipur, Rajasthan, India",2.9,3419,7976,INR,Resort
+HOT00171,City Mysuru Inn 171,Mysuru,"Mysuru, Karnataka, India",3.4,2395,5159,INR,Budget Hotel
+HOT00172,City Goa Residency 172,Goa,"Goa, Goa, India",4.2,447,5218,INR,Hotel
+HOT00173,Lakeview Ahmedabad Retreat 173,Ahmedabad,"Ahmedabad, Gujarat, India",2.8,4372,2617,INR,Resort
+HOT00174,Skyline Udaipur Residency 174,Udaipur,"Udaipur, Rajasthan, India",4.4,7827,15589,INR,Boutique Hotel
+HOT00175,Green Ooty Residency 175,Ooty,"Ooty, Tamil Nadu, India",3.7,3654,2320,INR,Luxury Hotel
+HOT00176,Central Ooty Resort 176,Ooty,"Ooty, Tamil Nadu, India",4.2,535,2893,INR,Business Hotel
+HOT00177,Palm Lucknow Residency 177,Lucknow,"Lucknow, Uttar Pradesh, India",3.8,7292,3308,INR,Hotel
+HOT00178,Green Mysuru Suites 178,Mysuru,"Mysuru, Karnataka, India",2.9,4530,11555,INR,Business Hotel
+HOT00179,Skyline Rishikesh Heights 179,Rishikesh,"Rishikesh, Uttarakhand, India",3.8,7073,4149,INR,Luxury Hotel
+HOT00180,Urban Chennai Lodge 180,Chennai,"Chennai, Tamil Nadu, India",4.3,3547,14992,INR,Business Hotel
+HOT00181,Palm Jaipur Retreat 181,Jaipur,"Jaipur, Rajasthan, India",4.5,6557,14531,INR,Luxury Hotel
+HOT00182,Regal Chennai Hotel 182,Chennai,"Chennai, Tamil Nadu, India",3.5,4201,13165,INR,Resort
+HOT00183,Royal Shimla Residency 183,Shimla,"Shimla, Himachal Pradesh, India",4.5,1552,15051,INR,Hotel
+HOT00184,City Ahmedabad Lodge 184,Ahmedabad,"Ahmedabad, Gujarat, India",2.9,5425,4905,INR,Business Hotel
+HOT00185,Urban Ahmedabad Hotel 185,Ahmedabad,"Ahmedabad, Gujarat, India",4.6,867,10325,INR,Budget Hotel
+HOT00186,Regal Kochi Residency 186,Kochi,"Kochi, Kerala, India",4.0,3510,5970,INR,Luxury Hotel
+HOT00187,Lakeview Shimla Residency 187,Shimla,"Shimla, Himachal Pradesh, India",3.5,6047,4664,INR,Boutique Hotel
+HOT00188,Lakeview Agra Hotel 188,Agra,"Agra, Uttar Pradesh, India",4.6,455,9663,INR,Hotel
+HOT00189,Central Kolkata Heights 189,Kolkata,"Kolkata, West Bengal, India",4.7,5776,1100,INR,Resort
+HOT00190,Green Hyderabad Hotel 190,Hyderabad,"Hyderabad, Telangana, India",2.9,527,3906,INR,Luxury Hotel
+HOT00191,Lakeview Ooty Hotel 191,Ooty,"Ooty, Tamil Nadu, India",3.7,5610,6057,INR,Boutique Hotel
+HOT00192,Comfort Kochi Retreat 192,Kochi,"Kochi, Kerala, India",4.4,1416,2623,INR,Resort
+HOT00193,Green Kolkata Inn 193,Kolkata,"Kolkata, West Bengal, India",4.2,4483,15419,INR,Luxury Hotel
+HOT00194,Heritage Udaipur Resort 194,Udaipur,"Udaipur, Rajasthan, India",3.7,3556,17688,INR,Hotel
+HOT00195,Palm Ahmedabad Residency 195,Ahmedabad,"Ahmedabad, Gujarat, India",3.4,7997,11006,INR,Hotel
+HOT00196,Palm Jaipur Inn 196,Jaipur,"Jaipur, Rajasthan, India",2.8,4963,7821,INR,Resort
+HOT00197,Central Goa Retreat 197,Goa,"Goa, Goa, India",3.1,8174,15011,INR,Resort
+HOT00198,Palm Hyderabad Lodge 198,Hyderabad,"Hyderabad, Telangana, India",4.3,8221,12505,INR,Hotel
+HOT00199,Comfort Lucknow Inn 199,Lucknow,"Lucknow, Uttar Pradesh, India",3.7,7557,3451,INR,Boutique Hotel
+HOT00200,Palm Agra Hotel 200,Agra,"Agra, Uttar Pradesh, India",4.3,6868,10386,INR,Hotel
+HOT00201,Grand Lucknow Retreat 201,Lucknow,"Lucknow, Uttar Pradesh, India",3.2,7563,12757,INR,Hotel
+HOT00202,Royal Udaipur Palace 202,Udaipur,"Udaipur, Rajasthan, India",3.7,6585,3477,INR,Business Hotel
+HOT00203,Comfort Kochi Retreat 203,Kochi,"Kochi, Kerala, India",3.3,2779,3402,INR,Budget Hotel
+HOT00204,Skyline Chennai Lodge 204,Chennai,"Chennai, Tamil Nadu, India",3.2,5749,12404,INR,Luxury Hotel
+HOT00205,Lakeview Hyderabad Residency 205,Hyderabad,"Hyderabad, Telangana, India",3.1,3257,6585,INR,Budget Hotel
+HOT00206,Urban Hyderabad Residency 206,Hyderabad,"Hyderabad, Telangana, India",3.2,8120,16102,INR,Budget Hotel
+HOT00207,Heritage Agra Retreat 207,Agra,"Agra, Uttar Pradesh, India",4.6,5204,5846,INR,Business Hotel
+HOT00208,Heritage Delhi Resort 208,Delhi,"Delhi, Delhi, India",4.1,4525,2740,INR,Boutique Hotel
+HOT00209,Royal Ooty Heights 209,Ooty,"Ooty, Tamil Nadu, India",3.8,641,2764,INR,Boutique Hotel
+HOT00210,Royal Kochi Residency 210,Kochi,"Kochi, Kerala, India",4.1,8332,13498,INR,Business Hotel
+HOT00211,Skyline Agra Inn 211,Agra,"Agra, Uttar Pradesh, India",3.7,3109,11435,INR,Budget Hotel
+HOT00212,Skyline Shimla Suites 212,Shimla,"Shimla, Himachal Pradesh, India",4.8,7406,4291,INR,Boutique Hotel
+HOT00213,Skyline Delhi Suites 213,Delhi,"Delhi, Delhi, India",2.9,7197,15298,INR,Budget Hotel
+HOT00214,Green Ooty Suites 214,Ooty,"Ooty, Tamil Nadu, India",3.6,4659,13594,INR,Business Hotel
+HOT00215,Urban Mysuru Inn 215,Mysuru,"Mysuru, Karnataka, India",4.5,5507,3059,INR,Boutique Hotel
+HOT00216,Skyline Chennai Hotel 216,Chennai,"Chennai, Tamil Nadu, India",3.4,2488,11823,INR,Hotel
+HOT00217,Urban Agra Suites 217,Agra,"Agra, Uttar Pradesh, India",4.7,5107,13743,INR,Resort
+HOT00218,Comfort Rishikesh Residency 218,Rishikesh,"Rishikesh, Uttarakhand, India",3.5,6196,11663,INR,Resort
+HOT00219,Royal Ooty Hotel 219,Ooty,"Ooty, Tamil Nadu, India",3.9,323,12781,INR,Boutique Hotel
+HOT00220,Lakeview Kolkata Retreat 220,Kolkata,"Kolkata, West Bengal, India",4.8,7992,7191,INR,Resort
+HOT00221,City Hyderabad Residency 221,Hyderabad,"Hyderabad, Telangana, India",3.4,1682,17535,INR,Budget Hotel
+HOT00222,Grand Ooty Retreat 222,Ooty,"Ooty, Tamil Nadu, India",4.6,2172,13244,INR,Resort
+HOT00223,City Kolkata Suites 223,Kolkata,"Kolkata, West Bengal, India",4.3,740,14363,INR,Boutique Hotel
+HOT00224,Heritage Jaipur Heights 224,Jaipur,"Jaipur, Rajasthan, India",4.4,7380,8567,INR,Budget Hotel
+HOT00225,Central Jaipur Resort 225,Jaipur,"Jaipur, Rajasthan, India",4.7,3203,12953,INR,Luxury Hotel
+HOT00226,Heritage Agra Resort 226,Agra,"Agra, Uttar Pradesh, India",4.4,6281,17379,INR,Budget Hotel
+HOT00227,City Udaipur Palace 227,Udaipur,"Udaipur, Rajasthan, India",4.5,2292,9092,INR,Hotel
+HOT00228,Regal Shimla Lodge 228,Shimla,"Shimla, Himachal Pradesh, India",4.8,8477,4985,INR,Boutique Hotel
+HOT00229,City Delhi Heights 229,Delhi,"Delhi, Delhi, India",3.7,8435,5728,INR,Business Hotel
+HOT00230,Lakeview Delhi Resort 230,Delhi,"Delhi, Delhi, India",4.7,461,14495,INR,Hotel
+HOT00231,Skyline Lucknow Retreat 231,Lucknow,"Lucknow, Uttar Pradesh, India",3.3,1362,13185,INR,Resort
+HOT00232,Regal Bengaluru Residency 232,Bengaluru,"Bengaluru, Karnataka, India",4.6,5518,5685,INR,Resort
+HOT00233,Central Mumbai Resort 233,Mumbai,"Mumbai, Maharashtra, India",4.3,2298,16271,INR,Business Hotel
+HOT00234,Grand Rishikesh Residency 234,Rishikesh,"Rishikesh, Uttarakhand, India",2.8,3558,5799,INR,Budget Hotel
+HOT00235,Skyline Rishikesh Hotel 235,Rishikesh,"Rishikesh, Uttarakhand, India",3.0,4745,8686,INR,Boutique Hotel
+HOT00236,Grand Chennai Palace 236,Chennai,"Chennai, Tamil Nadu, India",3.7,7514,2958,INR,Hotel
+HOT00237,Green Shimla Lodge 237,Shimla,"Shimla, Himachal Pradesh, India",2.8,8468,8827,INR,Luxury Hotel
+HOT00238,Central Hyderabad Hotel 238,Hyderabad,"Hyderabad, Telangana, India",2.8,5805,8782,INR,Budget Hotel
+HOT00239,City Udaipur Residency 239,Udaipur,"Udaipur, Rajasthan, India",3.9,5933,3117,INR,Budget Hotel
+HOT00240,Skyline Varanasi Lodge 240,Varanasi,"Varanasi, Uttar Pradesh, India",4.0,6422,16305,INR,Hotel
+HOT00241,Regal Lucknow Heights 241,Lucknow,"Lucknow, Uttar Pradesh, India",4.4,5875,3113,INR,Boutique Hotel
+HOT00242,Comfort Jaipur Residency 242,Jaipur,"Jaipur, Rajasthan, India",4.4,5472,5271,INR,Hotel
+HOT00243,Skyline Ahmedabad Retreat 243,Ahmedabad,"Ahmedabad, Gujarat, India",4.5,2893,16124,INR,Luxury Hotel
+HOT00244,Urban Shimla Suites 244,Shimla,"Shimla, Himachal Pradesh, India",4.5,1058,15897,INR,Hotel
+HOT00245,Lakeview Kochi Inn 245,Kochi,"Kochi, Kerala, India",4.5,711,11241,INR,Boutique Hotel
+HOT00246,Palm Ooty Lodge 246,Ooty,"Ooty, Tamil Nadu, India",3.8,624,7162,INR,Boutique Hotel
+HOT00247,Grand Ahmedabad Retreat 247,Ahmedabad,"Ahmedabad, Gujarat, India",3.4,6054,15218,INR,Business Hotel
+HOT00248,Palm Manali Retreat 248,Manali,"Manali, Himachal Pradesh, India",4.8,8154,17202,INR,Boutique Hotel
+HOT00249,Central Ooty Residency 249,Ooty,"Ooty, Tamil Nadu, India",4.3,1318,15010,INR,Budget Hotel
+HOT00250,Skyline Kolkata Heights 250,Kolkata,"Kolkata, West Bengal, India",3.5,1336,11645,INR,Luxury Hotel
+HOT00251,Central Kochi Resort 251,Kochi,"Kochi, Kerala, India",4.1,7006,6360,INR,Luxury Hotel
+HOT00252,Regal Manali Resort 252,Manali,"Manali, Himachal Pradesh, India",2.9,5801,15152,INR,Boutique Hotel
+HOT00253,Royal Mumbai Hotel 253,Mumbai,"Mumbai, Maharashtra, India",3.6,2646,1920,INR,Resort
+HOT00254,Urban Rishikesh Resort 254,Rishikesh,"Rishikesh, Uttarakhand, India",2.9,1126,8633,INR,Luxury Hotel
+HOT00255,Regal Ahmedabad Hotel 255,Ahmedabad,"Ahmedabad, Gujarat, India",4.8,555,5927,INR,Luxury Hotel
+HOT00256,Regal Manali Retreat 256,Manali,"Manali, Himachal Pradesh, India",3.7,1284,5411,INR,Budget Hotel
+HOT00257,Palm Ahmedabad Retreat 257,Ahmedabad,"Ahmedabad, Gujarat, India",4.2,4114,4617,INR,Hotel
+HOT00258,Heritage Kolkata Lodge 258,Kolkata,"Kolkata, West Bengal, India",3.6,1954,9477,INR,Boutique Hotel
+HOT00259,Lakeview Manali Heights 259,Manali,"Manali, Himachal Pradesh, India",4.3,8072,7459,INR,Hotel
+HOT00260,Royal Hyderabad Resort 260,Hyderabad,"Hyderabad, Telangana, India",3.2,7317,3776,INR,Luxury Hotel
+HOT00261,Urban Mysuru Retreat 261,Mysuru,"Mysuru, Karnataka, India",4.3,4782,10728,INR,Resort
+HOT00262,Regal Kolkata Lodge 262,Kolkata,"Kolkata, West Bengal, India",3.3,3317,5450,INR,Resort
+HOT00263,Grand Shimla Retreat 263,Shimla,"Shimla, Himachal Pradesh, India",4.0,6069,16215,INR,Budget Hotel
+HOT00264,Green Hyderabad Residency 264,Hyderabad,"Hyderabad, Telangana, India",2.9,6548,16584,INR,Budget Hotel
+HOT00265,Palm Udaipur Residency 265,Udaipur,"Udaipur, Rajasthan, India",3.1,5219,3330,INR,Business Hotel
+HOT00266,Urban Manali Lodge 266,Manali,"Manali, Himachal Pradesh, India",3.5,3006,5128,INR,Business Hotel
+HOT00267,Grand Ooty Residency 267,Ooty,"Ooty, Tamil Nadu, India",3.9,5007,6295,INR,Resort
+HOT00268,Comfort Mysuru Palace 268,Mysuru,"Mysuru, Karnataka, India",3.5,4678,3484,INR,Boutique Hotel
+HOT00269,Urban Pune Lodge 269,Pune,"Pune, Maharashtra, India",3.4,4986,3961,INR,Budget Hotel
+HOT00270,Green Kolkata Suites 270,Kolkata,"Kolkata, West Bengal, India",3.2,5556,2249,INR,Hotel
+HOT00271,Grand Delhi Heights 271,Delhi,"Delhi, Delhi, India",4.2,6850,1892,INR,Business Hotel
+HOT00272,Central Varanasi Heights 272,Varanasi,"Varanasi, Uttar Pradesh, India",3.8,6678,10646,INR,Business Hotel
+HOT00273,Comfort Delhi Inn 273,Delhi,"Delhi, Delhi, India",3.1,6834,16767,INR,Business Hotel
+HOT00274,Regal Pune Suites 274,Pune,"Pune, Maharashtra, India",3.5,5256,12217,INR,Business Hotel
+HOT00275,Regal Hyderabad Lodge 275,Hyderabad,"Hyderabad, Telangana, India",4.0,5253,8821,INR,Business Hotel
+HOT00276,Central Chennai Resort 276,Chennai,"Chennai, Tamil Nadu, India",3.3,1611,2558,INR,Boutique Hotel
+HOT00277,Green Lucknow Hotel 277,Lucknow,"Lucknow, Uttar Pradesh, India",3.3,2641,11629,INR,Budget Hotel
+HOT00278,Lakeview Mysuru Suites 278,Mysuru,"Mysuru, Karnataka, India",3.8,8458,16196,INR,Business Hotel
+HOT00279,Heritage Kochi Inn 279,Kochi,"Kochi, Kerala, India",3.0,6467,17462,INR,Business Hotel
+HOT00280,Lakeview Jaipur Retreat 280,Jaipur,"Jaipur, Rajasthan, India",2.9,4634,17116,INR,Budget Hotel
+HOT00281,Central Shimla Lodge 281,Shimla,"Shimla, Himachal Pradesh, India",2.8,1786,15020,INR,Resort
+HOT00282,Comfort Goa Retreat 282,Goa,"Goa, Goa, India",4.4,6020,2382,INR,Business Hotel
+HOT00283,Green Mumbai Lodge 283,Mumbai,"Mumbai, Maharashtra, India",3.2,4753,3309,INR,Business Hotel
+HOT00284,Heritage Ooty Lodge 284,Ooty,"Ooty, Tamil Nadu, India",3.4,1971,5116,INR,Hotel
+HOT00285,Regal Lucknow Retreat 285,Lucknow,"Lucknow, Uttar Pradesh, India",4.0,6015,5627,INR,Resort
+HOT00286,Skyline Rishikesh Hotel 286,Rishikesh,"Rishikesh, Uttarakhand, India",3.9,767,2175,INR,Resort
+HOT00287,Heritage Mysuru Lodge 287,Mysuru,"Mysuru, Karnataka, India",3.8,8471,5480,INR,Boutique Hotel
+HOT00288,Regal Rishikesh Suites 288,Rishikesh,"Rishikesh, Uttarakhand, India",3.6,4927,11922,INR,Budget Hotel
+HOT00289,Skyline Ooty Resort 289,Ooty,"Ooty, Tamil Nadu, India",4.3,4936,16461,INR,Hotel
+HOT00290,Regal Ahmedabad Residency 290,Ahmedabad,"Ahmedabad, Gujarat, India",4.9,5065,1773,INR,Budget Hotel
+HOT00291,Central Shimla Palace 291,Shimla,"Shimla, Himachal Pradesh, India",4.3,7896,6487,INR,Budget Hotel
+HOT00292,Palm Rishikesh Suites 292,Rishikesh,"Rishikesh, Uttarakhand, India",4.5,3993,1934,INR,Budget Hotel
+HOT00293,Lakeview Chennai Inn 293,Chennai,"Chennai, Tamil Nadu, India",3.7,6886,5862,INR,Business Hotel
+HOT00294,Palm Pune Lodge 294,Pune,"Pune, Maharashtra, India",4.4,7751,2940,INR,Luxury Hotel
+HOT00295,Skyline Hyderabad Palace 295,Hyderabad,"Hyderabad, Telangana, India",4.0,7862,13247,INR,Boutique Hotel
+HOT00296,Heritage Kolkata Lodge 296,Kolkata,"Kolkata, West Bengal, India",3.5,5829,9562,INR,Budget Hotel
+HOT00297,Lakeview Shimla Palace 297,Shimla,"Shimla, Himachal Pradesh, India",3.4,4915,8268,INR,Boutique Hotel
+HOT00298,Comfort Kochi Palace 298,Kochi,"Kochi, Kerala, India",4.2,8036,11288,INR,Business Hotel
+HOT00299,Skyline Ahmedabad Heights 299,Ahmedabad,"Ahmedabad, Gujarat, India",3.4,6245,13828,INR,Boutique Hotel
+HOT00300,Central Hyderabad Inn 300,Hyderabad,"Hyderabad, Telangana, India",3.4,1319,12249,INR,Business Hotel
+HOT00301,Comfort Goa Resort 301,Goa,"Goa, Goa, India",3.2,4467,9800,INR,Resort
+HOT00302,Green Chennai Palace 302,Chennai,"Chennai, Tamil Nadu, India",3.3,3722,8529,INR,Hotel
+HOT00303,Palm Chennai Retreat 303,Chennai,"Chennai, Tamil Nadu, India",4.3,1672,5404,INR,Hotel
+HOT00304,City Varanasi Hotel 304,Varanasi,"Varanasi, Uttar Pradesh, India",4.2,7818,16545,INR,Luxury Hotel
+HOT00305,Central Pune Retreat 305,Pune,"Pune, Maharashtra, India",3.4,994,3831,INR,Luxury Hotel
+HOT00306,Lakeview Agra Lodge 306,Agra,"Agra, Uttar Pradesh, India",4.4,636,6636,INR,Business Hotel
+HOT00307,Grand Kolkata Hotel 307,Kolkata,"Kolkata, West Bengal, India",4.5,3077,10385,INR,Hotel
+HOT00308,Central Bengaluru Residency 308,Bengaluru,"Bengaluru, Karnataka, India",4.7,5514,10224,INR,Business Hotel
+HOT00309,Skyline Varanasi Resort 309,Varanasi,"Varanasi, Uttar Pradesh, India",4.7,2223,17422,INR,Business Hotel
+HOT00310,Lakeview Goa Residency 310,Goa,"Goa, Goa, India",3.5,7543,9330,INR,Luxury Hotel
+HOT00311,Grand Kolkata Retreat 311,Kolkata,"Kolkata, West Bengal, India",4.5,3189,6650,INR,Budget Hotel
+HOT00312,Palm Lucknow Lodge 312,Lucknow,"Lucknow, Uttar Pradesh, India",3.5,6592,4025,INR,Resort
+HOT00313,Heritage Hyderabad Retreat 313,Hyderabad,"Hyderabad, Telangana, India",4.8,136,9445,INR,Business Hotel
+HOT00314,Heritage Jaipur Heights 314,Jaipur,"Jaipur, Rajasthan, India",4.8,4972,1274,INR,Boutique Hotel
+HOT00315,Comfort Ahmedabad Palace 315,Ahmedabad,"Ahmedabad, Gujarat, India",2.9,1961,16150,INR,Boutique Hotel
+HOT00316,Palm Kolkata Lodge 316,Kolkata,"Kolkata, West Bengal, India",4.7,5120,4747,INR,Luxury Hotel
+HOT00317,Regal Kochi Palace 317,Kochi,"Kochi, Kerala, India",3.3,2213,16569,INR,Resort
+HOT00318,Comfort Manali Retreat 318,Manali,"Manali, Himachal Pradesh, India",3.7,7739,8056,INR,Resort
+HOT00319,Royal Rishikesh Lodge 319,Rishikesh,"Rishikesh, Uttarakhand, India",3.7,5952,3459,INR,Budget Hotel
+HOT00320,Grand Chennai Lodge 320,Chennai,"Chennai, Tamil Nadu, India",4.7,3337,5810,INR,Resort
+HOT00321,Skyline Mysuru Resort 321,Mysuru,"Mysuru, Karnataka, India",3.0,3390,16917,INR,Hotel
+HOT00322,Heritage Ooty Inn 322,Ooty,"Ooty, Tamil Nadu, India",3.8,8434,14512,INR,Business Hotel
+HOT00323,Grand Agra Lodge 323,Agra,"Agra, Uttar Pradesh, India",3.8,5074,1613,INR,Business Hotel
+HOT00324,Grand Goa Palace 324,Goa,"Goa, Goa, India",4.0,767,14783,INR,Boutique Hotel
+HOT00325,Skyline Delhi Inn 325,Delhi,"Delhi, Delhi, India",4.8,1155,16368,INR,Hotel
+HOT00326,Palm Kochi Suites 326,Kochi,"Kochi, Kerala, India",4.4,6912,13170,INR,Business Hotel
+HOT00327,Palm Manali Hotel 327,Manali,"Manali, Himachal Pradesh, India",3.0,2203,12295,INR,Hotel
+HOT00328,Skyline Kolkata Hotel 328,Kolkata,"Kolkata, West Bengal, India",3.9,3673,1013,INR,Hotel
+HOT00329,Heritage Kochi Lodge 329,Kochi,"Kochi, Kerala, India",3.7,6239,8425,INR,Resort
+HOT00330,Regal Manali Suites 330,Manali,"Manali, Himachal Pradesh, India",3.4,1873,1955,INR,Luxury Hotel
+HOT00331,Green Udaipur Inn 331,Udaipur,"Udaipur, Rajasthan, India",3.3,1127,4206,INR,Budget Hotel
+HOT00332,Heritage Mumbai Inn 332,Mumbai,"Mumbai, Maharashtra, India",3.3,749,14081,INR,Business Hotel
+HOT00333,Skyline Jaipur Palace 333,Jaipur,"Jaipur, Rajasthan, India",4.4,949,5491,INR,Budget Hotel
+HOT00334,Lakeview Kochi Retreat 334,Kochi,"Kochi, Kerala, India",4.0,5278,8662,INR,Boutique Hotel
+HOT00335,Urban Hyderabad Lodge 335,Hyderabad,"Hyderabad, Telangana, India",3.3,4948,9916,INR,Hotel
+HOT00336,Green Varanasi Suites 336,Varanasi,"Varanasi, Uttar Pradesh, India",4.1,7024,17140,INR,Hotel
+HOT00337,Urban Ahmedabad Hotel 337,Ahmedabad,"Ahmedabad, Gujarat, India",4.5,5247,14542,INR,Business Hotel
+HOT00338,Central Hyderabad Hotel 338,Hyderabad,"Hyderabad, Telangana, India",3.2,7783,8796,INR,Resort
+HOT00339,Comfort Kochi Suites 339,Kochi,"Kochi, Kerala, India",4.5,969,14422,INR,Business Hotel
+HOT00340,Skyline Varanasi Suites 340,Varanasi,"Varanasi, Uttar Pradesh, India",3.6,4202,7562,INR,Boutique Hotel
+HOT00341,Heritage Delhi Retreat 341,Delhi,"Delhi, Delhi, India",3.0,3145,2588,INR,Boutique Hotel
+HOT00342,Urban Lucknow Inn 342,Lucknow,"Lucknow, Uttar Pradesh, India",4.6,3107,8011,INR,Business Hotel
+HOT00343,Regal Pune Heights 343,Pune,"Pune, Maharashtra, India",4.8,276,7840,INR,Resort
+HOT00344,Comfort Chennai Resort 344,Chennai,"Chennai, Tamil Nadu, India",4.7,3375,13896,INR,Resort
+HOT00345,Regal Varanasi Heights 345,Varanasi,"Varanasi, Uttar Pradesh, India",3.6,5911,11006,INR,Boutique Hotel
+HOT00346,Skyline Ahmedabad Resort 346,Ahmedabad,"Ahmedabad, Gujarat, India",3.8,7717,11393,INR,Resort
+HOT00347,Regal Ahmedabad Hotel 347,Ahmedabad,"Ahmedabad, Gujarat, India",2.9,3650,5681,INR,Hotel
+HOT00348,Skyline Goa Hotel 348,Goa,"Goa, Goa, India",3.4,3239,11709,INR,Resort
+HOT00349,Green Lucknow Palace 349,Lucknow,"Lucknow, Uttar Pradesh, India",3.8,5555,9332,INR,Business Hotel
+HOT00350,Heritage Shimla Suites 350,Shimla,"Shimla, Himachal Pradesh, India",4.3,5795,6446,INR,Resort
+HOT00351,Heritage Varanasi Suites 351,Varanasi,"Varanasi, Uttar Pradesh, India",4.7,987,2008,INR,Hotel
+HOT00352,Grand Mumbai Hotel 352,Mumbai,"Mumbai, Maharashtra, India",3.1,3816,3127,INR,Luxury Hotel
+HOT00353,Grand Hyderabad Palace 353,Hyderabad,"Hyderabad, Telangana, India",3.9,6139,2880,INR,Budget Hotel
+HOT00354,Heritage Rishikesh Resort 354,Rishikesh,"Rishikesh, Uttarakhand, India",2.8,6764,1288,INR,Hotel
+HOT00355,Comfort Ooty Heights 355,Ooty,"Ooty, Tamil Nadu, India",3.9,4722,1461,INR,Budget Hotel
+HOT00356,City Udaipur Residency 356,Udaipur,"Udaipur, Rajasthan, India",4.7,2464,8796,INR,Resort
+HOT00357,Skyline Rishikesh Heights 357,Rishikesh,"Rishikesh, Uttarakhand, India",4.5,4404,13905,INR,Hotel
+HOT00358,Palm Ahmedabad Resort 358,Ahmedabad,"Ahmedabad, Gujarat, India",4.0,3725,10729,INR,Luxury Hotel
+HOT00359,Urban Delhi Inn 359,Delhi,"Delhi, Delhi, India",3.0,6238,13259,INR,Budget Hotel
+HOT00360,Grand Shimla Inn 360,Shimla,"Shimla, Himachal Pradesh, India",4.3,1379,17279,INR,Business Hotel
+HOT00361,Green Mysuru Residency 361,Mysuru,"Mysuru, Karnataka, India",4.7,722,8428,INR,Resort
+HOT00362,Heritage Agra Heights 362,Agra,"Agra, Uttar Pradesh, India",2.9,1243,10087,INR,Budget Hotel
+HOT00363,Urban Agra Inn 363,Agra,"Agra, Uttar Pradesh, India",3.2,5177,1413,INR,Resort
+HOT00364,City Agra Hotel 364,Agra,"Agra, Uttar Pradesh, India",4.8,4928,6223,INR,Budget Hotel
+HOT00365,Green Jaipur Hotel 365,Jaipur,"Jaipur, Rajasthan, India",4.2,5460,13477,INR,Luxury Hotel
+HOT00366,Comfort Hyderabad Residency 366,Hyderabad,"Hyderabad, Telangana, India",3.9,5691,2659,INR,Hotel
+HOT00367,Lakeview Udaipur Residency 367,Udaipur,"Udaipur, Rajasthan, India",3.5,6524,11594,INR,Hotel
+HOT00368,Heritage Goa Resort 368,Goa,"Goa, Goa, India",3.3,6175,15050,INR,Resort
+HOT00369,Urban Agra Hotel 369,Agra,"Agra, Uttar Pradesh, India",3.0,4864,8975,INR,Luxury Hotel
+HOT00370,Royal Delhi Heights 370,Delhi,"Delhi, Delhi, India",3.1,2552,13667,INR,Boutique Hotel
+HOT00371,Royal Ahmedabad Residency 371,Ahmedabad,"Ahmedabad, Gujarat, India",2.8,5075,15473,INR,Boutique Hotel
+HOT00372,Royal Goa Suites 372,Goa,"Goa, Goa, India",3.0,7086,15607,INR,Budget Hotel
+HOT00373,Skyline Varanasi Hotel 373,Varanasi,"Varanasi, Uttar Pradesh, India",3.0,1493,12497,INR,Budget Hotel
+HOT00374,Green Delhi Retreat 374,Delhi,"Delhi, Delhi, India",4.6,227,10463,INR,Business Hotel
+HOT00375,Royal Lucknow Lodge 375,Lucknow,"Lucknow, Uttar Pradesh, India",4.7,4002,17975,INR,Resort
+HOT00376,City Lucknow Suites 376,Lucknow,"Lucknow, Uttar Pradesh, India",3.4,4422,17058,INR,Resort
+HOT00377,City Delhi Hotel 377,Delhi,"Delhi, Delhi, India",3.4,4936,16767,INR,Hotel
+HOT00378,Central Ahmedabad Palace 378,Ahmedabad,"Ahmedabad, Gujarat, India",4.3,8148,7307,INR,Business Hotel
+HOT00379,City Chennai Heights 379,Chennai,"Chennai, Tamil Nadu, India",2.8,6508,11786,INR,Budget Hotel
+HOT00380,Regal Lucknow Resort 380,Lucknow,"Lucknow, Uttar Pradesh, India",3.5,2255,10744,INR,Boutique Hotel
+HOT00381,Comfort Rishikesh Palace 381,Rishikesh,"Rishikesh, Uttarakhand, India",3.8,2935,13949,INR,Boutique Hotel
+HOT00382,Comfort Kochi Resort 382,Kochi,"Kochi, Kerala, India",4.8,3996,11578,INR,Business Hotel
+HOT00383,Palm Goa Retreat 383,Goa,"Goa, Goa, India",3.0,3298,6795,INR,Luxury Hotel
+HOT00384,Grand Varanasi Resort 384,Varanasi,"Varanasi, Uttar Pradesh, India",4.8,3459,15267,INR,Boutique Hotel
+HOT00385,Palm Delhi Resort 385,Delhi,"Delhi, Delhi, India",3.1,4986,8830,INR,Boutique Hotel
+HOT00386,Comfort Hyderabad Hotel 386,Hyderabad,"Hyderabad, Telangana, India",4.5,1236,15615,INR,Budget Hotel
+HOT00387,Green Shimla Hotel 387,Shimla,"Shimla, Himachal Pradesh, India",3.9,6878,2104,INR,Boutique Hotel
+HOT00388,Green Varanasi Residency 388,Varanasi,"Varanasi, Uttar Pradesh, India",3.0,4092,12532,INR,Resort
+HOT00389,Grand Rishikesh Hotel 389,Rishikesh,"Rishikesh, Uttarakhand, India",4.8,5457,15005,INR,Hotel
+HOT00390,Royal Bengaluru Heights 390,Bengaluru,"Bengaluru, Karnataka, India",3.3,3646,15507,INR,Boutique Hotel
+HOT00391,Heritage Lucknow Lodge 391,Lucknow,"Lucknow, Uttar Pradesh, India",3.1,427,16719,INR,Hotel
+HOT00392,Palm Kochi Residency 392,Kochi,"Kochi, Kerala, India",3.0,2346,12314,INR,Boutique Hotel
+HOT00393,Heritage Mysuru Palace 393,Mysuru,"Mysuru, Karnataka, India",3.9,5731,16502,INR,Hotel
+HOT00394,Comfort Manali Resort 394,Manali,"Manali, Himachal Pradesh, India",3.5,4944,2364,INR,Luxury Hotel
+HOT00395,Grand Chennai Retreat 395,Chennai,"Chennai, Tamil Nadu, India",4.2,2717,8892,INR,Budget Hotel
+HOT00396,Skyline Kolkata Suites 396,Kolkata,"Kolkata, West Bengal, India",3.5,7010,16040,INR,Resort
+HOT00397,Urban Lucknow Suites 397,Lucknow,"Lucknow, Uttar Pradesh, India",3.2,7105,13862,INR,Hotel
+HOT00398,Lakeview Rishikesh Resort 398,Rishikesh,"Rishikesh, Uttarakhand, India",4.0,6395,1045,INR,Luxury Hotel
+HOT00399,Lakeview Pune Heights 399,Pune,"Pune, Maharashtra, India",4.4,1050,4234,INR,Budget Hotel
+HOT00400,Regal Kolkata Retreat 400,Kolkata,"Kolkata, West Bengal, India",3.2,1892,9496,INR,Luxury Hotel
+HOT00401,Skyline Shimla Retreat 401,Shimla,"Shimla, Himachal Pradesh, India",4.1,6456,4643,INR,Boutique Hotel
+HOT00402,Heritage Ahmedabad Suites 402,Ahmedabad,"Ahmedabad, Gujarat, India",4.5,4898,3677,INR,Luxury Hotel
+HOT00403,Regal Hyderabad Residency 403,Hyderabad,"Hyderabad, Telangana, India",3.3,1941,6898,INR,Boutique Hotel
+HOT00404,Skyline Hyderabad Hotel 404,Hyderabad,"Hyderabad, Telangana, India",3.7,2283,13473,INR,Business Hotel
+HOT00405,Heritage Kolkata Lodge 405,Kolkata,"Kolkata, West Bengal, India",4.3,2863,6367,INR,Business Hotel
+HOT00406,City Kochi Suites 406,Kochi,"Kochi, Kerala, India",3.5,7414,2656,INR,Boutique Hotel
+HOT00407,Heritage Bengaluru Suites 407,Bengaluru,"Bengaluru, Karnataka, India",3.2,6315,17462,INR,Luxury Hotel
+HOT00408,Palm Shimla Resort 408,Shimla,"Shimla, Himachal Pradesh, India",3.7,7297,16913,INR,Resort
+HOT00409,Green Delhi Inn 409,Delhi,"Delhi, Delhi, India",4.5,3638,10471,INR,Hotel
+HOT00410,Lakeview Goa Lodge 410,Goa,"Goa, Goa, India",3.4,7517,17130,INR,Budget Hotel
+HOT00411,Royal Ooty Residency 411,Ooty,"Ooty, Tamil Nadu, India",3.4,6035,2263,INR,Luxury Hotel
+HOT00412,Skyline Manali Palace 412,Manali,"Manali, Himachal Pradesh, India",4.9,1702,9011,INR,Boutique Hotel
+HOT00413,Heritage Mumbai Heights 413,Mumbai,"Mumbai, Maharashtra, India",3.5,1450,15287,INR,Hotel
+HOT00414,Lakeview Jaipur Retreat 414,Jaipur,"Jaipur, Rajasthan, India",4.6,7040,6338,INR,Budget Hotel
+HOT00415,Lakeview Hyderabad Palace 415,Hyderabad,"Hyderabad, Telangana, India",4.5,5772,10110,INR,Budget Hotel
+HOT00416,City Varanasi Retreat 416,Varanasi,"Varanasi, Uttar Pradesh, India",4.9,4819,10380,INR,Budget Hotel
+HOT00417,Skyline Goa Residency 417,Goa,"Goa, Goa, India",3.1,6768,2842,INR,Boutique Hotel
+HOT00418,Comfort Hyderabad Suites 418,Hyderabad,"Hyderabad, Telangana, India",3.3,5302,9011,INR,Luxury Hotel
+HOT00419,Heritage Lucknow Suites 419,Lucknow,"Lucknow, Uttar Pradesh, India",4.0,4427,14473,INR,Business Hotel
+HOT00420,Royal Manali Residency 420,Manali,"Manali, Himachal Pradesh, India",3.6,4583,12993,INR,Business Hotel
+HOT00421,Regal Shimla Inn 421,Shimla,"Shimla, Himachal Pradesh, India",4.6,1551,15922,INR,Luxury Hotel
+HOT00422,Royal Ahmedabad Lodge 422,Ahmedabad,"Ahmedabad, Gujarat, India",3.6,7064,7841,INR,Business Hotel
+HOT00423,Regal Goa Heights 423,Goa,"Goa, Goa, India",3.5,2164,16803,INR,Boutique Hotel
+HOT00424,Grand Mumbai Residency 424,Mumbai,"Mumbai, Maharashtra, India",4.1,7554,1433,INR,Hotel
+HOT00425,Heritage Kolkata Resort 425,Kolkata,"Kolkata, West Bengal, India",2.8,7034,7529,INR,Luxury Hotel
+HOT00426,Urban Hyderabad Heights 426,Hyderabad,"Hyderabad, Telangana, India",3.1,4514,3958,INR,Luxury Hotel
+HOT00427,Central Ahmedabad Residency 427,Ahmedabad,"Ahmedabad, Gujarat, India",3.6,2736,2596,INR,Business Hotel
+HOT00428,Comfort Kochi Palace 428,Kochi,"Kochi, Kerala, India",3.7,1519,4018,INR,Hotel
+HOT00429,Heritage Pune Residency 429,Pune,"Pune, Maharashtra, India",3.1,3730,17921,INR,Luxury Hotel
+HOT00430,Grand Manali Inn 430,Manali,"Manali, Himachal Pradesh, India",4.3,2000,14738,INR,Luxury Hotel
+HOT00431,Heritage Hyderabad Residency 431,Hyderabad,"Hyderabad, Telangana, India",3.3,1488,4256,INR,Hotel
+HOT00432,Regal Mysuru Heights 432,Mysuru,"Mysuru, Karnataka, India",3.1,2206,5581,INR,Hotel
+HOT00433,Green Ooty Inn 433,Ooty,"Ooty, Tamil Nadu, India",4.1,2713,15321,INR,Boutique Hotel
+HOT00434,Urban Pune Suites 434,Pune,"Pune, Maharashtra, India",4.7,7273,8018,INR,Hotel
+HOT00435,City Chennai Residency 435,Chennai,"Chennai, Tamil Nadu, India",4.0,6316,12419,INR,Business Hotel
+HOT00436,City Mysuru Palace 436,Mysuru,"Mysuru, Karnataka, India",3.4,1405,9031,INR,Budget Hotel
+HOT00437,Green Rishikesh Heights 437,Rishikesh,"Rishikesh, Uttarakhand, India",4.4,464,10784,INR,Resort
+HOT00438,Green Ooty Lodge 438,Ooty,"Ooty, Tamil Nadu, India",3.2,6443,10584,INR,Luxury Hotel
+HOT00439,Lakeview Mumbai Resort 439,Mumbai,"Mumbai, Maharashtra, India",3.6,3974,17270,INR,Luxury Hotel
+HOT00440,Royal Rishikesh Lodge 440,Rishikesh,"Rishikesh, Uttarakhand, India",4.7,222,12732,INR,Boutique Hotel
+HOT00441,Palm Hyderabad Hotel 441,Hyderabad,"Hyderabad, Telangana, India",3.6,2855,16334,INR,Hotel
+HOT00442,Green Bengaluru Residency 442,Bengaluru,"Bengaluru, Karnataka, India",2.8,3559,2205,INR,Hotel
+HOT00443,Skyline Lucknow Heights 443,Lucknow,"Lucknow, Uttar Pradesh, India",4.1,8234,14512,INR,Business Hotel
+HOT00444,Royal Lucknow Lodge 444,Lucknow,"Lucknow, Uttar Pradesh, India",3.9,2526,9992,INR,Hotel
+HOT00445,Royal Kochi Lodge 445,Kochi,"Kochi, Kerala, India",4.7,2570,11606,INR,Business Hotel
+HOT00446,Urban Agra Residency 446,Agra,"Agra, Uttar Pradesh, India",3.5,7192,8719,INR,Hotel
+HOT00447,Royal Jaipur Hotel 447,Jaipur,"Jaipur, Rajasthan, India",3.0,926,11034,INR,Luxury Hotel
+HOT00448,Royal Kolkata Inn 448,Kolkata,"Kolkata, West Bengal, India",4.3,210,6268,INR,Business Hotel
+HOT00449,Skyline Ahmedabad Lodge 449,Ahmedabad,"Ahmedabad, Gujarat, India",4.4,4272,6371,INR,Boutique Hotel
+HOT00450,Comfort Hyderabad Heights 450,Hyderabad,"Hyderabad, Telangana, India",4.3,1959,1861,INR,Boutique Hotel
+HOT00451,Central Udaipur Lodge 451,Udaipur,"Udaipur, Rajasthan, India",2.9,1287,17157,INR,Business Hotel
+HOT00452,Regal Ooty Inn 452,Ooty,"Ooty, Tamil Nadu, India",3.8,2759,12948,INR,Resort
+HOT00453,Royal Goa Residency 453,Goa,"Goa, Goa, India",3.3,8361,984,INR,Hotel
+HOT00454,Lakeview Bengaluru Inn 454,Bengaluru,"Bengaluru, Karnataka, India",3.8,6299,5817,INR,Resort
+HOT00455,Skyline Mumbai Hotel 455,Mumbai,"Mumbai, Maharashtra, India",3.3,4092,14539,INR,Luxury Hotel
+HOT00456,Central Mysuru Residency 456,Mysuru,"Mysuru, Karnataka, India",4.0,1981,17350,INR,Luxury Hotel
+HOT00457,City Mumbai Palace 457,Mumbai,"Mumbai, Maharashtra, India",4.5,777,14037,INR,Hotel
+HOT00458,Central Manali Heights 458,Manali,"Manali, Himachal Pradesh, India",3.5,7508,1161,INR,Boutique Hotel
+HOT00459,Central Pune Heights 459,Pune,"Pune, Maharashtra, India",4.4,3999,16101,INR,Boutique Hotel
+HOT00460,Heritage Agra Palace 460,Agra,"Agra, Uttar Pradesh, India",4.3,4041,5833,INR,Hotel
+HOT00461,Grand Udaipur Palace 461,Udaipur,"Udaipur, Rajasthan, India",3.9,182,11877,INR,Hotel
+HOT00462,Comfort Lucknow Heights 462,Lucknow,"Lucknow, Uttar Pradesh, India",3.0,3927,14656,INR,Business Hotel
+HOT00463,City Mumbai Heights 463,Mumbai,"Mumbai, Maharashtra, India",3.0,3817,17931,INR,Business Hotel
+HOT00464,Heritage Ahmedabad Residency 464,Ahmedabad,"Ahmedabad, Gujarat, India",4.0,8305,5274,INR,Luxury Hotel
+HOT00465,Royal Lucknow Inn 465,Lucknow,"Lucknow, Uttar Pradesh, India",3.7,2166,8658,INR,Boutique Hotel
+HOT00466,Regal Goa Hotel 466,Goa,"Goa, Goa, India",4.3,5370,11322,INR,Business Hotel
+HOT00467,Lakeview Goa Residency 467,Goa,"Goa, Goa, India",4.8,2255,4470,INR,Resort
+HOT00468,City Chennai Resort 468,Chennai,"Chennai, Tamil Nadu, India",3.8,6685,4856,INR,Budget Hotel
+HOT00469,Lakeview Ahmedabad Resort 469,Ahmedabad,"Ahmedabad, Gujarat, India",3.4,4366,4829,INR,Hotel
+HOT00470,Urban Kolkata Heights 470,Kolkata,"Kolkata, West Bengal, India",4.5,685,7945,INR,Boutique Hotel
+HOT00471,Royal Hyderabad Palace 471,Hyderabad,"Hyderabad, Telangana, India",4.8,6517,17725,INR,Hotel
+HOT00472,Central Kochi Suites 472,Kochi,"Kochi, Kerala, India",2.9,6650,15717,INR,Budget Hotel
+HOT00473,Lakeview Varanasi Residency 473,Varanasi,"Varanasi, Uttar Pradesh, India",3.8,2315,4879,INR,Hotel
+HOT00474,Lakeview Mumbai Suites 474,Mumbai,"Mumbai, Maharashtra, India",3.2,6588,13097,INR,Luxury Hotel
+HOT00475,Green Delhi Heights 475,Delhi,"Delhi, Delhi, India",4.7,1253,1614,INR,Hotel
+HOT00476,Urban Pune Resort 476,Pune,"Pune, Maharashtra, India",4.5,1531,11764,INR,Hotel
+HOT00477,Heritage Mumbai Inn 477,Mumbai,"Mumbai, Maharashtra, India",3.2,7121,13843,INR,Business Hotel
+HOT00478,Palm Bengaluru Hotel 478,Bengaluru,"Bengaluru, Karnataka, India",3.2,3542,7032,INR,Boutique Hotel
+HOT00479,Heritage Goa Suites 479,Goa,"Goa, Goa, India",2.9,4051,10570,INR,Business Hotel
+HOT00480,Skyline Udaipur Resort 480,Udaipur,"Udaipur, Rajasthan, India",2.9,4608,13450,INR,Resort
+HOT00481,Lakeview Udaipur Lodge 481,Udaipur,"Udaipur, Rajasthan, India",3.3,344,13433,INR,Luxury Hotel
+HOT00482,Heritage Ahmedabad Lodge 482,Ahmedabad,"Ahmedabad, Gujarat, India",4.4,5661,17362,INR,Boutique Hotel
+HOT00483,Central Lucknow Suites 483,Lucknow,"Lucknow, Uttar Pradesh, India",2.9,3613,1860,INR,Boutique Hotel
+HOT00484,Heritage Mumbai Lodge 484,Mumbai,"Mumbai, Maharashtra, India",3.6,3838,6130,INR,Hotel
+HOT00485,Urban Jaipur Palace 485,Jaipur,"Jaipur, Rajasthan, India",3.4,941,8089,INR,Budget Hotel
+HOT00486,Regal Lucknow Suites 486,Lucknow,"Lucknow, Uttar Pradesh, India",3.2,5235,12656,INR,Budget Hotel
+HOT00487,Comfort Bengaluru Retreat 487,Bengaluru,"Bengaluru, Karnataka, India",4.8,2353,7068,INR,Business Hotel
+HOT00488,Central Varanasi Suites 488,Varanasi,"Varanasi, Uttar Pradesh, India",3.8,1503,2740,INR,Resort
+HOT00489,Lakeview Rishikesh Inn 489,Rishikesh,"Rishikesh, Uttarakhand, India",3.9,36,11770,INR,Budget Hotel
+HOT00490,City Pune Retreat 490,Pune,"Pune, Maharashtra, India",4.3,5326,2851,INR,Hotel
+HOT00491,Green Hyderabad Suites 491,Hyderabad,"Hyderabad, Telangana, India",4.4,6003,3276,INR,Boutique Hotel
+HOT00492,Green Lucknow Residency 492,Lucknow,"Lucknow, Uttar Pradesh, India",3.5,5310,5371,INR,Resort
+HOT00493,Urban Udaipur Resort 493,Udaipur,"Udaipur, Rajasthan, India",4.2,2879,12592,INR,Resort
+HOT00494,City Agra Hotel 494,Agra,"Agra, Uttar Pradesh, India",3.4,4850,5072,INR,Resort
+HOT00495,Comfort Bengaluru Hotel 495,Bengaluru,"Bengaluru, Karnataka, India",4.6,555,6866,INR,Budget Hotel
+HOT00496,Green Mysuru Palace 496,Mysuru,"Mysuru, Karnataka, India",4.1,1730,17158,INR,Resort
+HOT00497,Comfort Mysuru Residency 497,Mysuru,"Mysuru, Karnataka, India",3.3,5259,6401,INR,Luxury Hotel
+HOT00498,Comfort Delhi Retreat 498,Delhi,"Delhi, Delhi, India",3.7,4370,7770,INR,Resort
+HOT00499,Regal Delhi Heights 499,Delhi,"Delhi, Delhi, India",4.5,45,2477,INR,Business Hotel
+HOT00500,Comfort Manali Hotel 500,Manali,"Manali, Himachal Pradesh, India",4.8,6808,17057,INR,Business Hotel
+HOT00501,Skyline Ahmedabad Hotel 501,Ahmedabad,"Ahmedabad, Gujarat, India",3.0,7880,8291,INR,Resort
+HOT00502,Royal Manali Inn 502,Manali,"Manali, Himachal Pradesh, India",3.4,5246,9456,INR,Hotel
+HOT00503,Regal Delhi Suites 503,Delhi,"Delhi, Delhi, India",4.7,2661,3357,INR,Budget Hotel
+HOT00504,Regal Delhi Resort 504,Delhi,"Delhi, Delhi, India",4.3,7091,6306,INR,Budget Hotel
+HOT00505,City Udaipur Inn 505,Udaipur,"Udaipur, Rajasthan, India",3.0,3392,7125,INR,Business Hotel
+HOT00506,Comfort Varanasi Lodge 506,Varanasi,"Varanasi, Uttar Pradesh, India",3.4,4637,10645,INR,Resort
+HOT00507,Grand Chennai Hotel 507,Chennai,"Chennai, Tamil Nadu, India",4.0,8068,5932,INR,Hotel
+HOT00508,Grand Ahmedabad Hotel 508,Ahmedabad,"Ahmedabad, Gujarat, India",3.0,7894,7442,INR,Hotel
+HOT00509,Lakeview Bengaluru Suites 509,Bengaluru,"Bengaluru, Karnataka, India",4.1,1367,16417,INR,Hotel
+HOT00510,Palm Kochi Resort 510,Kochi,"Kochi, Kerala, India",3.8,4366,3886,INR,Luxury Hotel
+HOT00511,Palm Varanasi Suites 511,Varanasi,"Varanasi, Uttar Pradesh, India",3.6,6274,13004,INR,Resort
+HOT00512,Grand Manali Heights 512,Manali,"Manali, Himachal Pradesh, India",3.7,4340,8313,INR,Boutique Hotel
+HOT00513,Grand Agra Suites 513,Agra,"Agra, Uttar Pradesh, India",4.4,1609,3708,INR,Luxury Hotel
+HOT00514,Skyline Ahmedabad Hotel 514,Ahmedabad,"Ahmedabad, Gujarat, India",4.8,3752,2898,INR,Business Hotel
+HOT00515,Palm Ooty Lodge 515,Ooty,"Ooty, Tamil Nadu, India",4.2,7804,8621,INR,Business Hotel
+HOT00516,Royal Kochi Hotel 516,Kochi,"Kochi, Kerala, India",4.7,593,17352,INR,Budget Hotel
+HOT00517,Green Ooty Suites 517,Ooty,"Ooty, Tamil Nadu, India",3.1,7382,6564,INR,Resort
+HOT00518,Lakeview Pune Suites 518,Pune,"Pune, Maharashtra, India",2.9,1308,15166,INR,Resort
+HOT00519,Green Hyderabad Heights 519,Hyderabad,"Hyderabad, Telangana, India",3.5,1122,3751,INR,Business Hotel
+HOT00520,Palm Varanasi Lodge 520,Varanasi,"Varanasi, Uttar Pradesh, India",3.5,4550,17929,INR,Business Hotel
+HOT00521,Comfort Bengaluru Lodge 521,Bengaluru,"Bengaluru, Karnataka, India",4.4,1868,14480,INR,Resort
+HOT00522,Green Hyderabad Residency 522,Hyderabad,"Hyderabad, Telangana, India",4.7,1679,10274,INR,Budget Hotel
+HOT00523,Palm Ahmedabad Heights 523,Ahmedabad,"Ahmedabad, Gujarat, India",3.6,7980,16400,INR,Hotel
+HOT00524,Central Kolkata Hotel 524,Kolkata,"Kolkata, West Bengal, India",3.1,6606,2170,INR,Business Hotel
+HOT00525,Comfort Mysuru Palace 525,Mysuru,"Mysuru, Karnataka, India",2.9,7810,9700,INR,Boutique Hotel
+HOT00526,Regal Bengaluru Heights 526,Bengaluru,"Bengaluru, Karnataka, India",3.5,8079,4118,INR,Resort
+HOT00527,Central Hyderabad Resort 527,Hyderabad,"Hyderabad, Telangana, India",4.4,5282,9728,INR,Luxury Hotel
+HOT00528,Green Udaipur Residency 528,Udaipur,"Udaipur, Rajasthan, India",3.2,3488,14242,INR,Luxury Hotel
+HOT00529,Skyline Shimla Retreat 529,Shimla,"Shimla, Himachal Pradesh, India",4.5,8467,6109,INR,Hotel
+HOT00530,Comfort Kochi Lodge 530,Kochi,"Kochi, Kerala, India",3.6,499,6593,INR,Resort
+HOT00531,Grand Pune Palace 531,Pune,"Pune, Maharashtra, India",2.9,853,12708,INR,Luxury Hotel
+HOT00532,Central Pune Retreat 532,Pune,"Pune, Maharashtra, India",4.5,8300,13907,INR,Luxury Hotel
+HOT00533,Urban Chennai Inn 533,Chennai,"Chennai, Tamil Nadu, India",3.3,8033,15517,INR,Resort
+HOT00534,Green Shimla Lodge 534,Shimla,"Shimla, Himachal Pradesh, India",3.5,2704,9375,INR,Luxury Hotel
+HOT00535,Central Delhi Inn 535,Delhi,"Delhi, Delhi, India",3.6,2694,7922,INR,Resort
+HOT00536,Urban Jaipur Palace 536,Jaipur,"Jaipur, Rajasthan, India",3.4,6734,17719,INR,Hotel
+HOT00537,Heritage Bengaluru Suites 537,Bengaluru,"Bengaluru, Karnataka, India",4.2,163,8232,INR,Boutique Hotel
+HOT00538,Central Rishikesh Heights 538,Rishikesh,"Rishikesh, Uttarakhand, India",3.7,6193,12326,INR,Business Hotel
+HOT00539,Lakeview Goa Resort 539,Goa,"Goa, Goa, India",3.4,6531,4252,INR,Hotel
+HOT00540,Urban Ooty Retreat 540,Ooty,"Ooty, Tamil Nadu, India",4.0,4656,10680,INR,Luxury Hotel
+HOT00541,Heritage Chennai Residency 541,Chennai,"Chennai, Tamil Nadu, India",3.5,4554,11554,INR,Boutique Hotel
+HOT00542,Urban Goa Heights 542,Goa,"Goa, Goa, India",3.2,8500,8774,INR,Hotel
+HOT00543,Palm Rishikesh Retreat 543,Rishikesh,"Rishikesh, Uttarakhand, India",4.2,442,17197,INR,Boutique Hotel
+HOT00544,Palm Goa Hotel 544,Goa,"Goa, Goa, India",3.6,603,7123,INR,Boutique Hotel
+HOT00545,Urban Jaipur Lodge 545,Jaipur,"Jaipur, Rajasthan, India",4.1,7819,12647,INR,Budget Hotel
+HOT00546,City Kochi Lodge 546,Kochi,"Kochi, Kerala, India",3.2,1624,16326,INR,Resort
+HOT00547,Comfort Goa Lodge 547,Goa,"Goa, Goa, India",4.4,3024,11898,INR,Luxury Hotel
+HOT00548,Lakeview Delhi Retreat 548,Delhi,"Delhi, Delhi, India",3.3,5056,14678,INR,Boutique Hotel
+HOT00549,Central Ahmedabad Heights 549,Ahmedabad,"Ahmedabad, Gujarat, India",3.8,1954,16318,INR,Hotel
+HOT00550,Green Agra Residency 550,Agra,"Agra, Uttar Pradesh, India",3.8,3212,17299,INR,Hotel
+HOT00551,Skyline Lucknow Heights 551,Lucknow,"Lucknow, Uttar Pradesh, India",3.7,2495,5401,INR,Resort
+HOT00552,Palm Mysuru Resort 552,Mysuru,"Mysuru, Karnataka, India",3.1,2979,3548,INR,Business Hotel
+HOT00553,Urban Mysuru Suites 553,Mysuru,"Mysuru, Karnataka, India",3.5,975,1054,INR,Business Hotel
+HOT00554,Lakeview Goa Suites 554,Goa,"Goa, Goa, India",4.0,2620,16942,INR,Hotel
+HOT00555,Green Hyderabad Hotel 555,Hyderabad,"Hyderabad, Telangana, India",4.1,6634,14958,INR,Business Hotel
+HOT00556,Grand Lucknow Inn 556,Lucknow,"Lucknow, Uttar Pradesh, India",3.9,6137,1361,INR,Boutique Hotel
+HOT00557,Lakeview Ooty Inn 557,Ooty,"Ooty, Tamil Nadu, India",4.2,4101,8314,INR,Luxury Hotel
+HOT00558,Central Ahmedabad Suites 558,Ahmedabad,"Ahmedabad, Gujarat, India",3.0,8271,10930,INR,Resort
+HOT00559,Grand Delhi Heights 559,Delhi,"Delhi, Delhi, India",4.8,7494,17948,INR,Budget Hotel
+HOT00560,Regal Ooty Hotel 560,Ooty,"Ooty, Tamil Nadu, India",4.7,2217,12130,INR,Business Hotel
+HOT00561,Lakeview Ahmedabad Suites 561,Ahmedabad,"Ahmedabad, Gujarat, India",4.8,6634,1526,INR,Resort
+HOT00562,Comfort Jaipur Suites 562,Jaipur,"Jaipur, Rajasthan, India",3.2,384,17435,INR,Resort
+HOT00563,Regal Chennai Inn 563,Chennai,"Chennai, Tamil Nadu, India",3.6,4215,2492,INR,Budget Hotel
+HOT00564,Urban Mumbai Residency 564,Mumbai,"Mumbai, Maharashtra, India",4.2,348,2480,INR,Luxury Hotel
+HOT00565,Palm Chennai Resort 565,Chennai,"Chennai, Tamil Nadu, India",3.6,4165,16445,INR,Luxury Hotel
+HOT00566,Lakeview Hyderabad Inn 566,Hyderabad,"Hyderabad, Telangana, India",3.4,1679,17949,INR,Boutique Hotel
+HOT00567,Green Rishikesh Suites 567,Rishikesh,"Rishikesh, Uttarakhand, India",3.7,1743,17663,INR,Luxury Hotel
+HOT00568,Royal Rishikesh Heights 568,Rishikesh,"Rishikesh, Uttarakhand, India",3.0,1766,17209,INR,Resort
+HOT00569,Lakeview Rishikesh Heights 569,Rishikesh,"Rishikesh, Uttarakhand, India",4.5,3329,12628,INR,Luxury Hotel
+HOT00570,Central Udaipur Suites 570,Udaipur,"Udaipur, Rajasthan, India",2.9,8157,7705,INR,Luxury Hotel
+HOT00571,Regal Shimla Palace 571,Shimla,"Shimla, Himachal Pradesh, India",2.8,1483,4518,INR,Budget Hotel
+HOT00572,City Shimla Residency 572,Shimla,"Shimla, Himachal Pradesh, India",4.4,1254,4219,INR,Boutique Hotel
+HOT00573,Heritage Jaipur Heights 573,Jaipur,"Jaipur, Rajasthan, India",3.4,845,4170,INR,Resort
+HOT00574,Central Mumbai Retreat 574,Mumbai,"Mumbai, Maharashtra, India",4.5,5148,14859,INR,Luxury Hotel
+HOT00575,Royal Chennai Inn 575,Chennai,"Chennai, Tamil Nadu, India",2.8,2292,6487,INR,Boutique Hotel
+HOT00576,Heritage Ahmedabad Heights 576,Ahmedabad,"Ahmedabad, Gujarat, India",4.6,1547,13110,INR,Boutique Hotel
+HOT00577,Royal Kolkata Hotel 577,Kolkata,"Kolkata, West Bengal, India",3.6,7504,9807,INR,Business Hotel
+HOT00578,Palm Shimla Suites 578,Shimla,"Shimla, Himachal Pradesh, India",3.0,985,6123,INR,Hotel
+HOT00579,Green Udaipur Resort 579,Udaipur,"Udaipur, Rajasthan, India",4.5,7203,6839,INR,Budget Hotel
+HOT00580,Regal Lucknow Inn 580,Lucknow,"Lucknow, Uttar Pradesh, India",4.6,2165,16729,INR,Business Hotel

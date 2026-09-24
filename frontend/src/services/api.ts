@@ -1,3 +1,17 @@
+import {
+  MalformedResponseError,
+  parseDemoScenarios,
+  parseSystemHealth,
+  parseTransactionDetails,
+  parseTransactionPage,
+  parseCustomerResolution,
+  type CustomerResolution,
+  type DemoScenario,
+  type SystemHealth,
+  type TransactionDetails,
+  type TransactionPage
+} from './transactionModel';
+
 const BASE_URL = import.meta.env.VITE_API_URL || '';
 
 export async function fetchInventory() {
@@ -250,3 +264,122 @@ export const preparedBookings = {
   execute: (id: string, ttlSeconds?: number) => prepRequest('POST', `/${id}/execute`, { ttlSeconds }),
   cancel: (id: string) => prepRequest('POST', `/${id}/cancel`, {})
 };
+
+// ---- Transaction Operations dashboard (read-only, plus explicit demo scenario submission) ----
+
+export type TransactionApiErrorKind = 'NOT_FOUND' | 'UNREACHABLE' | 'MALFORMED' | 'HTTP';
+
+export class TransactionApiError extends Error {
+  constructor(readonly kind: TransactionApiErrorKind, message: string, readonly status?: number) {
+    super(message);
+    this.name = 'TransactionApiError';
+  }
+}
+
+async function requestJson(path: string, init?: RequestInit): Promise<{ status: number; body: unknown }> {
+  let res: Response;
+  try {
+    res = await fetch(`${BASE_URL}${path}`, init);
+  } catch {
+    throw new TransactionApiError('UNREACHABLE', 'Unable to connect to BookGuard backend.');
+  }
+  let body: unknown;
+  try {
+    body = await res.json();
+  } catch {
+    // Proxies answer 5xx with HTML when the backend is down.
+    if (res.status >= 500) throw new TransactionApiError('UNREACHABLE', 'Unable to connect to BookGuard backend.', res.status);
+    throw new TransactionApiError('MALFORMED', 'Received an unexpected transaction response.', res.status);
+  }
+  return { status: res.status, body };
+}
+
+function httpError(status: number, body: unknown): TransactionApiError {
+  const message = typeof body === 'object' && body !== null && typeof (body as any).message === 'string'
+    ? (body as any).message
+    : `Request failed (${status})`;
+  return new TransactionApiError('HTTP', message, status);
+}
+
+function parseOrThrow<T>(parse: () => T): T {
+  try {
+    return parse();
+  } catch (err) {
+    if (err instanceof MalformedResponseError) {
+      throw new TransactionApiError('MALFORMED', 'Received an unexpected transaction response.');
+    }
+    throw err;
+  }
+}
+
+export async function fetchSystemHealth(): Promise<SystemHealth> {
+  const { status, body } = await requestJson('/api/health');
+  if (status !== 200) throw httpError(status, body);
+  return parseOrThrow(() => parseSystemHealth(body));
+}
+
+export async function fetchTransactionPage(limit = 20, offset = 0): Promise<TransactionPage> {
+  const { status, body } = await requestJson(`/api/transactions?limit=${limit}&offset=${offset}`);
+  if (status !== 200) throw httpError(status, body);
+  return parseOrThrow(() => parseTransactionPage(body));
+}
+
+export async function fetchTransactionDetails(transactionId: string): Promise<TransactionDetails> {
+  const { status, body } = await requestJson(`/api/transactions/${encodeURIComponent(transactionId)}`);
+  if (status === 404) throw new TransactionApiError('NOT_FOUND', 'Transaction not found.', 404);
+  if (status !== 200) throw httpError(status, body);
+  return parseOrThrow(() => parseTransactionDetails(body));
+}
+
+export async function fetchDemoScenarios(): Promise<DemoScenario[]> {
+  const { status, body } = await requestJson('/api/transactions/demo-scenarios');
+  if (status !== 200) throw httpError(status, body);
+  return parseOrThrow(() => parseDemoScenarios(body));
+}
+
+/**
+ * Submits a demo scenario's request to the real POST /api/transactions endpoint.
+ * The saga answers 201 for COMPLETED and 409 for rolled-back outcomes; both carry the persisted transaction ID.
+ */
+export async function submitDemoScenario(scenario: DemoScenario, idempotencyKey: string): Promise<{ transactionId: string; state: string }> {
+  const { status, body } = await requestJson('/api/transactions', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', 'Idempotency-Key': idempotencyKey },
+    body: JSON.stringify(scenario.request)
+  });
+  const b = body as any;
+  if ((status === 201 || status === 409) && typeof b?.transactionId === 'string' && typeof b?.state === 'string') {
+    return { transactionId: b.transactionId, state: b.state };
+  }
+  throw httpError(status, body);
+}
+
+// ---- Phase 10: customer resolution (read-only lookup + replacement booking through the normal saga) ----
+
+export async function fetchCustomerResolution(transactionId: string): Promise<CustomerResolution> {
+  const { status, body } = await requestJson(`/api/transactions/${encodeURIComponent(transactionId)}/resolution`);
+  if (status === 404) throw new TransactionApiError('NOT_FOUND', 'Transaction not found.', 404);
+  if (status !== 200) throw httpError(status, body);
+  return parseOrThrow(() => parseCustomerResolution(body));
+}
+
+/**
+ * Books a NEW transaction with the failed service swapped for the chosen alternative. The backend
+ * re-validates the alternative and runs the normal idempotent saga; 201 = completed, 409 = rolled back.
+ */
+export async function submitReplacement(
+  transactionId: string,
+  alternativeResourceId: string,
+  idempotencyKey: string
+): Promise<{ transactionId: string; state: string }> {
+  const { status, body } = await requestJson(`/api/transactions/${encodeURIComponent(transactionId)}/replacement`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', 'Idempotency-Key': idempotencyKey },
+    body: JSON.stringify({ alternativeResourceId })
+  });
+  const b = body as any;
+  if ((status === 201 || status === 409) && typeof b?.transactionId === 'string' && typeof b?.state === 'string') {
+    return { transactionId: b.transactionId, state: b.state };
+  }
+  throw httpError(status, body);
+}

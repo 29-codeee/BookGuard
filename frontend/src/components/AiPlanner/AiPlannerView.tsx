@@ -2,7 +2,15 @@ import React, { useEffect, useRef, useState } from 'react';
 import { Bot, Send } from 'lucide-react';
 import { chatApi, ChatApiError, PlannerAction, PlannerTarget } from '../../services/chatApi';
 import { ChatTurn, TripState, UiMessage } from './chatTypes';
-import { BookingRequestCard, HotelCards, ItineraryCard, PlaceCards, TransportCards } from './PlannerCards';
+import {
+  BookingPriorityCard,
+  BookingRequestCard,
+  HotelCards,
+  ItineraryCard,
+  PackageSummaryCard,
+  PlaceCards,
+  TransportCards
+} from './PlannerCards';
 import { TripPlanPanel } from './TripPlanPanel';
 import './AiPlanner.css';
 
@@ -64,7 +72,7 @@ export const AiPlannerView: React.FC = () => {
   }, []);
 
   useEffect(() => {
-    endRef.current?.scrollIntoView({ behavior: 'smooth', block: 'end' });
+    endRef.current?.scrollIntoView?.({ behavior: 'smooth', block: 'end' });
   }, [messages, busy]);
 
   const applyTurn = (turn: ChatTurn) => {
@@ -100,13 +108,18 @@ export const AiPlannerView: React.FC = () => {
     }
   };
 
-  const act = async (action: PlannerAction, target: PlannerTarget, itemId?: string) => {
+  const act = async (action: PlannerAction, target: PlannerTarget, itemId?: string, mode?: string) => {
     if (!sessionId || busy || restoring) return;
     const label = { select: 'Select', book: 'Book', remove: 'Remove', change: 'Change', cheaper: 'Cheaper options', add: 'Add', show: 'Show' }[action];
-    setMessages(prev => [...prev, { id: newId(), role: 'user', text: `${label} ${target}` }]);
+    const userText = target === 'priority'
+      ? (action === 'change' ? 'Change booking priority' : `Priority: ${String(mode || itemId).toUpperCase()} first`)
+      : target === 'package'
+        ? 'Reserve Complete Package'
+        : `${label} ${target}`;
+    setMessages(prev => [...prev, { id: newId(), role: 'user', text: userText }]);
     setBusy(true);
     try {
-      applyTurn(await chatApi.action(sessionId, action, target, itemId));
+      applyTurn(await chatApi.action(sessionId, action, target, itemId, mode));
     } catch (err) {
       fail(err);
     } finally {
@@ -202,7 +215,7 @@ export const AiPlannerView: React.FC = () => {
         </div>
       </section>
 
-      <TripPlanPanel trip={trip} onReset={reset} busy={busy || restoring} />
+      <TripPlanPanel trip={trip} onReset={reset} busy={busy || restoring} onAction={act} />
     </div>
   );
 };
@@ -216,18 +229,21 @@ function TurnCards({
   turn: ChatTurn;
   trip: TripState;
   busy: boolean;
-  onAction: (a: PlannerAction, t: PlannerTarget, id?: string) => void;
+  onAction: (a: PlannerAction, t: PlannerTarget, id?: string, mode?: string) => void;
 }) {
   const recs = turn.recommendations;
   const itinerary = turn.trip.itinerary;
+  const isPlanned = trip.status === 'PLANNED';
   return (
     <>
+      {isPlanned && <BookingPriorityCard trip={trip} busy={busy} onAction={onAction} />}
       {turn.show.includes('itinerary') && itinerary && turn.trip.destination && (
         <ItineraryCard itinerary={itinerary} title={`${turn.trip.destination.name}: ${itinerary.length} Day${itinerary.length > 1 ? 's' : ''}`} />
       )}
       {recs && recs.transport.length > 0 && <TransportCards options={recs.transport} trip={trip} busy={busy} onAction={onAction} />}
       {recs && recs.hotels.length > 0 && <HotelCards hotels={recs.hotels} trip={trip} busy={busy} onAction={onAction} />}
       {recs && recs.places.length > 0 && <PlaceCards places={recs.places} trip={trip} busy={busy} onAction={onAction} />}
+      {isPlanned && <PackageSummaryCard trip={trip} busy={busy} onAction={onAction} />}
       {turn.bookingRequest && <BookingRequestCard record={turn.bookingRequest} />}
     </>
   );

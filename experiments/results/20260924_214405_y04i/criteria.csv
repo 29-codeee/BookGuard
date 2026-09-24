@@ -1,0 +1,9 @@
+runId,experimentId,criterion,passed,description,expected,actual
+20260924_214405_y04i,E01-baseline-success,all-completed,true,Every request completes,20,20
+20260924_214405_y04i,E01-baseline-success,locks-confirmed,true,One CONFIRMED lock per item (3 per booking),60,60
+20260924_214405_y04i,E01-baseline-success,payment-captured,true,Payment captured for every booking,20,20
+20260924_214405_y04i,E01-baseline-success,no-compensation,true,No compensation attempted,0,0
+20260924_214405_y04i,E01-baseline-success,inv:terminal-states,true,Every transaction reached a terminal state,[],[]
+20260924_214405_y04i,E01-baseline-success,inv:no-active-locks,true,No ACTIVE (provisional) lock outlives its transaction,0,0
+20260924_214405_y04i,E01-baseline-success,inv:no-capacity-held-after-rollback,true,ROLLED_BACK/FAILED transactions hold no CONFIRMED locks,0,0
+20260924_214405_y04i,E01-baseline-success,inv:no-server-errors,true,No 5xx responses,0,0

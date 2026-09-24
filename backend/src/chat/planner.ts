@@ -20,6 +20,7 @@ export function emptyTrip(): TripState {
     budget: null,
     preferences: [],
     preferredTransportMode: null,
+    bookingPriority: null,
     itinerary: null,
     hotel: null,
     transport: null,

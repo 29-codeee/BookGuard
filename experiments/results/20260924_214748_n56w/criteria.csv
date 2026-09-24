@@ -1,0 +1,10 @@
+runId,experimentId,criterion,passed,description,expected,actual
+20260924_214748_n56w,E08-duplicate-idempotency,one-execution-per-key,true,Exactly one transaction per key (success and rollback originals),"[5,5]","[5,5]"
+20260924_214748_n56w,E08-duplicate-idempotency,replays,true,All duplicates served as replays,30,30
+20260924_214748_n56w,E08-duplicate-idempotency,identical-replays,false,Replayed responses identical to the original,30,0
+20260924_214748_n56w,E08-duplicate-idempotency,payload-mismatch-rejected,true,Reused key with a different payload rejected (422 IDEMPOTENCY_KEY_REUSED),"{""IDEMPOTENCY_KEY_REUSED"":5}","{""IDEMPOTENCY_KEY_REUSED"":5}"
+20260924_214748_n56w,E08-duplicate-idempotency,mismatch-no-execution,true,Rejected mismatches created no transactions,0,0
+20260924_214748_n56w,E08-duplicate-idempotency,inv:terminal-states,true,Every transaction reached a terminal state,[],[]
+20260924_214748_n56w,E08-duplicate-idempotency,inv:no-active-locks,true,No ACTIVE (provisional) lock outlives its transaction,0,0
+20260924_214748_n56w,E08-duplicate-idempotency,inv:no-capacity-held-after-rollback,true,ROLLED_BACK/FAILED transactions hold no CONFIRMED locks,0,0
+20260924_214748_n56w,E08-duplicate-idempotency,inv:no-server-errors,true,No 5xx responses,0,0

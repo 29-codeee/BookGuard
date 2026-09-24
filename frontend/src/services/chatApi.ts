@@ -43,7 +43,7 @@ async function request<T>(method: 'GET' | 'POST', path: string, body?: unknown):
 }
 
 export type PlannerAction = 'select' | 'book' | 'remove' | 'change' | 'cheaper' | 'add' | 'show';
-export type PlannerTarget = 'hotel' | 'transport' | 'place' | 'itinerary' | 'trip';
+export type PlannerTarget = 'hotel' | 'transport' | 'place' | 'itinerary' | 'trip' | 'priority' | 'package';
 
 export const chatApi = {
   status: () => request<{ aiMode: 'llm' | 'demo'; model: string | null; demoDataNotice: string }>('GET', '/api/chat/status'),

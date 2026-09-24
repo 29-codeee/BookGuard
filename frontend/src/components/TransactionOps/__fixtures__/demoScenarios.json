@@ -1,0 +1,134 @@
+{
+  "success": true,
+  "scenarios": [
+    {
+      "id": "SUCCESSFUL_BOOKING",
+      "label": "Successful Booking",
+      "description": "All three providers reserve and confirm; payment is authorized and captured.",
+      "expectedState": "COMPLETED",
+      "source": "FailureScenarios.scenarioC",
+      "request": {
+        "customerId": "fixture-customer",
+        "items": [
+          {
+            "type": "hotel",
+            "resourceId": "RM-FIXTURE",
+            "quantity": 1
+          },
+          {
+            "type": "flight",
+            "resourceId": "FL-FIXTURE",
+            "quantity": 1
+          },
+          {
+            "type": "transport",
+            "resourceId": "TR-FIXTURE",
+            "quantity": 1
+          }
+        ],
+        "paymentMethod": "card_mock",
+        "failureSimulation": {}
+      }
+    },
+    {
+      "id": "PROVIDER_FAILURE_ROLLBACK",
+      "label": "Provider Failure → Rollback Success",
+      "description": "Transport reservation fails; flight and hotel are compensated in reverse order and payment is voided.",
+      "expectedState": "ROLLED_BACK",
+      "source": "FailureScenarios.scenarioD",
+      "request": {
+        "customerId": "fixture-customer",
+        "items": [
+          {
+            "type": "hotel",
+            "resourceId": "RM-FIXTURE",
+            "quantity": 1
+          },
+          {
+            "type": "flight",
+            "resourceId": "FL-FIXTURE",
+            "quantity": 1
+          },
+          {
+            "type": "transport",
+            "resourceId": "TR-FIXTURE",
+            "quantity": 1
+          }
+        ],
+        "paymentMethod": "card_mock",
+        "failureSimulation": {
+          "reserve": {
+            "transport": "injected transport reserve failure"
+          }
+        }
+      }
+    },
+    {
+      "id": "PAYMENT_FAILURE",
+      "label": "Payment Failure",
+      "description": "Payment authorization is declined before any provider is contacted; locks are released.",
+      "expectedState": "ROLLED_BACK",
+      "source": "MockPaymentService authorize failure",
+      "request": {
+        "customerId": "fixture-customer",
+        "items": [
+          {
+            "type": "hotel",
+            "resourceId": "RM-FIXTURE",
+            "quantity": 1
+          },
+          {
+            "type": "flight",
+            "resourceId": "FL-FIXTURE",
+            "quantity": 1
+          },
+          {
+            "type": "transport",
+            "resourceId": "TR-FIXTURE",
+            "quantity": 1
+          }
+        ],
+        "paymentMethod": "card_mock",
+        "paymentFailureSimulation": {
+          "authorize": "Demo: payment authorization declined"
+        }
+      }
+    },
+    {
+      "id": "ROLLBACK_FAILURE",
+      "label": "Rollback Failure",
+      "description": "Transport reservation fails and flight cancellation also fails; the flight lock stays CONFIRMED and recovery is advised.",
+      "expectedState": "ROLLBACK_FAILED",
+      "source": "FailureScenarios.scenarioE",
+      "request": {
+        "customerId": "fixture-customer",
+        "items": [
+          {
+            "type": "hotel",
+            "resourceId": "RM-FIXTURE",
+            "quantity": 1
+          },
+          {
+            "type": "flight",
+            "resourceId": "FL-FIXTURE",
+            "quantity": 1
+          },
+          {
+            "type": "transport",
+            "resourceId": "TR-FIXTURE",
+            "quantity": 1
+          }
+        ],
+        "paymentMethod": "card_mock",
+        "failureSimulation": {
+          "reserve": {
+            "transport": "injected transport reserve failure"
+          },
+          "cancel": {
+            "flight": "injected flight cancellation failure"
+          }
+        }
+      }
+    }
+  ]
+}

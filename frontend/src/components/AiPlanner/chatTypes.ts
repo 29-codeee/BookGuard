@@ -73,6 +73,7 @@ export interface TripState {
   travellers: number | null;
   budget: { tier: BudgetTier; amountInr: number | null } | null;
   preferences: string[];
+  bookingPriority: 'flight' | 'hotel' | 'train' | 'bus' | null;
   itinerary: DayPlan[] | null;
   hotel: HotelOption | null;
   transport: TransportOption | null;

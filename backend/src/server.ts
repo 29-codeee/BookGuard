@@ -1,7 +1,7 @@
 import Fastify from 'fastify';
 import cors from '@fastify/cors';
 import { config } from './config.js';
-import { initDb } from './db/client.js';
+import { initDb, query } from './db/client.js';
 import { initRedis } from './redis/client.js';
 import { startHoldSweeper } from './redis/holdManager.js';
 import inventoryRoutes from './routes/inventory.js';
@@ -15,6 +15,8 @@ import preparedBookingRoutes from './routes/preparedBookings.js';
 import chatRoutes from './routes/chat.js';
 import referenceDataRoutes from './routes/referenceData.js';
 import currencyRoutes from './routes/currency.js';
+import datasetRoutes from './routes/datasets.js';
+import transactionRoutes from './routes/transactions.js';
 
 export async function buildApp() {
   const fastify = Fastify({
@@ -31,8 +33,27 @@ export async function buildApp() {
   });
 
   // Health check
+  // Read-only probes: database reachability plus presence of the transaction, risk and recovery tables.
   fastify.get('/api/health', async () => {
-    return { status: 'healthy', timestamp: new Date().toISOString() };
+    let checks: Record<'database' | 'transactionEngine' | 'riskEngine' | 'recoveryEngine', 'CONNECTED' | 'READY' | 'UNAVAILABLE'>;
+    try {
+      const tables = await query<{ tx: string | null; risk: string | null; recovery: string | null }>(
+        `SELECT to_regclass('public.booking_transactions')::text AS tx,
+                to_regclass('public.booking_transaction_risk_assessments')::text AS risk,
+                to_regclass('public.booking_transaction_recovery_advisories')::text AS recovery`
+      );
+      const row = tables.rows[0];
+      checks = {
+        database: 'CONNECTED',
+        transactionEngine: row?.tx ? 'READY' : 'UNAVAILABLE',
+        riskEngine: row?.risk ? 'READY' : 'UNAVAILABLE',
+        recoveryEngine: row?.recovery ? 'READY' : 'UNAVAILABLE'
+      };
+    } catch {
+      checks = { database: 'UNAVAILABLE', transactionEngine: 'UNAVAILABLE', riskEngine: 'UNAVAILABLE', recoveryEngine: 'UNAVAILABLE' };
+    }
+    const healthy = Object.values(checks).every(v => v !== 'UNAVAILABLE');
+    return { status: healthy ? 'healthy' : 'degraded', timestamp: new Date().toISOString(), checks };
   });
 
   // Register feature routes
@@ -47,6 +68,8 @@ export async function buildApp() {
   await fastify.register(chatRoutes);
   await fastify.register(referenceDataRoutes);
   await fastify.register(currencyRoutes);
+  await fastify.register(datasetRoutes);
+  await fastify.register(transactionRoutes);
 
   return fastify;
 }

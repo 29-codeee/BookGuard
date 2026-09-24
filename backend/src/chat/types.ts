@@ -9,9 +9,10 @@
 
 export type BudgetTier = 'budget' | 'medium' | 'luxury';
 export type TransportMode = 'flight' | 'train' | 'bus';
-export type PlanTarget = 'hotel' | 'transport' | 'place' | 'itinerary' | 'trip';
+export type BookingPriority = 'flight' | 'hotel' | 'train' | 'bus';
+export type PlanTarget = 'hotel' | 'transport' | 'place' | 'itinerary' | 'trip' | 'priority' | 'package';
 
-export type PlanField = 'destination' | 'origin' | 'startDate' | 'durationDays' | 'travellers' | 'budget';
+export type PlanField = 'destination' | 'origin' | 'startDate' | 'durationDays' | 'travellers' | 'budget' | 'priority';
 
 export type IntentName =
   | 'plan_trip' // new trip request ("I want to visit Goa")
@@ -55,6 +56,7 @@ export interface TravelIntent {
   preferences: string[]; // beach, heritage, food, nightlife, adventure, nature...
   target: PlanTarget | null; // what a show/select/book/remove/add applies to
   transportMode: TransportMode | null;
+  bookingPriority: BookingPriority | null;
   optionIndex: number | null; // 1-based "the second one"
   optionId: string | null; // explicit id when known (UI buttons)
   optionWhich: 'next' | 'cheaper' | 'better' | 'current' | null;
@@ -137,6 +139,7 @@ export interface TripState {
   budget: { tier: BudgetTier; amountInr: number | null } | null;
   preferences: string[];
   preferredTransportMode: TransportMode | null;
+  bookingPriority: BookingPriority | null;
   itinerary: DayPlan[] | null;
   hotel: HotelOption | null;
   transport: TransportOption | null;

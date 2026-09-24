@@ -1,0 +1,184 @@
+{
+  "success": true,
+  "transactionId": "d905f39f-8e0a-4ea4-a2da-3cbb7e7572ff",
+  "state": "COMPLETED",
+  "items": [
+    {
+      "id": "bf7758ce-31c5-45af-935c-7393037ea976",
+      "type": "hotel",
+      "resourceId": "RM-FIXTURE",
+      "quantity": 1,
+      "status": "COMPLETED",
+      "provider": "Fixture Grand Hotel",
+      "unitPrice": 3500
+    },
+    {
+      "id": "a831d79a-d733-4ab3-90c0-231f861319a7",
+      "type": "flight",
+      "resourceId": "FL-FIXTURE",
+      "quantity": 1,
+      "status": "COMPLETED",
+      "provider": "Fixture Air",
+      "unitPrice": 4200
+    },
+    {
+      "id": "5ff63e85-fc21-448d-bdff-f026f5fd687e",
+      "type": "transport",
+      "resourceId": "TRZ-1",
+      "quantity": 1,
+      "status": "COMPLETED",
+      "provider": "Fixture CityRide",
+      "unitPrice": 450
+    }
+  ],
+  "itemStates": {
+    "bf7758ce-31c5-45af-935c-7393037ea976": "COMPLETED",
+    "a831d79a-d733-4ab3-90c0-231f861319a7": "COMPLETED",
+    "5ff63e85-fc21-448d-bdff-f026f5fd687e": "COMPLETED"
+  },
+  "providerOperationResults": [
+    {
+      "itemId": "bf7758ce-31c5-45af-935c-7393037ea976",
+      "type": "hotel",
+      "operation": "RESERVE",
+      "status": "RESERVED",
+      "provider": "Fixture Grand Hotel",
+      "reference": "bg-hotel-f6630818-a602-4d1c-8cfe-9812f3bd778b"
+    },
+    {
+      "itemId": "a831d79a-d733-4ab3-90c0-231f861319a7",
+      "type": "flight",
+      "operation": "RESERVE",
+      "status": "RESERVED",
+      "provider": "Fixture Air",
+      "reference": "bg-flight-7229e977-0276-41bc-8cbb-d1fe518e537a"
+    },
+    {
+      "itemId": "5ff63e85-fc21-448d-bdff-f026f5fd687e",
+      "type": "transport",
+      "operation": "RESERVE",
+      "status": "RESERVED",
+      "provider": "Fixture CityRide",
+      "reference": "bg-transport-75f9b367-712d-43d6-b98f-566aeb474210"
+    },
+    {
+      "itemId": "bf7758ce-31c5-45af-935c-7393037ea976",
+      "type": "hotel",
+      "operation": "CONFIRM",
+      "status": "CONFIRMED",
+      "provider": "Fixture Grand Hotel",
+      "reference": "bg-hotel-f6630818-a602-4d1c-8cfe-9812f3bd778b"
+    },
+    {
+      "itemId": "a831d79a-d733-4ab3-90c0-231f861319a7",
+      "type": "flight",
+      "operation": "CONFIRM",
+      "status": "CONFIRMED",
+      "provider": "Fixture Air",
+      "reference": "bg-flight-7229e977-0276-41bc-8cbb-d1fe518e537a"
+    },
+    {
+      "itemId": "5ff63e85-fc21-448d-bdff-f026f5fd687e",
+      "type": "transport",
+      "operation": "CONFIRM",
+      "status": "CONFIRMED",
+      "provider": "Fixture CityRide",
+      "reference": "bg-transport-75f9b367-712d-43d6-b98f-566aeb474210"
+    }
+  ],
+  "compensationResults": [],
+  "payment": {
+    "ok": true,
+    "paymentId": "pay-18c2edf8-81e3-4d25-8284-d1050b358e8e",
+    "status": "CAPTURED",
+    "amount": 8150,
+    "currency": "INR"
+  },
+  "recoveryRequired": [],
+  "riskAssessment": {
+    "riskScore": 45,
+    "riskLevel": "MEDIUM",
+    "decision": "PROCEED",
+    "factors": [
+      {
+        "code": "SUBOPTIMAL_PROVIDER_RELIABILITY",
+        "value": 0.96,
+        "severity": "LOW",
+        "evidenceIds": [
+          "prov_Fixture Grand Hotel_rel_0.960"
+        ],
+        "explanation": "Provider \"Fixture Grand Hotel\" reliability score (0.960) is slightly below optimal 0.98 baseline"
+      },
+      {
+        "code": "SUBOPTIMAL_PROVIDER_RELIABILITY",
+        "value": 0.96,
+        "severity": "LOW",
+        "evidenceIds": [
+          "prov_Fixture Air_rel_0.960"
+        ],
+        "explanation": "Provider \"Fixture Air\" reliability score (0.960) is slightly below optimal 0.98 baseline"
+      },
+      {
+        "code": "SUBOPTIMAL_PROVIDER_RELIABILITY",
+        "value": 0.96,
+        "severity": "LOW",
+        "evidenceIds": [
+          "prov_Fixture CityRide_rel_0.960"
+        ],
+        "explanation": "Provider \"Fixture CityRide\" reliability score (0.960) is slightly below optimal 0.98 baseline"
+      },
+      {
+        "code": "MULTI_PROVIDER_BUNDLE_3",
+        "value": 3,
+        "severity": "MEDIUM",
+        "evidenceIds": [
+          "tx_providers_count_3"
+        ],
+        "explanation": "Transaction coordinates 3 independent providers; multi-leg Saga compensation risk is elevated"
+      }
+    ],
+    "providerAssessments": [
+      {
+        "status": "active",
+        "provider": "Fixture Grand Hotel",
+        "riskScore": 15,
+        "evidenceIds": [
+          "prov_Fixture Grand Hotel_rel_0.960"
+        ],
+        "responseTimeMs": 800,
+        "reliabilityScore": 0.96,
+        "supportsRollback": true
+      },
+      {
+        "status": "active",
+        "provider": "Fixture Air",
+        "riskScore": 15,
+        "evidenceIds": [
+          "prov_Fixture Air_rel_0.960"
+        ],
+        "responseTimeMs": 800,
+        "reliabilityScore": 0.96,
+        "supportsRollback": true
+      },
+      {
+        "status": "active",
+        "provider": "Fixture CityRide",
+        "riskScore": 15,
+        "evidenceIds": [
+          "prov_Fixture CityRide_rel_0.960"
+        ],
+        "responseTimeMs": 800,
+        "reliabilityScore": 0.96,
+        "supportsRollback": true
+      }
+    ],
+    "calculatedAt": "2026-09-24T23:06:23.311Z"
+  },
+  "recoveryAdvisory": null,
+  "replacementFor": "09536313-bea2-4c38-8bc2-c8c303eae297",
+  "replacedResource": {
+    "type": "transport",
+    "resourceId": "TRZ-1",
+    "provider": "Fixture CityRide"
+  }
+}

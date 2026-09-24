@@ -1,11 +1,22 @@
 import React, { useEffect, useState } from 'react';
+import type { PlannerAction, PlannerTarget } from '../../services/chatApi';
 import { TripState, formatDate, formatInr } from './chatTypes';
 
 type HistoricalFareSummary = { observations: number; average_price_inr: number; min_price_inr: number; max_price_inr: number; first_travel_date: string; last_travel_date: string; source: string };
 
 const TIER_LABEL = { budget: 'Budget', medium: 'Mid-range', luxury: 'Luxury' } as const;
 
-export function TripPlanPanel({ trip, onReset, busy }: { trip: TripState | null; onReset: () => void; busy: boolean }) {
+export function TripPlanPanel({
+  trip,
+  onReset,
+  busy,
+  onAction
+}: {
+  trip: TripState | null;
+  onReset: () => void;
+  busy: boolean;
+  onAction?: (action: PlannerAction, target: PlannerTarget, itemId?: string, mode?: string) => void;
+}) {
   const t = trip;
   const [historicalFare, setHistoricalFare] = useState<HistoricalFareSummary | null>(null);
   useEffect(() => {
@@ -36,11 +47,95 @@ export function TripPlanPanel({ trip, onReset, busy }: { trip: TripState | null;
         <dt>Duration</dt><dd>{t?.durationDays ? `${t.durationDays} Day${t.durationDays > 1 ? 's' : ''}` : dash}</dd>
         <dt>Travellers</dt><dd>{t?.travellers ?? dash}</dd>
         <dt>Budget</dt><dd>{t?.budget ? `${TIER_LABEL[t.budget.tier]}${t.budget.amountInr ? ` (${formatInr(t.budget.amountInr)})` : ''}` : t?.status === 'PLANNED' ? 'Mid-range (default)' : dash}</dd>
+        <dt>Priority</dt>
+        <dd>
+          {t?.bookingPriority ? (
+            <span style={{ display: 'inline-flex', alignItems: 'center' }}>
+              <span style={{ color: '#38bdf8', fontWeight: 600 }}>{t.bookingPriority.toUpperCase()} first</span>
+              {onAction && (
+                <button
+                  type="button"
+                  className="panel-change-btn"
+                  disabled={busy}
+                  onClick={() => onAction('change', 'priority')}
+                  title="Change booking priority"
+                >
+                  Change
+                </button>
+              )}
+            </span>
+          ) : (
+            <span style={{ display: 'inline-flex', alignItems: 'center' }}>
+              <span style={{ color: '#fbbf24' }}>Not set</span>
+              {onAction && (
+                <button
+                  type="button"
+                  className="panel-change-btn"
+                  disabled={busy}
+                  onClick={() => onAction('change', 'priority')}
+                  title="Set booking priority"
+                >
+                  Set
+                </button>
+              )}
+            </span>
+          )}
+        </dd>
         <dt>Transport</dt>
-        <dd>{t?.transport ? <span title={t.transport.operator}>Selected · {t.transport.mode}</span> : dash}</dd>
+        <dd>
+          {t?.transport ? (
+            <span style={{ display: 'inline-flex', alignItems: 'center' }}>
+              <span title={t.transport.operator}>Selected · {t.transport.mode}</span>
+              {onAction && (
+                <button
+                  type="button"
+                  className="panel-change-btn"
+                  disabled={busy}
+                  onClick={() => onAction('change', 'transport')}
+                  title="Change transport leg"
+                >
+                  Change
+                </button>
+              )}
+            </span>
+          ) : dash}
+        </dd>
         <dt>Stay</dt>
-        <dd>{t?.hotel ? <span title={t.hotel.name}>Selected</span> : dash}</dd>
-        <dt>Places</dt><dd>{t?.places.length ?? 0}</dd>
+        <dd>
+          {t?.hotel ? (
+            <span style={{ display: 'inline-flex', alignItems: 'center' }}>
+              <span title={t.hotel.name}>Selected</span>
+              {onAction && (
+                <button
+                  type="button"
+                  className="panel-change-btn"
+                  disabled={busy}
+                  onClick={() => onAction('change', 'hotel')}
+                  title="Change hotel stay"
+                >
+                  Change
+                </button>
+              )}
+            </span>
+          ) : dash}
+        </dd>
+        <dt>Places</dt>
+        <dd>
+          <span style={{ display: 'inline-flex', alignItems: 'center' }}>
+            <span>{t?.places.length ?? 0}</span>
+            {onAction && (t?.places.length ?? 0) > 0 && (
+              <button
+                type="button"
+                className="panel-change-btn"
+                disabled={busy}
+                onClick={() => onAction('change', 'place')}
+                title="Change places to visit"
+              >
+                Change
+              </button>
+            )}
+          </span>
+        </dd>
       </dl>
 
       {t?.hotel && <div className="opt-meta">🏨 {t.hotel.name}</div>}

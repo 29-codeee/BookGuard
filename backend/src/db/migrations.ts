@@ -108,4 +108,106 @@ CREATE UNIQUE INDEX IF NOT EXISTS ux_holds_one_live_per_booking ON holds (bookin
 CREATE INDEX IF NOT EXISTS ix_holds_active_expiry ON holds (expires_at) WHERE status = 'ACTIVE';
 CREATE INDEX IF NOT EXISTS ix_holds_booking ON holds (booking_id);
 CREATE INDEX IF NOT EXISTS ix_booking_items_booking ON booking_items (booking_id);
+
+-- Additive foundations for the multi-provider transaction engine. These tables
+-- are independent of legacy bookings and never rewrite research inventory.
+CREATE TABLE IF NOT EXISTS booking_transactions (
+  id VARCHAR(64) PRIMARY KEY,
+  customer_id VARCHAR(64) NOT NULL,
+  status VARCHAR(24) NOT NULL CHECK (status IN ('PENDING','RESERVING','PROCESSING','COMPLETED','ROLLING_BACK','ROLLED_BACK','FAILED','ROLLBACK_FAILED')),
+  currency VARCHAR(8) NOT NULL DEFAULT 'INR',
+  total_amount NUMERIC(12,2) NOT NULL DEFAULT 0 CHECK (total_amount >= 0),
+  created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+CREATE TABLE IF NOT EXISTS booking_transaction_items (
+  id VARCHAR(64) PRIMARY KEY,
+  transaction_id VARCHAR(64) NOT NULL REFERENCES booking_transactions(id) ON DELETE CASCADE,
+  position INT NOT NULL,
+  resource_type VARCHAR(16) NOT NULL CHECK (resource_type IN ('hotel','flight','transport','activity')),
+  resource_id VARCHAR(64) NOT NULL,
+  quantity INT NOT NULL CHECK (quantity > 0),
+  status VARCHAR(24) NOT NULL CHECK (status IN ('PENDING','RESERVING','RESERVED','PROCESSING','COMPLETED','FAILED','EXPIRED','RELEASED')),
+  provider_name VARCHAR(128),
+  unit_price NUMERIC(12,2),
+  currency VARCHAR(8),
+  created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  UNIQUE (transaction_id, position)
+);
+CREATE TABLE IF NOT EXISTS booking_resource_locks (
+  id VARCHAR(64) PRIMARY KEY,
+  transaction_id VARCHAR(64) NOT NULL REFERENCES booking_transactions(id) ON DELETE CASCADE,
+  item_id VARCHAR(64) NOT NULL UNIQUE REFERENCES booking_transaction_items(id) ON DELETE CASCADE,
+  resource_type VARCHAR(16) NOT NULL,
+  resource_id VARCHAR(64) NOT NULL,
+  quantity INT NOT NULL CHECK (quantity > 0),
+  status VARCHAR(16) NOT NULL CHECK (status IN ('ACTIVE','RELEASED','EXPIRED')),
+  expires_at TIMESTAMP WITH TIME ZONE NOT NULL,
+  created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+CREATE INDEX IF NOT EXISTS booking_resource_locks_capacity_idx ON booking_resource_locks (resource_type, resource_id, expires_at) WHERE status = 'ACTIVE';
+CREATE TABLE IF NOT EXISTS booking_transaction_providers (
+  id VARCHAR(64) PRIMARY KEY,
+  transaction_id VARCHAR(64) NOT NULL REFERENCES booking_transactions(id) ON DELETE CASCADE,
+  item_id VARCHAR(64) NOT NULL REFERENCES booking_transaction_items(id) ON DELETE CASCADE,
+  provider_name VARCHAR(128) NOT NULL,
+  status VARCHAR(24) NOT NULL CHECK (status IN ('PENDING','RESERVING','RESERVED','CONFIRMING','CONFIRMED','CANCELLING','CANCELLED','FAILED')),
+  provider_reference VARCHAR(128),
+  error_message TEXT,
+  updated_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+CREATE TABLE IF NOT EXISTS booking_transaction_events (
+  id BIGSERIAL PRIMARY KEY,
+  transaction_id VARCHAR(64) NOT NULL REFERENCES booking_transactions(id) ON DELETE CASCADE,
+  item_id VARCHAR(64) REFERENCES booking_transaction_items(id) ON DELETE SET NULL,
+  from_state VARCHAR(24),
+  to_state VARCHAR(24) NOT NULL,
+  detail JSONB NOT NULL DEFAULT '{}'::jsonb,
+  created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+CREATE INDEX IF NOT EXISTS booking_transaction_events_tx_idx ON booking_transaction_events (transaction_id, created_at);
+
+-- Saga lifecycle metadata applies only to the new transaction foundation tables.
+ALTER TABLE booking_resource_locks DROP CONSTRAINT IF EXISTS booking_resource_locks_status_check;
+ALTER TABLE booking_resource_locks ADD CONSTRAINT booking_resource_locks_status_check
+  CHECK (status IN ('ACTIVE','CONFIRMED','RELEASED','EXPIRED'));
+CREATE INDEX IF NOT EXISTS booking_resource_locks_allocation_idx
+  ON booking_resource_locks (resource_type, resource_id, status, expires_at);
+ALTER TABLE booking_transaction_providers ADD COLUMN IF NOT EXISTS operation_type VARCHAR(16) NOT NULL DEFAULT 'RESERVE';
+ALTER TABLE booking_transaction_providers DROP CONSTRAINT IF EXISTS booking_transaction_providers_operation_type_check;
+ALTER TABLE booking_transaction_providers ADD CONSTRAINT booking_transaction_providers_operation_type_check
+  CHECK (operation_type IN ('RESERVE','CONFIRM','CANCEL'));
+
+-- Phase 6A: Advisory transaction risk assessment storage
+CREATE TABLE IF NOT EXISTS booking_transaction_risk_assessments (
+  id VARCHAR(64) PRIMARY KEY,
+  transaction_id VARCHAR(64) NOT NULL REFERENCES booking_transactions(id) ON DELETE CASCADE,
+  risk_score NUMERIC(5, 2) NOT NULL,
+  risk_level VARCHAR(16) NOT NULL CHECK (risk_level IN ('LOW', 'MEDIUM', 'HIGH')),
+  decision VARCHAR(16) NOT NULL CHECK (decision IN ('PROCEED', 'REVIEW')),
+  factors JSONB NOT NULL DEFAULT '[]'::jsonb,
+  provider_assessments JSONB NOT NULL DEFAULT '[]'::jsonb,
+  calculated_at TIMESTAMP WITH TIME ZONE NOT NULL,
+  created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+CREATE INDEX IF NOT EXISTS booking_tx_risk_assessments_tx_idx
+  ON booking_transaction_risk_assessments (transaction_id);
+
+-- Phase 6B: Recovery Intelligence / Advisory storage
+CREATE TABLE IF NOT EXISTS booking_transaction_recovery_advisories (
+  id VARCHAR(64) PRIMARY KEY,
+  transaction_id VARCHAR(64) NOT NULL REFERENCES booking_transactions(id) ON DELETE CASCADE,
+  recommendation VARCHAR(32) NOT NULL CHECK (recommendation IN ('AUTOMATIC_RETRY', 'ALTERNATIVE_PROVIDER', 'MANUAL_OPERATOR_REVIEW')),
+  severity VARCHAR(16) NOT NULL CHECK (severity IN ('LOW', 'MEDIUM', 'HIGH')),
+  confidence NUMERIC(5, 2) NOT NULL,
+  reasons JSONB NOT NULL DEFAULT '[]'::jsonb,
+  suggested_actions JSONB NOT NULL DEFAULT '[]'::jsonb,
+  affected_items JSONB NOT NULL DEFAULT '[]'::jsonb,
+  generated_at TIMESTAMP WITH TIME ZONE NOT NULL,
+  created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+CREATE INDEX IF NOT EXISTS booking_tx_recovery_advisories_tx_idx
+  ON booking_transaction_recovery_advisories (transaction_id);
 `;
+
+

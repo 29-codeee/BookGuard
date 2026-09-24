@@ -382,3 +382,39 @@ describe('demo extractor units', () => {
     assert.equal(extractIntentDemo('trip in 5 days to goa', emptyTrip(), '2026-09-24').durationDays, null);
   });
 });
+
+// ---------------------------------------------------------------------------
+describe('booking priority and package estimation', () => {
+  test('prompts for booking priority when plan is built and honors selection', async () => {
+    const c = chat();
+    const plan = await c.say('Plan a 3-day trip to Goa from Bengaluru on 15 October for 2 people');
+    assert.equal(plan.trip.status, 'PLANNED');
+    assert.match(plan.reply, /Which is your first priority to be booked first: Flight, Hotel, Train, or Bus/i);
+    assert.ok(plan.suggestions.includes('Flight first'));
+    assert.ok(plan.suggestions.includes('Hotel first'));
+
+    const prioritized = await c.say('Flight first');
+    assert.equal(prioritized.trip.bookingPriority, 'flight');
+    assert.match(prioritized.reply, /booking priority set to flight first/i);
+
+    const changed = await c.say('Actually hotel first');
+    assert.equal(changed.trip.bookingPriority, 'hotel');
+    assert.match(changed.reply, /booking priority set to hotel first/i);
+  });
+
+  test('package total estimation reflects selected hotel, transport, and places', async () => {
+    const c = chat();
+    const plan = await c.say('Plan a 3-day trip to Goa from Bengaluru on 15 October for 2 people, flight first');
+    assert.equal(plan.trip.status, 'PLANNED');
+    assert.equal(plan.trip.bookingPriority, 'flight');
+    assert.ok(plan.trip.estimate);
+    const initialTotal = plan.trip.estimate.total;
+    assert.ok(initialTotal > 0);
+
+    // Switch transport to train
+    const trainTurn = await c.say('add a train');
+    assert.equal(trainTurn.trip.transport?.mode, 'train');
+    assert.ok(trainTurn.trip.estimate.total > 0);
+  });
+});
+

@@ -187,6 +187,7 @@ export function extractIntentDemo(message: string, trip: TripState, today: strin
     preferences: [],
     target: null,
     transportMode: null,
+    bookingPriority: null,
     optionIndex: null,
     optionId: null,
     optionWhich: null,
@@ -292,6 +293,25 @@ export function extractIntentDemo(message: string, trip: TripState, today: strin
   else if (/\b(another|different|other|next|change the|swap the|replace the)\b/.test(t)) intent.optionWhich = 'next';
   else if (/\b(this one|that one|this|recommended|suggested|current|it)\b/.test(t)) intent.optionWhich = 'current';
 
+  // --- Booking Priority: flight, hotel, train, or bus first ---
+  if (/\b(?:flight|flights|fly|plane|air) (?:first|1st|priority|firstly)\b|\b(?:book|reserve|prioriti[sz]e)\s+(?:the\s+)?(?:flight|flights|plane)\s*(?:first|1st)?\b/i.test(t)) {
+    intent.bookingPriority = 'flight';
+  } else if (/\b(?:hotel|hotels|stay|room|rooms) (?:first|1st|priority|firstly)\b|\b(?:book|reserve|prioriti[sz]e)\s+(?:the\s+)?(?:hotel|hotels|stay|room)\s*(?:first|1st)?\b/i.test(t)) {
+    intent.bookingPriority = 'hotel';
+  } else if (/\b(?:train|trains|rail|railway) (?:first|1st|priority|firstly)\b|\b(?:book|reserve|prioriti[sz]e)\s+(?:the\s+)?(?:train|trains|rail)\s*(?:first|1st)?\b/i.test(t)) {
+    intent.bookingPriority = 'train';
+  } else if (/\b(?:bus|buses|sleeper) (?:first|1st|priority|firstly)\b|\b(?:book|reserve|prioriti[sz]e)\s+(?:the\s+)?(?:bus|buses)\s*(?:first|1st)?\b/i.test(t)) {
+    intent.bookingPriority = 'bus';
+  } else if (/^\s*(flight|flights|plane)\s*$/i.test(message)) {
+    intent.bookingPriority = 'flight';
+  } else if (/^\s*(hotel|hotels|stay)\s*$/i.test(message)) {
+    intent.bookingPriority = 'hotel';
+  } else if (/^\s*(train|trains|rail)\s*$/i.test(message)) {
+    intent.bookingPriority = 'train';
+  } else if (/^\s*(bus|buses)\s*$/i.test(message)) {
+    intent.bookingPriority = 'bus';
+  }
+
   // --- Pending field changes without a value ---
   const wantsChange = /\b(change|update|modify|different|shift|move|reschedule)\b/.test(t);
   if (wantsChange && /\b(date|dates|day of travel|travel date)\b/.test(t) && !intent.startDate) intent.pendingField = 'startDate';
@@ -299,11 +319,12 @@ export function extractIntentDemo(message: string, trip: TripState, today: strin
   if (wantsChange && /\b(duration|length)\b/.test(t) && !intent.durationDays && !intent.durationDelta) intent.pendingField = 'durationDays';
   if (wantsChange && /\b(destination)\b/.test(t) && !intent.destination) intent.pendingField = 'destination';
   if (wantsChange && /\b(origin|starting (city|point|location))\b/.test(t) && !intent.origin) intent.pendingField = 'origin';
+  if (wantsChange && /\b(priority|booking priority|first priority|what to book first)\b/.test(t) && !intent.bookingPriority) intent.pendingField = 'priority';
 
   // --- Intent classification (most specific first) ---
   const hasPlanFields =
     intent.origin || intent.startDate || intent.durationDays || intent.durationDelta || intent.travellers ||
-    intent.travellersDelta || intent.budgetTier || intent.budgetAmount || intent.preferences.length > 0;
+    intent.travellersDelta || intent.budgetTier || intent.budgetAmount || intent.bookingPriority || intent.preferences.length > 0;
   const hasTripAlready = Boolean(trip.destination);
   const choose = (name: IntentName) => (intent.intent = name);
 
@@ -347,6 +368,7 @@ export function pendingFieldLabel(field: PlanField): string {
     startDate: 'travel date',
     durationDays: 'trip length',
     travellers: 'number of travellers',
-    budget: 'budget'
-  }[field];
+    budget: 'budget',
+    priority: 'first booking priority (flight, hotel, train, or bus)'
+  }[field] ?? field;
 }

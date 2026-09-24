@@ -1,0 +1,12 @@
+{
+  "success": true,
+  "transactionId": "d944057e-55e2-4506-b78f-bc839749f571",
+  "state": "ROLLED_BACK",
+  "failedService": null,
+  "matchCriteria": null,
+  "alternatives": [],
+  "alternativesSupported": false,
+  "replacementSupported": false,
+  "mode": "CUSTOMER_OPTIONS",
+  "reason": "The booking was rolled back before any service failed (for example, the payment was not authorized)."
+}

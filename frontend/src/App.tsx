@@ -36,9 +36,10 @@ import {
 import { sseManager } from './services/sse';
 import { AiPlannerView } from './components/AiPlanner/AiPlannerView';
 import { DataCatalogView } from './components/DataCatalog/DataCatalogView';
+import { TransactionOpsView } from './components/TransactionOps/TransactionOpsView';
 
 export const App: React.FC = () => {
-  const [currentView, setCurrentView] = useState<'trip_guide' | 'ai_planner' | 'data_catalog' | 'my_trips' | 'sentinel' | 'plugin_sdk' | 'ops' | 'demo'>('trip_guide');
+  const [currentView, setCurrentView] = useState<'trip_guide' | 'ai_planner' | 'data_catalog' | 'my_trips' | 'sentinel' | 'plugin_sdk' | 'ops' | 'tx_ops' | 'demo'>('ai_planner');
   const [lang, setLang] = useState<Language>('en');
 
   // Inventory & System State
@@ -375,52 +376,7 @@ export const App: React.FC = () => {
         {currentView === 'ai_planner' && <AiPlannerView />}
         {currentView === 'data_catalog' && <DataCatalogView />}
 
-        {/* VIEW 1: UNIFIED MULTI-MODAL TRIP GUIDE & PLANNER */}
-        {currentView === 'trip_guide' && (
-          <div>
-            {travellerStep === 'SEARCH' && (
-              <TripGuideView
-                inventoryItems={inventoryItems}
-                onHoldItem={(invId) => handleHoldSeat(invId)}
-                isHolding={isHolding}
-                lang={lang}
-              />
-            )}
 
-            {travellerStep === 'HELD' && currentHold && (
-              <HoldCountdownCard
-                hold={currentHold}
-                onConfirm={handleConfirmBooking}
-                isConfirming={isConfirming}
-                lang={lang}
-              />
-            )}
-
-            {travellerStep === 'RECONCILING' && currentBookingId && (
-              <ReconcilingCard
-                bookingId={currentBookingId}
-                lang={lang}
-              />
-            )}
-
-            {travellerStep === 'CONFIRMED' && (
-              <ConfirmedTicketCard
-                booking={confirmedTicket || { bookingId: currentBookingId }}
-                onReset={handleResetTraveller}
-                lang={lang}
-              />
-            )}
-
-            {travellerStep === 'FAILED' && (
-              <RecoveryCard
-                message={recoveryInfo?.message}
-                alternatives={recoveryInfo?.alternatives || []}
-                onSelectAlternative={(invId) => handleHoldSeat(invId)}
-                lang={lang}
-              />
-            )}
-          </div>
-        )}
 
         {/* VIEW 2: MY TRIPS & BOOKINGS MANAGER */}
         {currentView === 'my_trips' && (
@@ -433,43 +389,20 @@ export const App: React.FC = () => {
           />
         )}
 
-        {/* VIEW 3: TRIP DISRUPTION SENTINEL & HOTEL COMPENSATION GUARANTEE */}
-        {currentView === 'sentinel' && (
-          <TripSentinelView />
-        )}
+
 
         {/* VIEW 4: ANTI-DOUBLE-BOOKING PLUGIN SDK & MILLISECOND RACE SIMULATOR */}
         {currentView === 'plugin_sdk' && (
           <PluginShowcase />
         )}
 
-        {/* VIEW 5: OPERATIONS DASHBOARD & INVARIANTS */}
-        {currentView === 'ops' && (
-          <div>
-            <InvariantPanel
-              inventory={invariants}
-              counters={counters}
-              onRefresh={loadData}
-            />
 
-            <CopilotCard
-              reconciliations={reconciliations}
-              onApply={handleApplyCopilot}
-              isApplying={isApplyingCopilot}
-            />
 
-            <LiveStateBoard
-              bookings={reconciliations.map(r => ({
-                id: r.booking_id,
-                status: r.status as any,
-                flight_code: r.flight_code,
-                traveller_name: r.traveller_name,
-                total_amount: r.total_amount
-              }))}
-            />
-
-            <EventTimeline events={events} />
-          </div>
+        {/* VIEW 5B: TRANSACTION OPERATIONS & RESEARCH DASHBOARD (saga engine, read-only) */}
+        {currentView === 'tx_ops' && (
+          <TransactionOpsView
+            copilot={{ reconciliations, onApply: handleApplyCopilot, isApplying: isApplyingCopilot }}
+          />
         )}
 
         {/* VIEW 6: DEMO CONTROL CENTER */}
