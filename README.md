@@ -173,15 +173,34 @@ Visit **`http://localhost:3000/`** in your browser.
 ### Inventory Endpoints
 - `GET /api/inventory` — Fetch all inventory items with computed invariant flags.
 - `GET /api/inventory/search` — Search multi-modal inventory with origin, destination, date, and price filters.
-- `GET /api/inventory/invariants` — Authoritative audit check verifying system-wide mathematical consistency.
+- `GET /api/inventory/:id` — Single item with live counters and active holds.
+- `GET /api/inventory/invariants` — Authoritative audit check verifying system-wide mathematical consistency (per-row violations, hold-ledger cross-check, measured duplicate confirmations).
 
 ### Booking & Concurrency Endpoints
-- `POST /api/bookings/hold` — Atomically lock and reserve inventory for 10 minutes (`SELECT ... FOR UPDATE`).
+- `POST /api/bookings/hold` — Atomically lock and reserve inventory for 10 minutes (`SELECT ... FOR UPDATE`). Optional `Idempotency-Key` header makes retries safe.
   ```json
   { "travellerId": "traveller_priya", "inventoryId": "flt_blr_goi_ix6534", "quantity": 1, "ttlSeconds": 600 }
   ```
 - `POST /api/bookings/confirm` — Confirm booking idempotently with `Idempotency-Key` header.
+- `GET /api/bookings/:id/status` — Booking state, hold countdown, allowed transitions.
+- `POST /api/bookings/:id/release` — Release a hold before payment (`HELD → RELEASED`).
+- `POST /api/bookings/cancel` — Cancel a confirmed booking and restock inventory (idempotent).
 - `GET /api/bookings/:id` — Fetch complete booking details, items, and status.
+
+### High-Demand / Tatkal Prepared Booking
+- `POST /api/prepared-bookings`, `PUT /api/prepared-bookings/:id/{trip|passengers|selection|payment|window}` — Prepare everything before the booking window.
+- `POST /api/prepared-bookings/:id/approve` — Explicit user approval (only once the window is open).
+- `POST /api/prepared-bookings/:id/execute` — Hold through the standard engine (idempotent); then pay and confirm via `POST /api/bookings/confirm`.
+
+Full lifecycle, guarantees, error codes and schema changes: **[docs/BOOKING_ENGINE.md](docs/BOOKING_ENGINE.md)**.
+
+### Tests
+```bash
+cd backend
+npm test                     # booking engine suite (embedded PGlite)
+DATABASE_URL=postgres://... npm test   # same suite on real PostgreSQL (drops & recreates schema!)
+npm run test:concurrency     # 500 virtual users vs limited seats
+```
 
 ### Sentinel & Compensation Endpoints
 - `POST /api/trip/disruption-simulate` — Simulate airline disruption for a multi-leg itinerary.

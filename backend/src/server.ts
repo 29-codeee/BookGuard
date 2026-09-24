@@ -11,6 +11,7 @@ import compensationRoutes from './routes/compensation.js';
 import demoRoutes from './routes/demo.js';
 import sseRoutes from './routes/sse.js';
 import pluginSdkRoutes from './routes/pluginSdk.js';
+import preparedBookingRoutes from './routes/preparedBookings.js';
 
 export async function buildApp() {
   const fastify = Fastify({
@@ -39,6 +40,7 @@ export async function buildApp() {
   await fastify.register(demoRoutes);
   await fastify.register(sseRoutes);
   await fastify.register(pluginSdkRoutes);
+  await fastify.register(preparedBookingRoutes);
 
   return fastify;
 }
