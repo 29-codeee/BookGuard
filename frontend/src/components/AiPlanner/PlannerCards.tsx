@@ -35,8 +35,8 @@ export function BookingPriorityCard({ trip, busy, onAction }: { trip: TripState;
     <div className="priority-card">
       <div className="priority-head">
         <div>
-          <div className="priority-title">⚡ Multi-Provider Booking Priority</div>
-          <div className="priority-subtitle">Which component should BookGuard's distributed Saga book and lock first?</div>
+          <div className="priority-title">⚡ Multi-Provider Booking Priority (Optional)</div>
+          <div className="priority-subtitle">Once you have added items to your package, you can optionally choose which component BookGuard's distributed Saga should book and lock first.</div>
         </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
           {currentPriority ? (
@@ -53,7 +53,7 @@ export function BookingPriorityCard({ trip, busy, onAction }: { trip: TripState;
               </button>
             </>
           ) : (
-            <span className="priority-badge unselected">⚠️ Priority Not Selected</span>
+            <span className="priority-badge unselected">Not set · default order</span>
           )}
         </div>
       </div>
@@ -125,7 +125,7 @@ export function HotelCards({ hotels, trip, busy, onAction }: { hotels: HotelOpti
                   </>
                 ) : (
                   <>
-                    <button className="btn-sm" disabled={busy} onClick={() => onAction('select', 'hotel', h.id)}>Select for Package</button>
+                    <button className="btn-sm" disabled={busy} onClick={() => onAction('select', 'hotel', h.id)}>Add to package</button>
                     <button className="btn-sm primary" disabled={busy} onClick={() => onAction('book', 'hotel', h.id)}>Book</button>
                   </>
                 )}
@@ -201,7 +201,7 @@ export function TransportCards({ options, trip, busy, onAction }: { options: Tra
                   </>
                 ) : (
                   <>
-                    <button className="btn-sm" disabled={busy} onClick={() => onAction('select', 'transport', o.id)}>Select for Package</button>
+                    <button className="btn-sm" disabled={busy} onClick={() => onAction('select', 'transport', o.id)}>Add to package</button>
                     <button className="btn-sm primary" disabled={busy} onClick={() => onAction('book', 'transport', o.id)}>Book</button>
                   </>
                 )}

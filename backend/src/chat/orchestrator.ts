@@ -398,9 +398,6 @@ function suggestionsFor(trip: TripState): string[] {
   if (trip.bookingRequests.length > 0) {
     return ['Book the transport', 'Show cheaper hotels', 'Make the trip 4 days instead', 'Start over'];
   }
-  if (!trip.bookingPriority) {
-    return ['Flight first', 'Hotel first', 'Train first', 'Bus first'];
-  }
   return ['Show cheaper hotels', 'Show flights', 'Show trains', 'Show buses'];
 }
 
@@ -700,12 +697,7 @@ function describeNewPlan(trip: TripState, turn: Turn) {
   ].filter(Boolean) as string[];
   if (picks.length) turn.say(`I have pre-selected ${joinParts(picks)}.`);
   turn.say(estimateLine(trip));
-  if (trip.bookingPriority) {
-    turn.say(`Your primary booking priority is set to **${trip.bookingPriority.toUpperCase()}** (will be secured first in BookGuard Saga).`);
-  } else {
-    turn.say('Which is your first priority to be booked first: Flight, Hotel, Train, or Bus?');
-  }
-  turn.say('Tap Select on any option to customize your package, or just tell me what to adjust.');
+  turn.say('Here are flights, trains, buses and hotels for your trip. Tap "Add to package" on anything you would like to include, then reserve the complete package when you are ready.');
   turn.show.add('itinerary');
   turn.show.add('hotels');
   turn.show.add('transport');

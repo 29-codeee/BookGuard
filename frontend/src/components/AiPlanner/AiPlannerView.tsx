@@ -236,7 +236,6 @@ function TurnCards({
   const isPlanned = trip.status === 'PLANNED';
   return (
     <>
-      {isPlanned && <BookingPriorityCard trip={trip} busy={busy} onAction={onAction} />}
       {turn.show.includes('itinerary') && itinerary && turn.trip.destination && (
         <ItineraryCard itinerary={itinerary} title={`${turn.trip.destination.name}: ${itinerary.length} Day${itinerary.length > 1 ? 's' : ''}`} />
       )}
@@ -244,6 +243,7 @@ function TurnCards({
       {recs && recs.hotels.length > 0 && <HotelCards hotels={recs.hotels} trip={trip} busy={busy} onAction={onAction} />}
       {recs && recs.places.length > 0 && <PlaceCards places={recs.places} trip={trip} busy={busy} onAction={onAction} />}
       {isPlanned && <PackageSummaryCard trip={trip} busy={busy} onAction={onAction} />}
+      {isPlanned && <BookingPriorityCard trip={trip} busy={busy} onAction={onAction} />}
       {turn.bookingRequest && <BookingRequestCard record={turn.bookingRequest} />}
     </>
   );
