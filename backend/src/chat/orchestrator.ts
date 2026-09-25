@@ -216,7 +216,6 @@ export async function handleUiAction(
       });
       const turn = new Turn();
       turn.say('Which component would you like to set as your primary booking priority: **Flight**, **Hotel**, **Train**, or **Bus**?');
-      turn.show.add('itinerary');
       turn.show.add('hotels');
       turn.show.add('transport');
       turn.show.add('places');
@@ -232,7 +231,6 @@ export async function handleUiAction(
       });
       const turn = new Turn();
       turn.say(`Primary booking priority set to **${p.toUpperCase()}**! In BookGuard's multi-provider Saga, this leg will be reserved and locked first before confirming other accommodations.`);
-      turn.show.add('itinerary');
       turn.show.add('hotels');
       turn.show.add('transport');
       turn.show.add('places');
@@ -698,7 +696,6 @@ function describeNewPlan(trip: TripState, turn: Turn) {
   if (picks.length) turn.say(`I have pre-selected ${joinParts(picks)}.`);
   turn.say(estimateLine(trip));
   turn.say('Here are flights, trains, buses and hotels for your trip. Tap "Add to package" on anything you would like to include, then reserve the complete package when you are ready.');
-  turn.show.add('itinerary');
   turn.show.add('hotels');
   turn.show.add('transport');
   turn.show.add('places');
@@ -726,7 +723,6 @@ function describeChanges(trip: TripState, changed: Set<string>, rebuilt: boolean
     turn.show.add('hotels');
     turn.show.add('transport');
   }
-  if (rebuilt) turn.show.add('itinerary');
   turn.say(estimateLine(trip));
 
   const active = trip.bookingRequests.filter(r => ['HELD', 'PENDING_MODULE', 'RECEIVED'].includes(r.status));
@@ -942,8 +938,7 @@ async function selectOption(trip: TripState, intent: TravelIntent, turn: Turn) {
       const day = middle.reduce((a, b) => (b.placeIds.length < a.placeIds.length ? b : a));
       day.activities.splice(Math.max(0, day.activities.length - (day === trip.itinerary[trip.itinerary.length - 1] ? 1 : 0)), 0, p.name);
       day.placeIds.push(p.id);
-      turn.say(`Added ${p.name} to day ${day.day} of your itinerary.`);
-      turn.show.add('itinerary');
+      turn.say(`Added ${p.name} to your package.`);
     } else {
       turn.say(`Added ${p.name} to your list of places.`);
     }
@@ -1010,8 +1005,8 @@ function removeItem(trip: TripState, intent: TravelIntent, turn: Turn) {
   } else if (target === 'place') {
     const p = intent.optionId ? trip.places.find(x => x.id === intent.optionId) : null;
     if (!p) {
-      turn.say('Which place should I remove from the itinerary?');
-      turn.show.add('itinerary');
+      turn.say('Which place should I remove from your package?');
+      turn.show.add('places');
       return;
     }
     trip.places = trip.places.filter(x => x.id !== p.id);
@@ -1019,8 +1014,8 @@ function removeItem(trip: TripState, intent: TravelIntent, turn: Turn) {
       day.placeIds = day.placeIds.filter(id => id !== p.id);
       day.activities = day.activities.filter(a => a !== p.name);
     }
-    turn.say(`Removed ${p.name} from your itinerary.`);
-    turn.show.add('itinerary');
+    turn.say(`Removed ${p.name} from your package.`);
+    turn.show.add('places');
     return;
   } else {
     turn.say('What should I remove: the hotel, the transport, or a place?');
