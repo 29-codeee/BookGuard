@@ -79,10 +79,11 @@ describe('requirement collection and itinerary', () => {
     assert.ok(plan.trip.hotel && plan.trip.transport);
     assert.ok(plan.trip.estimate.total > 0);
     assert.deepEqual(plan.missingInformation, []);
-    // The day-by-day itinerary card is no longer shown automatically; it is still
-    // built internally (asserted above) and shown only if the user asks for it.
+    // The day-by-day itinerary card and the places/activities card are no longer
+    // shown automatically - the plan goes straight to flight/hotel package options.
     assert.ok(!plan.show.includes('itinerary'));
-    for (const s of ['hotels', 'transport', 'places']) assert.ok(plan.show.includes(s));
+    assert.ok(!plan.show.includes('places'));
+    for (const s of ['hotels', 'transport']) assert.ok(plan.show.includes(s));
     assert.ok(plan.recommendations.hotels.length > 0);
     assert.ok(plan.recommendations.transport.length > 0);
     assert.match(plan.demoDataNotice, /Demo/);

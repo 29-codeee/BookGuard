@@ -119,23 +119,6 @@ export function TripPlanPanel({
             </span>
           ) : dash}
         </dd>
-        <dt>Places</dt>
-        <dd>
-          <span style={{ display: 'inline-flex', alignItems: 'center' }}>
-            <span>{t?.places.length ?? 0}</span>
-            {onAction && (t?.places.length ?? 0) > 0 && (
-              <button
-                type="button"
-                className="panel-change-btn"
-                disabled={busy}
-                onClick={() => onAction('change', 'place')}
-                title="Change places to visit"
-              >
-                Change
-              </button>
-            )}
-          </span>
-        </dd>
       </dl>
 
       {t?.hotel && <div className="opt-meta">🏨 {t.hotel.name}</div>}

@@ -32,6 +32,7 @@ import {
   buildItinerary,
   computeEstimate,
   emptyTrip,
+  estimateComboTotal,
   formatDate,
   formatInr,
   missingFields,
@@ -218,7 +219,6 @@ export async function handleUiAction(
       turn.say('Which component would you like to set as your primary booking priority: **Flight**, **Hotel**, **Train**, or **Bus**?');
       turn.show.add('hotels');
       turn.show.add('transport');
-      turn.show.add('places');
       return finish(session, turn, null, 'demo', null);
     }
     const p = (body.mode || body.itemId) as string;
@@ -233,7 +233,6 @@ export async function handleUiAction(
       turn.say(`Primary booking priority set to **${p.toUpperCase()}**! In BookGuard's multi-provider Saga, this leg will be reserved and locked first before confirming other accommodations.`);
       turn.show.add('hotels');
       turn.show.add('transport');
-      turn.show.add('places');
       return finish(session, turn, null, 'demo', null);
     }
   }
@@ -698,7 +697,6 @@ function describeNewPlan(trip: TripState, turn: Turn) {
   turn.say('Here are flights, trains, buses and hotels for your trip. Tap "Add to package" on anything you would like to include, then reserve the complete package when you are ready.');
   turn.show.add('hotels');
   turn.show.add('transport');
-  turn.show.add('places');
 }
 
 function describeChanges(trip: TripState, changed: Set<string>, rebuilt: boolean, turn: Turn) {
@@ -746,12 +744,56 @@ async function transportOptions(trip: TripState, mode: TransportMode | null): Pr
   return mode ? all.filter(o => o.mode === mode) : all;
 }
 
+/**
+ * Picks the hotel/transport pairing whose combined cost lands closest to the
+ * traveller's stated budget, searching all candidates for whichever leg is
+ * being (re)selected and holding the other leg fixed if it already has a pick.
+ */
+async function pickBudgetCombo(
+  trip: TripState,
+  budgetAmount: number,
+  opts: { chooseHotel: boolean; chooseTransport: boolean }
+): Promise<{ hotel: HotelOption | null; transport: TransportOption | null }> {
+  const hotelCandidates = opts.chooseHotel ? await hotelOptions(trip) : trip.hotel ? [trip.hotel] : [];
+  const transportCandidates = opts.chooseTransport
+    ? await transportOptions(trip, trip.preferredTransportMode)
+    : trip.transport
+      ? [trip.transport]
+      : [];
+
+  if (hotelCandidates.length === 0 || transportCandidates.length === 0) {
+    return { hotel: hotelCandidates[0] ?? trip.hotel ?? null, transport: transportCandidates[0] ?? trip.transport ?? null };
+  }
+
+  let best: { hotel: HotelOption; transport: TransportOption; diff: number } | null = null;
+  for (const h of hotelCandidates) {
+    for (const t of transportCandidates) {
+      const diff = Math.abs(estimateComboTotal(trip, h, t) - budgetAmount);
+      if (!best || diff < best.diff) best = { hotel: h, transport: t, diff };
+    }
+  }
+  return { hotel: best!.hotel, transport: best!.transport };
+}
+
 async function autoSelect(trip: TripState, changed: Set<string>) {
-  if (!trip.removed.hotel && (!trip.hotel || changed.has('budget') || changed.has('destination'))) {
+  const chooseHotel = !trip.removed.hotel && (!trip.hotel || changed.has('budget') || changed.has('destination'));
+  const chooseTransport =
+    !trip.removed.transport && (!trip.transport || changed.has('budget') || changed.has('origin') || changed.has('mode') || changed.has('destination'));
+  if (!chooseHotel && !chooseTransport) return;
+
+  const budgetAmount = trip.budget?.amountInr;
+  if (budgetAmount && trip.destination && trip.origin && trip.travellers && trip.durationDays) {
+    const { hotel, transport } = await pickBudgetCombo(trip, budgetAmount, { chooseHotel, chooseTransport });
+    if (chooseHotel) { trip.hotel = hotel; trip.cursor.hotel = 0; }
+    if (chooseTransport) { trip.transport = transport; trip.cursor.transport = 0; }
+    return;
+  }
+
+  if (chooseHotel) {
     trip.hotel = (await hotelOptions(trip))[0] ?? null;
     trip.cursor.hotel = 0;
   }
-  if (!trip.removed.transport && (!trip.transport || changed.has('budget') || changed.has('origin') || changed.has('mode') || changed.has('destination'))) {
+  if (chooseTransport) {
     trip.transport = (await transportOptions(trip, null))[0] ?? null;
     trip.cursor.transport = 0;
   }

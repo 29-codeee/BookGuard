@@ -251,7 +251,6 @@ export function PackageSummaryCard({ trip, busy, onAction }: { trip: TripState; 
 
   const transportCost = trip.transport ? trip.transport.pricePerPerson * numTravellers * 2 : 0;
   const hotelCost = trip.hotel ? trip.hotel.pricePerNight * Math.max(1, numDays - 1) : 0;
-  const sightseeingCost = trip.places.reduce((acc, p) => acc + (p.entryFeeInr || 0) * numTravellers, 0);
 
   return (
     <div className="package-card" id="curated-travel-package">
@@ -363,36 +362,6 @@ export function PackageSummaryCard({ trip, busy, onAction }: { trip: TripState; 
           </div>
         </div>
 
-        {/* Places to Visit Component */}
-        <div className={`package-comp-row ${trip.places.length > 0 ? 'included' : 'missing'}`}>
-          <div className="comp-icon">📍</div>
-          <div className="comp-info">
-            <div className="comp-name">
-              {trip.places.length > 0
-                ? `${trip.places.length} Sightseeing Places & Attractions`
-                : 'Places to Visit & Activities'}
-            </div>
-            <div className="comp-detail">
-              {trip.places.length > 0
-                ? trip.places.map(p => p.name).join(' · ')
-                : 'Select places to visit from recommendations above'}
-            </div>
-          </div>
-          <div className="comp-price">
-            {trip.places.length > 0 ? (sightseeingCost > 0 ? formatInr(sightseeingCost) : 'Free entry') : 'Optional'}
-          </div>
-          <div className="comp-actions">
-            <button
-              type="button"
-              className="btn-change-opt"
-              disabled={busy}
-              onClick={() => onAction('change', 'place')}
-              title="Change sightseeing itinerary"
-            >
-              Change
-            </button>
-          </div>
-        </div>
       </div>
 
       {/* Package Total Amount Bar */}

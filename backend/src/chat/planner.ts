@@ -82,42 +82,25 @@ export function tierFromAmount(amount: number, travellers: number | null, days: 
 }
 
 /**
- * Greedy day-by-day itinerary: light arrival day, fuller middle days, short last day.
- * Places come pre-sorted by preference and geography.
+ * Lightweight day-by-day shell: light arrival day, free middle days, short last day.
+ * BookGuard no longer curates specific places/activities into this - it only
+ * anchors the trip dates for the (optional, on-request) itinerary view.
  */
-export function buildItinerary(dest: Destination, days: number, preferences: string[]): { itinerary: DayPlan[]; places: PlaceOption[] } {
-  const queue = listPlaces(dest, preferences);
-  const used: PlaceOption[] = [];
+export function buildItinerary(dest: Destination, days: number, _preferences: string[]): { itinerary: DayPlan[]; places: PlaceOption[] } {
   const itinerary: DayPlan[] = [];
 
   for (let day = 1; day <= days; day++) {
     const isFirst = day === 1;
     const isLast = day === days && days > 1;
-    let capacity = isFirst ? (days === 1 ? 6 : 4) : isLast ? 3 : 8;
     const activities: string[] = [];
-    const placeIds: string[] = [];
     if (isFirst) activities.push(`Arrive in ${dest.name} and check in`);
-
-    for (let i = 0; i < queue.length && capacity > 0; ) {
-      const p = queue[i];
-      const fits = p.durationHrs <= capacity || (!isFirst && !isLast && placeIds.length === 0);
-      if (fits) {
-        activities.push(p.name);
-        placeIds.push(p.id);
-        used.push(p);
-        capacity -= p.durationHrs;
-        queue.splice(i, 1);
-      } else {
-        i++;
-      }
-    }
-    if (placeIds.length === 0 && !isLast) activities.push('Leisure time: local cafes, markets and relaxing');
+    if (!isFirst && !isLast) activities.push(`Free day to explore ${dest.name} at your own pace`);
     if (isLast || days === 1) activities.push('Check out and depart');
 
     const title = isFirst ? 'Arrival & first sights' : isLast ? 'Final sights & departure' : `Explore ${dest.name}`;
-    itinerary.push({ day, title, activities, placeIds });
+    itinerary.push({ day, title, activities, placeIds: [] });
   }
-  return { itinerary, places: used };
+  return { itinerary, places: [] };
 }
 
 export async function recommendationsFor(trip: TripState, limit = 4): Promise<Recommendations> {
@@ -129,6 +112,23 @@ export async function recommendationsFor(trip: TripState, limit = 4): Promise<Re
     ? rankTransport(await listTransport(trip.origin.code, dest.code), tier, trip.preferredTransportMode).slice(0, limit)
     : [];
   return { hotels, transport, places: listPlaces(dest, trip.preferences) };
+}
+
+/** Same cost formula as computeEstimate, but for a hypothetical hotel/transport pair (used to match a package to a budget). */
+export function estimateComboTotal(
+  trip: TripState,
+  hotel: { pricePerNight: number } | null,
+  transport: { pricePerPerson: number } | null
+): number {
+  if (!trip.travellers || !trip.durationDays) return 0;
+  const travellers = trip.travellers;
+  const days = trip.durationDays;
+  const tier = budgetTier(trip);
+  const transportCost = transport ? transport.pricePerPerson * travellers * 2 : 0;
+  const stayCost = hotel ? hotel.pricePerNight * roomsFor(travellers) * nightsFor(days) : 0;
+  const entryFees = trip.places.reduce((sum, p) => sum + p.entryFeeInr, 0) * travellers;
+  const localAndSightseeing = LOCAL_COST_PER_PERSON_DAY[tier] * travellers * days + entryFees;
+  return Math.round(transportCost + stayCost + localAndSightseeing);
 }
 
 export function computeEstimate(trip: TripState): CostEstimate | null {
