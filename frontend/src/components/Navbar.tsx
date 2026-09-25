@@ -1,10 +1,10 @@
 import React from 'react';
-import { ShieldCheck, Plane, LayoutDashboard, Cpu, Globe, Check } from 'lucide-react';
+import { ShieldCheck, Globe, Database, Activity, LayoutDashboard } from 'lucide-react';
 import { Language, translate } from '../i18n';
 
 interface NavbarProps {
-  currentView: 'trip_guide' | 'my_trips' | 'plugin_sdk' | 'ops' | 'demo';
-  setCurrentView: (view: 'trip_guide' | 'my_trips' | 'plugin_sdk' | 'ops' | 'demo') => void;
+  currentView: 'trip_guide' | 'ai_planner' | 'data_catalog' | 'my_trips' | 'plugin_sdk' | 'ops' | 'tx_ops' | 'demo';
+  setCurrentView: (view: 'trip_guide' | 'ai_planner' | 'data_catalog' | 'my_trips' | 'plugin_sdk' | 'ops' | 'tx_ops' | 'demo') => void;
   lang: Language;
   setLang: (lang: Language) => void;
   oversoldCount: number;
@@ -40,7 +40,7 @@ export const Navbar: React.FC<NavbarProps> = ({
         gap: 16
       }}>
         {/* Brand */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: 12, cursor: 'pointer' }} onClick={() => setCurrentView('trip_guide')}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 12, cursor: 'pointer' }} onClick={() => setCurrentView('ai_planner')}>
           <div style={{
             background: 'linear-gradient(135deg, #0ea5e9, #6366f1)',
             padding: 9,
@@ -83,8 +83,32 @@ export const Navbar: React.FC<NavbarProps> = ({
           padding: 4,
           borderRadius: 12,
           border: '1px solid var(--border)',
-          gap: 4
+          gap: 4,
+          flexWrap: 'wrap',
+          maxWidth: '100%'
         }}>
+          <button
+            id="nav-ai-planner"
+            onClick={() => setCurrentView('ai_planner')}
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: 6,
+              padding: '8px 14px',
+              borderRadius: 8,
+              border: 'none',
+              background: currentView === 'ai_planner' ? 'linear-gradient(135deg, #0ea5e9, #2563eb)' : 'transparent',
+              color: currentView === 'ai_planner' ? '#FFFFFF' : '#94A3B8',
+              fontWeight: 700,
+              fontSize: '0.84rem',
+              cursor: 'pointer',
+              transition: 'all 0.18s'
+            }}
+          >
+            <span>🤖</span>
+            <span>AI Planner</span>
+          </button>
+
           <button
             id="nav-trips"
             onClick={() => setCurrentView('trip_guide')}
@@ -105,6 +129,21 @@ export const Navbar: React.FC<NavbarProps> = ({
           >
             <span>🌴</span>
             <span>Explore & Book</span>
+          </button>
+
+
+          <button
+            id="nav-data-catalog"
+            onClick={() => setCurrentView('data_catalog')}
+            style={{
+              display: 'flex', alignItems: 'center', gap: 6, padding: '8px 14px', borderRadius: 8,
+              border: 'none', background: currentView === 'data_catalog' ? 'linear-gradient(135deg, #0ea5e9, #2563eb)' : 'transparent',
+              color: currentView === 'data_catalog' ? '#FFFFFF' : '#94A3B8', fontWeight: 700, fontSize: '0.84rem',
+              cursor: 'pointer', transition: 'all 0.18s'
+            }}
+          >
+            <Database size={15} />
+            <span>Data Library</span>
           </button>
 
           <button
@@ -132,6 +171,7 @@ export const Navbar: React.FC<NavbarProps> = ({
           <button
             id="nav-ops"
             onClick={() => setCurrentView('ops')}
+            aria-current={currentView === 'ops' ? 'page' : undefined}
             style={{
               display: 'flex',
               alignItems: 'center',
@@ -149,6 +189,29 @@ export const Navbar: React.FC<NavbarProps> = ({
           >
             <LayoutDashboard size={15} />
             <span>Ops & Invariants</span>
+          </button>
+
+          <button
+            id="nav-tx-ops"
+            onClick={() => setCurrentView('tx_ops')}
+            aria-current={currentView === 'tx_ops' ? 'page' : undefined}
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: 6,
+              padding: '8px 14px',
+              borderRadius: 8,
+              border: 'none',
+              background: currentView === 'tx_ops' ? 'linear-gradient(135deg, #0ea5e9, #2563eb)' : 'transparent',
+              color: currentView === 'tx_ops' ? '#FFFFFF' : '#94A3B8',
+              fontWeight: 700,
+              fontSize: '0.84rem',
+              cursor: 'pointer',
+              transition: 'all 0.18s'
+            }}
+          >
+            <Activity size={15} />
+            <span>Transaction Ops</span>
           </button>
         </nav>
 

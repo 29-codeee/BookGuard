@@ -89,7 +89,7 @@ async function runTests() {
 
     // --- TEST 2: confirmation idempotency ---
     const idemKey = crypto.randomUUID();
-    const hold2 = await createHold({ travellerId: 'traveller_priya', inventoryId, quantity: 1, ttlSeconds: 1000, idempotencyKey: crypto.randomUUID() });
+    const hold2 = await createHold({ travellerId: 'traveller_priya', inventoryId, quantity: 1, ttlSeconds: 1000 });
     
     const res2a = await confirmBooking(hold2.bookingId, idemKey);
     const res2b = await confirmBooking(hold2.bookingId, idemKey);
@@ -105,30 +105,27 @@ async function runTests() {
     runAssert(res3.statusCode === 410, 'Already EXPIRED hold rejects confirmation with 410');
     runAssert(res3.payload.error === 'HOLD_EXPIRED', 'Already EXPIRED hold returns HOLD_EXPIRED');
 
-    // --- TEST 4: expiry racing with confirmation, confirmed hold cannot be expired ---
+    // --- TEST 4: expiry racing with confirmation of a hold whose TTL already passed ---
+    // The engine re-checks the DB-clock TTL before calling the provider, so the confirm itself
+    // expires the hold and never creates a (phantom) provider reservation. Whichever of
+    // confirm/expire gets the booking lock first performs the expiry; exactly one does.
     const hold4 = await createHold({ travellerId: 'traveller_priya', inventoryId, quantity: 1, ttlSeconds: 1000 });
     await query(`UPDATE holds SET expires_at = CURRENT_TIMESTAMP - interval '1 hour' WHERE id = $1`, [hold4.holdId]); // force it to be expirable
-
-    // We start confirmBooking. Provider mock takes ~500ms. We trigger expireHold simultaneously.
-    // However, because we made expireHold wait for locks, and confirm waits for locks...
-    // Actually, confirm calls provider first without holding locks.
-    // If we call expireHold *right after* confirmBooking starts, expireHold will grab the Booking lock first!
-    // Then confirmBooking finishes provider, tries to get lock, sees EXPIRED, and aborts.
-    // Set provider to DELAY mode so we can race it
     mockAirlineProvider.setMode('DELAY');
-    
+
     const pConfirm = confirmBooking(hold4.bookingId, crypto.randomUUID());
-    // Wait 50ms to ensure provider call is in flight, then trigger expire
     await new Promise(r => setTimeout(r, 50));
     const pExpire = expireHold(hold4.holdId);
-    
-    const [resConfirm, resExpire] = await Promise.all([pConfirm, pExpire]);
-    
-    // Reset provider to SUCCESS mode
+
+    const [resConfirm] = await Promise.all([pConfirm, pExpire]);
     mockAirlineProvider.setMode('SUCCESS');
-    
-    runAssert(resExpire === true, 'Expiry succeeds during provider call');
-    runAssert(resConfirm.statusCode === 410, 'Confirmation detects EXPIRED state and aborts with 410 (Phantom reservation prevented)');
+
+    const bRes4 = await query<{ status: string }>(`SELECT status FROM bookings WHERE id = $1`, [hold4.bookingId]);
+    const expiredEvents4 = await query(`SELECT id FROM booking_events WHERE booking_id = $1 AND to_state = 'EXPIRED'`, [hold4.bookingId]);
+    const prv4 = await query(`SELECT id FROM provider_reservations WHERE booking_id = $1`, [hold4.bookingId]);
+    runAssert(resConfirm.statusCode === 410 && resConfirm.payload.error === 'HOLD_EXPIRED', 'Confirmation of an expired hold aborts with 410 HOLD_EXPIRED');
+    runAssert(bRes4.rows[0].status === 'EXPIRED' && expiredEvents4.rowCount === 1, 'Hold expired exactly once (single EXPIRED booking_event)');
+    runAssert(prv4.rowCount === 0, 'No phantom provider reservation was created');
 
     // --- TEST 5: Confirmed hold cannot be expired ---
     // If confirmation finishes first, expiry should be rejected.
@@ -141,29 +138,36 @@ async function runTests() {
     const res5Exp = await expireHold(hold5.holdId);
     runAssert(res5Exp === false, 'Confirmed hold cannot be expired');
 
-    // --- TEST 6: Provider cancellation failure during phantom-reservation ---
+    // --- TEST 6: Provider cancellation failure while compensating an orphan reservation ---
+    // The provider confirms, but the confirmation claim was lost mid-call (simulated takeover),
+    // so the engine must not apply the result and must cancel the provider PNR. The cancel
+    // fails (CANCEL_FAILURE); the booking must stay untouched and the client must not see success.
     const hold6 = await createHold({ travellerId: 'traveller_priya', inventoryId, quantity: 1, ttlSeconds: 1000 });
-    await query(`UPDATE holds SET expires_at = CURRENT_TIMESTAMP - interval '1 hour' WHERE id = $1`, [hold6.holdId]);
-    
-    // Set provider to CANCEL_FAILURE mode
     mockAirlineProvider.setMode('CANCEL_FAILURE');
-    
+
     const pConfirm6 = confirmBooking(hold6.bookingId, crypto.randomUUID());
     await new Promise(r => setTimeout(r, 50));
-    const pExpire6 = expireHold(hold6.holdId);
-    
-    const [resConfirm6, resExpire6] = await Promise.all([pConfirm6, pExpire6]);
-    
-    // Reset provider to SUCCESS mode
+    await query(`UPDATE bookings SET confirm_token = 'stolen-claim' WHERE id = $1`, [hold6.bookingId]);
+    const resConfirm6 = await pConfirm6;
     mockAirlineProvider.setMode('SUCCESS');
 
-    runAssert(resExpire6 === true, 'Expiry succeeds during provider call (phantom setup)');
-    runAssert(resConfirm6.statusCode === 500, 'Confirmation returns 500 when provider cancellation fails');
-    runAssert(resConfirm6.payload.error === 'MOCK_CANCEL_FAILED', 'Confirmation returns the provider error');
-    
-    // Verify booking is still EXPIRED
+    runAssert(resConfirm6.statusCode === 409 && resConfirm6.payload.error === 'CONFIRM_CLAIM_LOST', 'Confirmation with a lost claim is rejected (409 CONFIRM_CLAIM_LOST)');
+    const bRes6held = await query<{ status: string }>(`SELECT status FROM bookings WHERE id = $1`, [hold6.bookingId]);
+    const prv6 = await query(`SELECT id FROM provider_reservations WHERE booking_id = $1`, [hold6.bookingId]);
+    runAssert(bRes6held.rows[0].status === 'HELD' && prv6.rowCount === 0, 'Booking is not confirmed despite provider cancel failure');
+
+    // The stale claim times out and the hold then expires normally.
+    await query(
+      `UPDATE bookings SET confirm_started_at = CURRENT_TIMESTAMP - interval '1 hour' WHERE id = $1`,
+      [hold6.bookingId]
+    );
+    await query(`UPDATE holds SET expires_at = CURRENT_TIMESTAMP - interval '1 hour' WHERE id = $1`, [hold6.holdId]);
+    const resExpire6 = await expireHold(hold6.holdId);
+    runAssert(resExpire6 === true, 'Hold with an abandoned confirmation claim expires');
+
+    // Verify booking is EXPIRED
     const bRes6 = await query<{ status: string }>(`SELECT status FROM bookings WHERE id = $1`, [hold6.bookingId]);
-    runAssert(bRes6.rows[0].status === 'EXPIRED', 'Booking remains EXPIRED despite provider cancel failure');
+    runAssert(bRes6.rows[0].status === 'EXPIRED', 'Booking ends EXPIRED after provider cancel failure');
 
     // Verify final inventory state (started with 3)
     // hold1 (CONFIRMED) -> 1

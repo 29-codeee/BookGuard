@@ -8,16 +8,18 @@ export type BookingState =
   | 'CONFIRMED' 
   | 'FAILED' 
   | 'EXPIRED' 
+  | 'RELEASED'
   | 'CANCELLED';
 
 // Allowed state transitions strictly enforced
 export const ALLOWED_TRANSITIONS: Record<BookingState, BookingState[]> = {
   PENDING: ['HELD', 'FAILED'],
-  HELD: ['CONFIRMED', 'RECONCILING', 'EXPIRED', 'FAILED'],
+  HELD: ['CONFIRMED', 'RECONCILING', 'EXPIRED', 'RELEASED', 'FAILED'],
   RECONCILING: ['CONFIRMED', 'FAILED'], // exits only when provider status justifies!
   CONFIRMED: ['CANCELLED'],
   FAILED: [], // terminal
   EXPIRED: [], // terminal
+  RELEASED: [], // terminal (hold released by the traveller before payment)
   CANCELLED: [] // terminal
 };
 
@@ -29,6 +31,11 @@ export interface TransitionOptions {
   operator?: string;
   tx?: TransactionClient; // optional existing transaction
   deferBroadcast?: boolean; // if true, returns a broadcast() function instead of emitting immediately
+  strict?: boolean; // if true, a booking already in toState is an error instead of a silent success
+}
+
+export function canTransition(from: BookingState, to: BookingState): boolean {
+  return (ALLOWED_TRANSITIONS[from] || []).includes(to);
 }
 
 export async function transitionBookingState(options: TransitionOptions): Promise<{ success: boolean; fromState: BookingState; toState: BookingState; eventId?: string; broadcast: () => void }> {
@@ -48,7 +55,7 @@ export async function transitionBookingState(options: TransitionOptions): Promis
     const currentStatus = bookingRes.rows[0].status;
 
     // Check if idempotent / already in target state
-    if (currentStatus === toState) {
+    if (currentStatus === toState && !options.strict) {
       return { success: true, fromState: currentStatus, toState, eventId: undefined as string | undefined };
     }
 

@@ -1,0 +1,12 @@
+{
+  "success": true,
+  "transactionId": "bbdcbdff-09fe-45e2-bb1a-5a76decd155b",
+  "state": "ROLLBACK_FAILED",
+  "failedService": null,
+  "matchCriteria": null,
+  "alternatives": [],
+  "alternativesSupported": false,
+  "replacementSupported": false,
+  "mode": "OPERATOR_REVIEW",
+  "reason": "Compensation could not be verified; affected resources remain protected until an operator resolves the incident."
+}

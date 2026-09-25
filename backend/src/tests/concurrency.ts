@@ -1,11 +1,11 @@
 import { initDb, query, applySchemaAndSeed } from '../db/client.js';
 import { initRedis } from '../redis/client.js';
-import { createHold, startHoldSweeper } from '../redis/holdManager.js';
+import { createHold, startHoldSweeper, stopHoldSweeper } from '../redis/holdManager.js';
 import { mockAirlineProvider } from '../providers/mockProvider.js';
 
 async function runConcurrencyProof() {
   console.log('================================================================');
-  console.log('  BOOKGUARD CONCURRENCY PROOF: 500 VIRTUAL USERS vs 3 SEATS');
+  console.log('  BOOKGUARD CONCURRENCY PROOF: 500 VIRTUAL USERS vs LIMITED SEATS');
   console.log('================================================================');
 
   await initDb();
@@ -81,7 +81,7 @@ async function runConcurrencyProof() {
   console.log('================================================================');
   console.log(`Virtual Users Attempted:   ${totalUsers}`);
   console.log(`Initial Available Seats:   ${initRes.rows[0].available_quantity}`);
-  console.log(`Holds Successfully Granted:${granted}`);
+  console.log(`Holds Successfully Granted:${granted} (matches initial supply of ${initRes.rows[0].available_quantity}: ${granted === initRes.rows[0].available_quantity ? 'YES' : 'NO'})`);
   console.log(`Excess Requests Rejected:  ${rejected}`);
   console.log(`Oversold Seats:            ${oversold}  <--- [CRITICAL: MUST BE 0]`);
   console.log(`Duplicate Bookings:        0  <--- [CRITICAL: MUST BE 0]`);
@@ -90,11 +90,14 @@ async function runConcurrencyProof() {
   console.log(`Total Execution Time:      ${duration}ms (${Math.round(totalUsers / (duration / 1000))} req/sec)`);
   console.log('================================================================\n');
 
-  if (oversold === 0 && granted === 3 && invariantCheck) {
+  // Expected winners come from the database, not a hardcoded number.
+  const expectedGranted = initRes.rows[0].available_quantity;
+  stopHoldSweeper();
+  if (oversold === 0 && granted === expectedGranted && granted + rejected === totalUsers && invariantCheck) {
     console.log('SUCCESS: BookGuard successfully prevented overselling under high concurrency!');
     process.exit(0);
   } else {
-    console.error('FAILURE: Invariant violated!');
+    console.error(`FAILURE: expected ${expectedGranted} holds, got ${granted}; invariant ${invariantCheck ? 'ok' : 'VIOLATED'}`);
     process.exit(1);
   }
 }

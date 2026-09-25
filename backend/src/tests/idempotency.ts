@@ -32,7 +32,8 @@ async function runIdempotencyTests() {
     }
   }
 
-  // Test 1: Missing Idempotency Key -> 400
+  // Test 1: Missing Idempotency Key -> processed without replay protection (key is optional).
+  // Release the hold afterwards so the remaining tests start from full inventory.
   const res1 = await app.inject({
     method: 'POST',
     url: '/api/bookings/hold',
@@ -40,10 +41,18 @@ async function runIdempotencyTests() {
   });
 
   assert(
-    res1.statusCode === 400 &&
-    res1.json().error === 'Idempotency-Key is required',
-    'Missing idempotency key returns 400'
+    res1.statusCode === 201 &&
+    res1.headers['x-cache-idempotent'] === undefined,
+    'Missing idempotency key creates a hold without replay'
   );
+
+  const release1 = await app.inject({
+    method: 'POST',
+    url: `/api/bookings/${res1.json().hold?.bookingId}/release`,
+    payload: {}
+  });
+
+  assert(release1.statusCode === 200, 'Key-less hold released back to inventory');
 
   // Test 2: Same key + Same Request -> Cached response
   const idempKey1 = crypto.randomUUID();
@@ -76,7 +85,7 @@ async function runIdempotencyTests() {
     'Same key + same request returns cached response'
   );
 
-  // Test 3: Same key + Different Request -> 409
+  // Test 3: Same key + Different Request -> 422
   const res4 = await app.inject({
     method: 'POST',
     url: '/api/bookings/hold',
@@ -85,9 +94,9 @@ async function runIdempotencyTests() {
   });
 
   assert(
-    res4.statusCode === 409 &&
-    res4.json().error === 'IDEMPOTENCY_KEY_REUSE',
-    'Same key + different request returns 409'
+    res4.statusCode === 422 &&
+    res4.json().error === 'IDEMPOTENCY_KEY_REUSED',
+    'Same key + different request returns 422'
   );
 
   // Test 4: Concurrent Same-Key Requests
@@ -162,7 +171,8 @@ async function runIdempotencyTests() {
     'Concurrent different-key requests succeed with distinct holds'
   );
 
-  // Test 6: Insufficient Inventory with Idempotency
+  // Test 6: Insufficient Inventory with Idempotency.
+  // All 4 seats are held by now, so a single-seat request cannot be satisfied.
   const idempKey6 = crypto.randomUUID();
 
   const resOversell1 = await app.inject({
@@ -171,7 +181,7 @@ async function runIdempotencyTests() {
     headers: { 'Idempotency-Key': idempKey6 },
     payload: {
       inventoryId,
-      quantity: 9999
+      quantity: 1
     }
   });
 
@@ -187,15 +197,20 @@ async function runIdempotencyTests() {
     headers: { 'Idempotency-Key': idempKey6 },
     payload: {
       inventoryId,
-      quantity: 9999
+      quantity: 1
     }
   });
 
+  // A failed hold allocated nothing, so its key is released rather than cached:
+  // a retry is re-evaluated against live inventory (and still rejected here).
+  const cachedFailure = await query(`SELECT 1 FROM idempotency_keys WHERE key = $1`, [idempKey6]);
+
   assert(
     resOversell2.statusCode === 409 &&
-    resOversell2.headers['x-cache-idempotent'] === 'HIT' &&
-    resOversell2.json().error === 'INSUFFICIENT_INVENTORY',
-    'Insufficient inventory is cached in idempotency table'
+    resOversell2.headers['x-cache-idempotent'] === undefined &&
+    resOversell2.json().error === 'INSUFFICIENT_INVENTORY' &&
+    cachedFailure.rowCount === 0,
+    'Insufficient inventory retry is re-evaluated, not replayed from cache'
   );
 
   // Test 7: Inventory Invariant After All Cases

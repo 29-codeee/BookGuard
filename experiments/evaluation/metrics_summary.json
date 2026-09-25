@@ -1,0 +1,35 @@
+{
+  "runId": "20260924_215150_n6lu",
+  "totalTrials": 643,
+  "totalExperiments": 15,
+  "allPassed": true,
+  "baseline": {
+    "e2eMeanMs": 405.475,
+    "e2eP50Ms": 373.466,
+    "e2eP95Ms": 500.281,
+    "sagaMeanMs": 358.6,
+    "throughputRps": 2.283
+  },
+  "failureHandling": {
+    "singleProviderRollbackRate": 1,
+    "compensationSuccessRate": 1,
+    "unresolvedLockCountOnRollbackFailed": 30,
+    "retainedLocksUnreleased": 30
+  },
+  "idempotency": {
+    "sequentialReplayAccuracy": 1,
+    "concurrentReplayAccuracy": 1,
+    "payloadMismatchRejectionRate": 1
+  },
+  "concurrencyAndLocks": {
+    "oversellInstances": 0,
+    "hotRowDeadlocks": 0,
+    "maxObservedThroughput": 34.631
+  },
+  "aiIntelligence": {
+    "riskDeterminismRate": 1,
+    "riskAdvisoryCompliance": 1,
+    "recoveryRuleAccuracy": 1,
+    "recoveryPersistenceIntegrity": 1
+  }
+}

@@ -1,252 +1,299 @@
-# BookGuard – Real-Time Booking Integrity for Travel
-### KogniVera Hackathon 2026 | Team: Ctrl Alt Elite
+# BookGuard – Distributed Transaction Integrity for Multi-Provider Travel
 
 > **"A travel booking is a promise about a thing that only exists once — and we make that promise across systems we do not control."**
 
-**BookGuard** is an enterprise-grade travel orchestration and booking integrity platform. It eliminates **overselling, double-bookings, stuck holds, and uncoordinated multi-leg trip failures** across high-demand travel systems (Flights, IRCTC Express Trains, RedBus Sleeper Buses, Luxury Stays, and Bundled Vacation Packages).
+**BookGuard** is an open-source, research-grade transaction integrity and orchestration platform for multi-provider travel bookings. It solves the **Distributed Commitment Problem** across autonomous, heterogeneous suppliers (flights, hotels, express trains, and local transfers) without requiring distributed Two-Phase Commit (2PC) ACID locks.
+
+By unifying **PostgreSQL database-backed reservation locks**, a **backward-compensating Saga orchestration engine**, a **durable HTTP idempotency interceptor**, a **deterministic heuristic risk engine**, and an **explainable human-in-the-loop recovery advisor**, BookGuard guarantees zero double-bookings, atomic rollbacks under failure, and safe inventory quarantine when compensations fail.
 
 ---
 
 ## 📑 Table of Contents
-1. [Project Summary & Problem Solved](#-project-summary--problem-solved)
-2. [Core Integrity Guarantees](#-core-integrity-guarantees)
-3. [Multi-Modal Real-Time Travel Dataset](#-multi-modal-real-time-travel-dataset)
-4. [Platform Architecture](#-platform-architecture)
-5. [How to Run (Quickstart)](#-how-to-run-quickstart)
-6. [User Guide: Navigating the Platform](#-user-guide-navigating-the-platform)
-7. [API Reference](#-api-reference)
-8. [Directory Structure](#-directory-structure)
-9. [Troubleshooting & FAQs](#-troubleshooting--faqs)
+1. [Core Integrity Guarantees & Invariants](#-core-integrity-guarantees--invariants)
+2. [Platform Architecture & Engine Components](#-platform-architecture--engine-components)
+3. [Repository Directory Structure](#-repository-directory-structure)
+4. [Quickstart: Setup & Running](#-quickstart-setup--running)
+5. [Database Architecture & Setup](#-database-architecture--setup)
+6. [Interactive Demonstration Flows](#-interactive-demonstration-flows)
+7. [Automated Testing Suite](#-automated-testing-suite)
+8. [Phase 8 Stress & Failure Experiments](#-phase-8-stress--failure-experiments)
+9. [Phase 9 Research Evaluation & Findings](#-phase-9-research-evaluation--findings)
+10. [Research Limitations & Boundaries](#-research-limitations--boundaries)
+11. [Research Paper & In-Depth Documentation](#-research-paper--in-depth-documentation)
 
 ---
 
-## 🎯 Project Summary & Problem Solved
+## 🛡️ Core Integrity Guarantees & Invariants
 
-### The Problem
-During peak booking periods (e.g., Tatkal train tickets, festival flights, or last oceanfront hotel suites), two or more users often attempt to purchase the exact same seat or room at the exact same millisecond. Traditional web applications charge both users and then initiate awkward, delayed cancellation refunds for the loser. Furthermore, if a traveller books a connected multi-leg trip (e.g., flight + hotel in Goa) and the flight gets cancelled, the non-refundable hotel booking is stranded, causing financial loss to either the customer or the partner.
-
-### The BookGuard Solution
-1. **Zero Double-Bookings**: Millisecond race conditions are resolved atomically at the database layer using PostgreSQL row-level locks (`SELECT ... FOR UPDATE`) paired with strict check constraints (`available_quantity >= 0`).
-2. **10-Minute Atomic Hold Locks**: Like Ticketmaster and BookMyShow, selecting a seat/room reserves an exclusive 10-minute hold lock backed by Redis TTL and database tracking. No other user can snatch the seat during checkout.
-3. **Automatic Restock Sweeper**: If a traveller closes the browser tab or abandons checkout, background sweepers immediately restock the inventory back to the available pool.
-4. **Intelligent Multi-Modal Fallbacks**: If a specific travel category has no direct route, the platform proactively surfaces alternate high-speed options (e.g., flights or sleeper buses) so travellers never face a dead-end "0 found" screen.
-5. **Trip Sentinel & SAGA Compensation**: If a flight leg is cancelled, BookGuard automatically searches for alternative flights to protect the hotel stay. If declined, it issues a 100% customer refund AND disburses compensation to the hotel partner to safeguard partner revenue.
-
----
-
-## 🛡️ Core Integrity Guarantees
-
-| Invariant / Guarantee | Enforcement Mechanism |
-| :--- | :--- |
-| **`OVERSOLD = 0`** | PostgreSQL row-level locks (`FOR UPDATE`) + SQL `CHECK (available_quantity >= 0)` |
-| **`DUPLICATE BOOKINGS = 0`** | Durable `idempotency_keys` table replaying byte-identical responses on network retries |
-| **`SYSTEM BALANCE INVARIANT`** | `available_quantity + held_quantity + confirmed_quantity == total_quantity` |
-| **No Stuck Holds** | Dual Redis TTL keyspace expiry + periodic background hold sweeper (auto-restock) |
-| **Timeout != Failure** | Provider network dropouts transition bookings to `RECONCILING` without dropping the hold |
-| **Two-Leg SAGA Guarantee** | If one leg of a connected trip fails, compensating transactions auto-refund or rebook |
-| **Multilingual Accessibility** | Native on-the-fly switching between **English**, **Hindi (हिन्दी)**, and **Kannada (ಕನ್ನಡ)** |
+| Invariant / Guarantee | Mathematical Definition | Enforcement Mechanism |
+|:---|:---|:---|
+| **Zero Oversell (`OVERSOLD = 0`)** | $\sum (\text{available}) - \sum_{L \in \text{Locks}} L.\text{qty} \ge 0$ | PostgreSQL row-level locks (`FOR UPDATE`) + active reservation locks table |
+| **Atomic Multi-Provider Commitment** | $\text{State}(T) \in \{\text{COMPLETED}, \text{ROLLED\_BACK}, \dots\}$ | Sequential forward Saga + reverse LIFO compensation on any failure |
+| **Exact Replay Under Network Retry** | $\text{Executions}(Key) \equiv 1$ | 24-hour durable idempotency cache with deep SHA-256 payload hash validation |
+| **Payload Tampering Defense** | $\text{Hash}(P_1) \ne \text{Hash}(P_2) \implies \text{HTTP 422}$ | Rejection of payload modifications submitted under an existing idempotency key |
+| **Inventory Quarantine on Rollback Failure** | $\text{Compensated}(Item) = \text{False} \implies \text{Lock} = \text{CONFIRMED}$ | Retains unreleased `CONFIRMED` lock during `ROLLBACK_FAILED` to prevent double-selling |
+| **Deterministic Risk Intelligence** | $\text{Variance}(\text{Score}(Telemetry)) \equiv 0$ | Mathematical heuristic scoring ($0 \le S \le 100$) evaluating supplier stability |
+| **Explainable Recovery Advisories** | $\text{Strategy} \in \{\text{RETRY}, \text{ALTERNATIVE}, \dots\}$ | Rule-based expert system diagnosing failures with calibrated confidence |
 
 ---
 
-## ✈️ Multi-Modal Real-Time Travel Dataset
-
-BookGuard includes comprehensive Indian travel inventory covering **all 8 major metropolitan sectors**:
-- **Bengaluru (`BLR`)** • **Goa (`GOI`)** • **New Delhi (`DEL`)** • **Mumbai (`BOM`)**
-- **Hyderabad (`HYD`)** • **Jaipur (`JAI`)** • **Kochi / Kerala (`COK`)** • **Chennai (`MAA`)**
-
-### Included Inventory Categories
-1. **Flights**: Real flight numbers and schedules across **IndiGo Express**, **Air India**, **Vistara Prime**, and **Akasa Air** (e.g., `6E 511`, `UK 879`, `AI 806`, `QP 1302`).
-2. **IRCTC Trains**: Real express and high-speed rail across **Vande Bharat Express** (Executive Chair Car), **Tejas Mumbai Rajdhani** (1st & 2-Tier AC), **Shatabdi Express**, and **Duronto Express** (e.g., `VB 20641`, `RAJ 12951`, `SHAT 12009`).
-3. **RedBus Sleeper Buses**: Multi-axle Volvo and electric sleepers from **SRS Travels**, **VRL Logistics**, **IntrCity SmartBus**, **Zingbus**, and **Orange Tours**.
-4. **Hotels & Luxury Resorts**: 5-star heritage palaces and beachfront villas in every destination city (e.g., *Royal Heritage Oceanfront Suite* in Goa, *The Taj Mahal Palace* in Mumbai, *The Leela Palace* in Delhi, *The Oberoi Rajvilas* in Jaipur, *Kumarakom Lake Resort* in Kerala).
-5. **Curated Vacation Bundles**: Multi-leg itineraries combining flights/trains + luxury stays + local transfers with single-click atomic checkout.
-
----
-
-## 🏗️ Platform Architecture
+## 🏗️ Platform Architecture & Engine Components
 
 ```
-┌─────────────────────────────────────────────────────────────┐
-│                 React + TypeScript Frontend                 │
-│   (Explore & Book, My Trips, Trip Sentinel, SRE Dashboard)  │
-└──────────────┬───────────────────────────────▲──────────────┘
-               │ HTTP Requests                 │ Live SSE Events
-               ▼                               │ (/api/events)
-┌──────────────────────────────────────────────┴──────────────┐
-│                    Fastify Node.js Backend                  │
-│  - Hold Manager (TTL timer & sweeper)                       │
-│  - Idempotency & Concurrency Interceptor                    │
-│  - SAGA Compensation & Disruption Resolver                  │
-└──────────────┬───────────────────────────────▲──────────────┘
-               │                               │
-       PostgreSQL (PGlite WASM)           In-Memory Redis
-  - ACID Row-Level Locks ('FOR UPDATE')   - Hold Keys ('hold:<id>')
-  - Check Constraints & Invariant Views   - Keyspace Expiry Callbacks
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                 React + TypeScript Operations Dashboard                     │
+│   (Transaction Ops · Saga Timeline · Resource Locks · Recovery Advisory)    │
+└──────────────────────────────────────┬──────────────────────────────────────┘
+                                       │ HTTP Requests
+                                       ▼ (Idempotency-Key Header)
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                          Fastify Backend Server                             │
+│                                                                             │
+│   ┌─────────────────────────────────────────────────────────────────────┐   │
+│   │ 1. Idempotency Interceptor (Deep SHA-256 Hash Matching)            │   │
+│   └──────────────────────────────────┬──────────────────────────────────┘   │
+│                                      │                                      │
+│   ┌──────────────────────────────────▼──────────────────────────────────┐   │
+│   │ 2. PostgreSQL Reservation Locks (ACTIVE provisional holds)          │   │
+│   └──────────────────────────────────┬──────────────────────────────────┘   │
+│                                      │                                      │
+│   ┌──────────────────────────────────▼──────────────────────────────────┐   │
+│   │ 3. Deterministic Risk Assessment (Scores 0–100 · LOW/MED/HIGH)      │   │
+│   └──────────────────────────────────┬──────────────────────────────────┘   │
+│                                      │                                      │
+│   ┌──────────────────────────────────▼──────────────────────────────────┐   │
+│   │ 4. Distributed Saga Coordinator                                     │   │
+│   │    - Sequential Forward Reserve (Hotel -> Flight -> Transport)      │   │
+│   │    - Payment Authorization & Escrow                                 │   │
+│   │    - Provider Confirmation & Payment Capture                        │   │
+│   │    [On Failure]: Reverse LIFO Compensation & Payment Void/Refund    │   │
+│   └──────────────────────────────────┬──────────────────────────────────┘   │
+│                                      │                                      │
+│   ┌──────────────────────────────────▼──────────────────────────────────┐   │
+│   │ 5. Recovery Advisor (Diagnoses failures · Quarantines failed locks) │   │
+│   └─────────────────────────────────────────────────────────────────────┘   │
+└──────────────────────────────────────┬──────────────────────────────────────┘
+                                       │
+                                       ▼
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                    PostgreSQL Relational Storage Layer                      │
+│   - Transaction Engine: 7 tables (transactions, items, locks, events...)    │
+│   - Seeded Research Datasets: 21 tables (500 flights, 580 hotels, etc.)    │
+└─────────────────────────────────────────────────────────────────────────────┘
 ```
 
 ---
 
-## 🚀 How to Run (Quickstart)
-
-### Prerequisites
-- **Node.js** (v18.0.0 or higher recommended)
-- **npm** (v9.0.0 or higher)
-
-### 1. Clone & Install Dependencies
-Open a terminal in the project root:
-```bash
-# Install root dependencies
-npm install
-
-# Install backend dependencies
-cd backend
-npm install
-
-# Install frontend dependencies
-cd ../frontend
-npm install
-cd ..
-```
-
-### 2. Start the Application
-You can start both backend and frontend concurrently from the root directory:
-```bash
-npm run dev
-```
-
-Alternatively, open two separate terminal windows:
-```bash
-# Terminal 1: Start Backend Engine (Port 3001)
-cd backend
-npm run dev
-```
-```bash
-# Terminal 2: Start Frontend Application (Port 3000)
-cd frontend
-npm run dev
-```
-
-### 3. Open in Browser
-Visit **`http://localhost:3000/`** in your browser.
-
-> **Note on Database**: BookGuard automatically runs with an embedded PostgreSQL engine (**PGlite WASM**), so **no external Docker or Postgres installation is required** to run out-of-the-box!
-
----
-
-## 🖥️ User Guide: Navigating the Platform
-
-### 1. 🌴 Explore & Book (`/`)
-- **Category Filter Tabs**: Switch seamlessly between **All Modes**, **Flights**, **IRCTC Trains**, **RedBus Buses**, **Hotels & Stays**, and **Holiday Bundles**.
-- **Search Console**: Select origin and destination cities, travel date, and passenger count.
-- **Popular Sector Chips**: Click chips like `Bengaluru ➔ Goa`, `Delhi ➔ Mumbai`, or `Delhi ➔ Jaipur` to immediately filter verified routes.
-- **Dynamic Trip Cart**: Click `+` on multiple legs (e.g., flight + hotel) to bundle them into a single custom itinerary.
-- **Real-Time Hold Lock**:
-  - Click **"Book Direct"** on any item.
-  - BookGuard immediately claims an exclusive row lock and triggers a **10-minute hold countdown** (`🔒 Held Exclusively For You (09:59)`).
-  - Enter passenger details and complete confirmation.
-
-### 2. 🧳 My Trips
-- View all confirmed bookings, active holds, and generated PNRs.
-- Inspect digital boarding passes and hotel check-in vouchers.
-- Cancel bookings or download booking summaries.
-
-### 3. ⚡ Trip Sentinel & Disruption Protection
-- Experience automated multi-leg protection:
-  - Select an active connected trip (e.g., Flight + Hotel in Goa).
-  - Click **"Simulate Airline Disruption"** to trigger a real-time flight cancellation.
-  - The Sentinel automatically detects the orphaned hotel stay and surfaces alternate flights to keep the vacation intact.
-  - If rejected, BookGuard executes a **Two-Leg SAGA Compensation**:
-    - Issues a 100% full refund to the traveller.
-    - Automatically disburses compensation to the hotel partner to safeguard hotel revenue.
-    - Records the entire transaction in an immutable audit ledger.
-
-### 4. ⚙️ Ops & Invariants (Live SRE Monitoring)
-- Real-time verification of the fundamental database equation:
-  $$\text{Total Units} = \text{Available Units} + \text{Held Units} + \text{Confirmed Units}$$
-- Live counters verifying **Oversold = 0** and **Duplicate Bookings = 0**.
-- Live State Board showing real-time booking transitions via Server-Sent Events (SSE).
-
----
-
-## 📡 API Reference
-
-### Inventory Endpoints
-- `GET /api/inventory` — Fetch all inventory items with computed invariant flags.
-- `GET /api/inventory/search` — Search multi-modal inventory with origin, destination, date, and price filters.
-- `GET /api/inventory/invariants` — Authoritative audit check verifying system-wide mathematical consistency.
-
-### Booking & Concurrency Endpoints
-- `POST /api/bookings/hold` — Atomically lock and reserve inventory for 10 minutes (`SELECT ... FOR UPDATE`).
-  ```json
-  { "travellerId": "traveller_priya", "inventoryId": "flt_blr_goi_ix6534", "quantity": 1, "ttlSeconds": 600 }
-  ```
-- `POST /api/bookings/confirm` — Confirm booking idempotently with `Idempotency-Key` header.
-- `GET /api/bookings/:id` — Fetch complete booking details, items, and status.
-
-### Sentinel & Compensation Endpoints
-- `POST /api/trip/disruption-simulate` — Simulate airline disruption for a multi-leg itinerary.
-- `POST /api/trip/resolve-disruption` — Accept alternate flight or trigger partner compensation.
-- `GET /api/trip/audit-ledger` — Retrieve financial compensation audit trail.
-
-### Real-Time Streams
-- `GET /api/events` — Server-Sent Events (SSE) stream for live inventory updates, state transitions, and hold expiries.
-
----
-
-## 📂 Directory Structure
+## 📁 Repository Directory Structure
 
 ```
 BookGuard/
-├── backend/                  # Fastify Node.js API
+├── backend/                              # Fastify + TypeScript backend
 │   ├── src/
-│   │   ├── config.ts         # Environment & database configuration
-│   │   ├── db/client.ts      # PostgreSQL connection pool & PGlite fallback
-│   │   ├── redis/            # Hold manager, TTL sweeper & memory store
-│   │   ├── routes/           # REST endpoints (inventory, bookings, compensation)
-│   │   ├── server.ts         # Fastify server bootstrap & CORS
-│   │   └── sse/eventHub.ts   # Server-Sent Events real-time broadcast
+│   │   ├── ai/                          # Risk assessment & Recovery advisor
+│   │   │   ├── transactionRisk.ts       # Deterministic risk engine (Phase 6A)
+│   │   │   └── recoveryAdvisor.ts       # Rule-based recovery advisor (Phase 6B)
+│   │   ├── db/                          # Database client, migrations, schema
+│   │   ├── experiments/                 # Phase 8 runners & Phase 9 evaluation engine
+│   │   │   ├── framework.ts             # Harness, metrics, isolation, and reporter
+│   │   │   ├── suite.ts                 # 15 research experiment definitions
+│   │   │   └── evaluate.ts              # Phase 9 SVG chart generators & analysis
+│   │   ├── providers/                   # Dataset-backed mock provider adapters
+│   │   ├── routes/                      # REST endpoints (/api/transactions, /api/datasets)
+│   │   ├── scripts/                     # CLI runners (runExperiments, evaluateExperiments)
+│   │   ├── tests/                       # Automated test suites (95 tests passing)
+│   │   └── transactions/                # Saga engine, locking, state machine, payment
 │   └── package.json
-│
-├── frontend/                 # Vite + React + TypeScript App
+├── frontend/                             # React + Vite + TypeScript dashboard
 │   ├── src/
-│   │   ├── App.tsx           # Main application state & view routing
-│   │   ├── components/
-│   │   │   ├── Navbar.tsx    # Navigation bar & multilingual switcher
-│   │   │   ├── TravelPortal/ # Real-time search hero & checkout modals
-│   │   │   ├── TripGuide/    # Multi-modal inventory grid & trip cart
-│   │   │   ├── TripSentinel/ # Disruption simulator & compensation view
-│   │   │   └── OpsDashboard/ # Live state board & invariant monitor
-│   │   ├── services/api.ts   # Frontend API client
-│   │   └── i18n/             # Multilingual dictionaries (EN, HI, KN)
-│   ├── vite.config.ts        # Vite dev server & proxy (/api -> 3001)
+│   │   ├── components/TransactionOps/   # Phase 7 Operations & Research Dashboard
+│   │   └── services/api.ts              # API client and demo scenario submission
 │   └── package.json
-│
-├── db/                       # Authoritative SQL Schemas & Seeds
-│   ├── schema.sql            # Table definitions, CHECK constraints, and views
-│   └── seed.sql              # Realistic 8-metro Indian travel inventory
-│
-├── README.md                 # Complete project guide and documentation
-└── package.json              # Root package with concurrent dev scripts
+├── dataset/                              # 20 research CSV datasets (flights, hotels, etc.)
+├── db/                                   # SQL migrations and seed scripts
+├── docs/                                 # Technical architecture specifications
+│   ├── TRANSACTION_SAGA_ENGINE.md       # Full Saga and lock lifecycle documentation
+│   └── BOOKING_ENGINE.md                # Legacy single-item hold specification
+├── experiments/                          # Experiment outputs and research artifacts
+│   ├── results/                         # Raw Phase 8 CSVs and run.json outputs
+│   └── evaluation/                      # Phase 9 research tables and vector SVG charts
+├── DEMO_GUIDE.md                         # Step-by-step interactive demonstration guide
+├── RESEARCH_PAPER.md                     # Academic research paper on BookGuard findings
+└── README.md                             # This executive document
 ```
 
 ---
 
-## ❓ Troubleshooting & FAQs
+## 🚀 Quickstart: Setup & Running
 
-#### Q1: Port 3000 or 3001 is already in use
-If another application is using port 3000 or 3001:
-- You can change the frontend port in `frontend/vite.config.ts`.
-- You can change the backend port in `backend/.env` by setting `PORT=3005`.
+### Prerequisites
+- **Node.js**: `v18.0.0` or higher (tested on `v25.4.0`)
+- **npm**: `v9.0.0` or higher
+- *(Optional)* **Docker**: For running native PostgreSQL on port `5433`
 
-#### Q2: Search shows "0 found" when searching
-- Ensure that the origin and destination belong to the supported sectors or click one of the **Popular Sector Chips** (`Bengaluru ➔ Goa`, `Delhi ➔ Mumbai`, `Delhi ➔ Jaipur`).
-- If no direct service exists in a selected mode (e.g. no direct train between two distant cities), BookGuard will display alternative high-speed modes (flights/buses) or offer a one-click button to view all Indian sectors.
+### 1. Install Dependencies
+```bash
+# In the project root
+npm install
 
-#### Q3: How do I reset the inventory back to default?
-- In the web application, navigating or refreshing resets any completed test bookings.
-- Alternatively, send a `POST` request to `http://localhost:3001/api/demo/reset` to restore the clean database state.
+# In backend
+cd backend && npm install
+
+# In frontend
+cd ../frontend && npm install
+```
+
+### 2. Start the Backend Server
+```bash
+cd backend
+npm run dev
+```
+*The backend starts on `http://localhost:3000`. If PostgreSQL is not running on port 5433, it automatically falls back to an embedded in-memory PostgreSQL engine (PGlite WASM) with all SQL schemas and datasets seeded automatically.*
+
+### 3. Start the Frontend Dashboard
+```bash
+cd frontend
+npm run dev
+```
+*Open your browser to `http://localhost:5173/transaction-ops`.*
 
 ---
 
-### Developed by Team Ctrl Alt Elite for KogniVera Hackathon 2026
-*Zero Oversold • Guaranteed Seats • Smart Disruption Protection*
+## 🗄️ Database Architecture & Setup
+
+BookGuard supports both **Docker-hosted native PostgreSQL** and **Embedded In-Memory PostgreSQL (PGlite)**:
+
+- **Connection URL**: `postgresql://postgres:postgrespassword@localhost:5433/bookguard?schema=public`
+- **7 Transaction Engine Tables**:
+  - `booking_transactions`
+  - `booking_transaction_items`
+  - `booking_resource_locks`
+  - `booking_transaction_providers`
+  - `booking_transaction_events`
+  - `booking_transaction_risk_assessments`
+  - `booking_transaction_recovery_advisories`
+- **21 Seeded Research Dataset Tables**:
+  - `dataset_hotels` (580 rows), `dataset_flights` (500 rows), `dataset_activities` (500 rows), `dataset_vehicles` (500 rows), `dataset_customers` (1000 rows), `dataset_booking_records` (4000 rows), etc.
+
+To initialize or verify the PostgreSQL database:
+```bash
+cd backend
+node --import tsx src/scripts/verifyDb.ts
+```
+
+---
+
+## 🎬 Interactive Demonstration Flows
+
+BookGuard includes four built-in, deterministic demo scenarios accessible directly from the **Transaction Ops** dashboard (`/transaction-ops`):
+
+1. **Successful Multi-Provider Booking**:
+   - Submits a bundled Hotel + Flight + Transport booking.
+   - Demonstrates risk scoring (`LOW`, 30/100), provisional locking (`ACTIVE`), forward provider reservations, two-phase payment (authorize $\to$ capture), and promotion to permanent `CONFIRMED` locks.
+2. **Provider Failure & Automatic Rollback**:
+   - Transport provider fails during forward reservation.
+   - Demonstrates immediate halt, reverse LIFO compensation (Flight cancelled $\to$ Hotel cancelled), payment voiding, and lock release (`RELEASED`).
+3. **Compensation Failure & Lock Quarantine (`ROLLBACK_FAILED`)**:
+   - Transport fails and Flight cancellation is rejected by the airline.
+   - Demonstrates terminal transition to `ROLLBACK_FAILED`, unreleased `CONFIRMED` lock retention to quarantine capacity, and automatic generation of a `MANUAL_OPERATOR_REVIEW` advisory.
+4. **Idempotency Protection**:
+   - Demonstrates instant, byte-identical replays on duplicate network requests and HTTP 422 rejection on payload tampering.
+
+*See [`DEMO_GUIDE.md`](DEMO_GUIDE.md) for full screenshots and cURL equivalents.*
+
+---
+
+## 🧪 Automated Testing Suite
+
+BookGuard maintains a comprehensive, non-flaky automated test suite covering all layers:
+
+### Running All Backend Tests (95 passing tests)
+```bash
+cd backend
+npm test
+```
+*Executes transaction phase tests, Saga orchestration, API idempotency, risk scoring, recovery advisories, dashboard endpoints, experiment runners, and Phase 9 evaluation parsers.*
+
+### Running Frontend Tests (35 passing tests)
+```bash
+cd frontend
+npm test
+```
+*Executes unit and integration tests across the Transaction Ops dashboard, timeline builder, and state models.*
+
+---
+
+## 📊 Phase 8 Stress & Failure Experiments
+
+The Phase 8 experiment framework (`backend/src/experiments/`) executes 15 distinct research experiments measuring system behavior under concurrency, failures, and contention.
+
+To execute all 15 experiments:
+```bash
+cd backend
+npm run experiments
+```
+*Generates machine-readable `run.json`, `summary.csv`, `variants.csv`, `trials.csv`, and `criteria.csv` in `experiments/results/<run_id>/`.*
+
+---
+
+## 📈 Phase 9 Research Evaluation & Findings
+
+Phase 9 transforms empirical Phase 8 measurements ($N = 643$ transactional trials) into publication-ready research tables and vector SVG charts.
+
+To reproduce the Phase 9 evaluation:
+```bash
+cd backend
+npm run evaluate
+```
+
+### Empirical Results Table ($N = 643$ Trials)
+
+| Experiment ID | Cat | Requests ($N$) | Completed | Rolled Back | Rollback Failed | Replays | Confirmed Locks | Mean Latency | P95 Latency | Result |
+|:---|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|
+| **E01-baseline-success** | 1 | 20 | 20 | 0 | 0 | 0 | 60 | 405.5 ms | 500.3 ms | PASS |
+| **E02-first-provider-failure** | 2 | 10 | 0 | 10 | 0 | 0 | 0 | 223.2 ms | 291.1 ms | PASS |
+| **E03-failure-after-multiple-reservations** | 3 | 10 | 0 | 10 | 0 | 0 | 0 | 366.7 ms | 482.4 ms | PASS |
+| **E04-successful-compensation** | 4 | 10 | 0 | 10 | 0 | 0 | 0 | 447.6 ms | 620.4 ms | PASS |
+| **E05-compensation-failure** | 5 | 20 | 0 | 0 | 20 | 0 | 30 | 367.9 ms | 493.2 ms | PASS |
+| **E06-payment-authorization-failure** | 6 | 10 | 0 | 10 | 0 | 0 | 0 | 218.3 ms | 300.2 ms | PASS |
+| **E07-payment-capture-failure** | 7 | 10 | 0 | 10 | 0 | 0 | 0 | 430.8 ms | 502.9 ms | PASS |
+| **E08-duplicate-idempotency** | 8 | 45 | 5 | 5 | 0 | 30 | 15 | 74.6 ms | 345.4 ms | PASS |
+| **E09-concurrent-same-idempotency-key** | 9 | 90 | 12 | 0 | 0 | 78 | 36 | 263.8 ms | 648.1 ms | PASS |
+| **E10-concurrent-same-resource** | 10 | 30 | 6 | 0 | 0 | 0 | 6 | 264.0 ms | 510.5 ms | PASS |
+| **E11-lock-contention** | 11 | 192 | 192 | 0 | 0 | 0 | 384 | 783.6 ms | 2045.0 ms | PASS |
+| **E12-multi-provider-failure-points** | 12 | 81 | 12 | 60 | 9 | 0 | 39 | 221.0 ms | 540.0 ms | PASS |
+| **E13-risk-under-provider-conditions** | 13 | 48 | 48 | 0 | 0 | 0 | 138 | 194.3 ms | 319.1 ms | PASS |
+| **E14-recovery-advisor-classification** | 14 | 27 | 0 | 21 | 6 | 0 | 3 | 237.3 ms | 398.1 ms | PASS |
+| **E15-seeded-mixed-workload** | 12 | 40 | 8 | 30 | 2 | 0 | 21 | 463.7 ms | 596.7 ms | PASS |
+| **TOTAL** | — | **643** | **303** | **146** | **37** | **108** | **732** | — | — | **15/15 PASS** |
+
+### Generated Research Visualizations
+Located in [`experiments/evaluation/`](experiments/evaluation/):
+- **Latency Distribution Chart**: `chart_latency_by_scenario.svg`
+- **Concurrency & Throughput Scaling**: `chart_concurrency_scaling.svg`
+- **Deterministic Risk Scoring Distribution**: `chart_risk_scores.svg`
+- **Recovery Advisor Rule Accuracy**: `chart_recovery_classification.svg`
+- **Zero-Oversell Resource Contention**: `chart_lock_contention.svg`
+
+---
+
+## ⚠️ Research Limitations & Boundaries
+
+1. **Mock Provider Latency**: Downstream provider operations are simulated using in-process HTTP mock adapters. Real WAN socket latency, DNS jitter, and external rate-limiting are not captured.
+2. **Deterministic Fault Injection**: Errors are injected via deterministic control headers (`x-mock-fail-phase`). Real-world network faults are stochastic and intermittent.
+3. **Concurrency Scale**: Evaluated at concurrency up to $c=20$ and $N=643$ total requests on a single multi-core host. Multi-region cluster deployments were not evaluated.
+4. **Advisory Boundaries**: AI components (Risk Intelligence and Recovery Advisor) are strictly heuristic and advisory; they do not autonomously transfer money or re-book inventory without operator confirmation.
+
+---
+
+## 📚 Research Paper & In-Depth Documentation
+
+- 📄 **Full Research Paper**: [`RESEARCH_PAPER.md`](RESEARCH_PAPER.md)
+- 🎮 **Demonstration Walkthrough**: [`DEMO_GUIDE.md`](DEMO_GUIDE.md)
+- ⚙️ **Transaction Engine Specification**: [`docs/TRANSACTION_SAGA_ENGINE.md`](docs/TRANSACTION_SAGA_ENGINE.md)
+- 🗄️ **Database Schema & Datasets**: [`DATABASE.md`](DATABASE.md)
+- 📊 **Phase 9 Empirical Evaluation**: [`experiments/evaluation/RESEARCH_EVALUATION.md`](experiments/evaluation/RESEARCH_EVALUATION.md)
+
+---
+
+*BookGuard is developed for the KogniVera Hackathon 2026 by Team Ctrl Alt Elite.*

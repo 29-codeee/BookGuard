@@ -1,0 +1,497 @@
+{
+  "success": true,
+  "transactionId": "d905f39f-8e0a-4ea4-a2da-3cbb7e7572ff",
+  "state": "COMPLETED",
+  "currency": "INR",
+  "totalAmount": 8150,
+  "createdAt": "2026-09-24T23:06:23.267Z",
+  "updatedAt": "2026-09-24T23:06:23.539Z",
+  "items": [
+    {
+      "id": "bf7758ce-31c5-45af-935c-7393037ea976",
+      "position": 0,
+      "type": "hotel",
+      "resourceId": "RM-FIXTURE",
+      "quantity": 1,
+      "status": "COMPLETED",
+      "provider": "Fixture Grand Hotel",
+      "unitPrice": 3500,
+      "currency": "INR"
+    },
+    {
+      "id": "a831d79a-d733-4ab3-90c0-231f861319a7",
+      "position": 1,
+      "type": "flight",
+      "resourceId": "FL-FIXTURE",
+      "quantity": 1,
+      "status": "COMPLETED",
+      "provider": "Fixture Air",
+      "unitPrice": 4200,
+      "currency": "INR"
+    },
+    {
+      "id": "5ff63e85-fc21-448d-bdff-f026f5fd687e",
+      "position": 2,
+      "type": "transport",
+      "resourceId": "TRZ-1",
+      "quantity": 1,
+      "status": "COMPLETED",
+      "provider": "Fixture CityRide",
+      "unitPrice": 450,
+      "currency": "INR"
+    }
+  ],
+  "itemStates": {
+    "bf7758ce-31c5-45af-935c-7393037ea976": "COMPLETED",
+    "a831d79a-d733-4ab3-90c0-231f861319a7": "COMPLETED",
+    "5ff63e85-fc21-448d-bdff-f026f5fd687e": "COMPLETED"
+  },
+  "providers": [
+    {
+      "id": "cb0c4d2f-674b-45b1-b029-cdb286710eca",
+      "itemId": "5ff63e85-fc21-448d-bdff-f026f5fd687e",
+      "provider": "Fixture CityRide",
+      "status": "CONFIRMED",
+      "operation": "CONFIRM",
+      "reference": "bg-transport-75f9b367-712d-43d6-b98f-566aeb474210",
+      "error": null,
+      "updatedAt": "2026-09-24T23:06:23.521Z"
+    },
+    {
+      "id": "3f628e4f-b4d0-4546-9ccf-891cded8fc4d",
+      "itemId": "a831d79a-d733-4ab3-90c0-231f861319a7",
+      "provider": "Fixture Air",
+      "status": "CONFIRMED",
+      "operation": "CONFIRM",
+      "reference": "bg-flight-7229e977-0276-41bc-8cbb-d1fe518e537a",
+      "error": null,
+      "updatedAt": "2026-09-24T23:06:23.489Z"
+    },
+    {
+      "id": "d1645007-7930-413a-a80f-1a35a4d23476",
+      "itemId": "bf7758ce-31c5-45af-935c-7393037ea976",
+      "provider": "Fixture Grand Hotel",
+      "status": "CONFIRMED",
+      "operation": "CONFIRM",
+      "reference": "bg-hotel-f6630818-a602-4d1c-8cfe-9812f3bd778b",
+      "error": null,
+      "updatedAt": "2026-09-24T23:06:23.463Z"
+    }
+  ],
+  "events": [
+    {
+      "id": 86,
+      "itemId": null,
+      "fromState": null,
+      "toState": "PENDING",
+      "detail": {
+        "event": "TRANSACTION_CREATED",
+        "itemCount": 3
+      },
+      "createdAt": "2026-09-24T23:06:23.267Z"
+    },
+    {
+      "id": 87,
+      "itemId": "a831d79a-d733-4ab3-90c0-231f861319a7",
+      "fromState": null,
+      "toState": "LOCK_ACQUIRED",
+      "detail": {
+        "quantity": 1,
+        "expiresAt": "2026-09-24T23:16:23.313Z",
+        "resourceType": "flight"
+      },
+      "createdAt": "2026-09-24T23:06:23.313Z"
+    },
+    {
+      "id": 88,
+      "itemId": "bf7758ce-31c5-45af-935c-7393037ea976",
+      "fromState": null,
+      "toState": "LOCK_ACQUIRED",
+      "detail": {
+        "quantity": 1,
+        "expiresAt": "2026-09-24T23:16:23.313Z",
+        "resourceType": "hotel"
+      },
+      "createdAt": "2026-09-24T23:06:23.313Z"
+    },
+    {
+      "id": 89,
+      "itemId": "5ff63e85-fc21-448d-bdff-f026f5fd687e",
+      "fromState": null,
+      "toState": "LOCK_ACQUIRED",
+      "detail": {
+        "quantity": 1,
+        "expiresAt": "2026-09-24T23:16:23.313Z",
+        "resourceType": "transport"
+      },
+      "createdAt": "2026-09-24T23:06:23.313Z"
+    },
+    {
+      "id": 90,
+      "itemId": null,
+      "fromState": "PENDING",
+      "toState": "RESERVING",
+      "detail": {
+        "expiresInSeconds": 600
+      },
+      "createdAt": "2026-09-24T23:06:23.313Z"
+    },
+    {
+      "id": 91,
+      "itemId": null,
+      "fromState": null,
+      "toState": "PAYMENT",
+      "detail": {
+        "event": "PAYMENT_AUTHORIZED",
+        "amount": 8150,
+        "currency": "INR",
+        "paymentId": "pay-18c2edf8-81e3-4d25-8284-d1050b358e8e"
+      },
+      "createdAt": "2026-09-24T23:06:23.350Z"
+    },
+    {
+      "id": 92,
+      "itemId": "bf7758ce-31c5-45af-935c-7393037ea976",
+      "fromState": "PENDING",
+      "toState": "RESERVING",
+      "detail": {
+        "error": null,
+        "event": "RESERVE_STARTED",
+        "provider": "Fixture Grand Hotel",
+        "operation": "RESERVE",
+        "reference": null
+      },
+      "createdAt": "2026-09-24T23:06:23.359Z"
+    },
+    {
+      "id": 93,
+      "itemId": "bf7758ce-31c5-45af-935c-7393037ea976",
+      "fromState": "RESERVING",
+      "toState": "RESERVED",
+      "detail": {
+        "error": null,
+        "event": "PROVIDER_RESERVED",
+        "provider": "Fixture Grand Hotel",
+        "operation": "RESERVE",
+        "reference": "bg-hotel-f6630818-a602-4d1c-8cfe-9812f3bd778b"
+      },
+      "createdAt": "2026-09-24T23:06:23.371Z"
+    },
+    {
+      "id": 94,
+      "itemId": "bf7758ce-31c5-45af-935c-7393037ea976",
+      "fromState": "CONFIRMED",
+      "toState": "CONFIRMED",
+      "detail": {
+        "event": "PROVIDER_RESERVATION_HOLDS_RESOURCE"
+      },
+      "createdAt": "2026-09-24T23:06:23.371Z"
+    },
+    {
+      "id": 95,
+      "itemId": "a831d79a-d733-4ab3-90c0-231f861319a7",
+      "fromState": "PENDING",
+      "toState": "RESERVING",
+      "detail": {
+        "error": null,
+        "event": "RESERVE_STARTED",
+        "provider": "Fixture Air",
+        "operation": "RESERVE",
+        "reference": null
+      },
+      "createdAt": "2026-09-24T23:06:23.389Z"
+    },
+    {
+      "id": 96,
+      "itemId": "a831d79a-d733-4ab3-90c0-231f861319a7",
+      "fromState": "RESERVING",
+      "toState": "RESERVED",
+      "detail": {
+        "error": null,
+        "event": "PROVIDER_RESERVED",
+        "provider": "Fixture Air",
+        "operation": "RESERVE",
+        "reference": "bg-flight-7229e977-0276-41bc-8cbb-d1fe518e537a"
+      },
+      "createdAt": "2026-09-24T23:06:23.396Z"
+    },
+    {
+      "id": 97,
+      "itemId": "a831d79a-d733-4ab3-90c0-231f861319a7",
+      "fromState": "CONFIRMED",
+      "toState": "CONFIRMED",
+      "detail": {
+        "event": "PROVIDER_RESERVATION_HOLDS_RESOURCE"
+      },
+      "createdAt": "2026-09-24T23:06:23.396Z"
+    },
+    {
+      "id": 98,
+      "itemId": "5ff63e85-fc21-448d-bdff-f026f5fd687e",
+      "fromState": "PENDING",
+      "toState": "RESERVING",
+      "detail": {
+        "error": null,
+        "event": "RESERVE_STARTED",
+        "provider": "Fixture CityRide",
+        "operation": "RESERVE",
+        "reference": null
+      },
+      "createdAt": "2026-09-24T23:06:23.415Z"
+    },
+    {
+      "id": 99,
+      "itemId": "5ff63e85-fc21-448d-bdff-f026f5fd687e",
+      "fromState": "RESERVING",
+      "toState": "RESERVED",
+      "detail": {
+        "error": null,
+        "event": "PROVIDER_RESERVED",
+        "provider": "Fixture CityRide",
+        "operation": "RESERVE",
+        "reference": "bg-transport-75f9b367-712d-43d6-b98f-566aeb474210"
+      },
+      "createdAt": "2026-09-24T23:06:23.424Z"
+    },
+    {
+      "id": 100,
+      "itemId": "5ff63e85-fc21-448d-bdff-f026f5fd687e",
+      "fromState": "CONFIRMED",
+      "toState": "CONFIRMED",
+      "detail": {
+        "event": "PROVIDER_RESERVATION_HOLDS_RESOURCE"
+      },
+      "createdAt": "2026-09-24T23:06:23.424Z"
+    },
+    {
+      "id": 101,
+      "itemId": null,
+      "fromState": "RESERVING",
+      "toState": "PROCESSING",
+      "detail": {
+        "event": "ALL_PROVIDERS_RESERVED",
+        "providerCount": 3
+      },
+      "createdAt": "2026-09-24T23:06:23.438Z"
+    },
+    {
+      "id": 102,
+      "itemId": null,
+      "fromState": null,
+      "toState": "PAYMENT",
+      "detail": {
+        "event": "PAYMENT_CAPTURED",
+        "paymentId": "pay-18c2edf8-81e3-4d25-8284-d1050b358e8e"
+      },
+      "createdAt": "2026-09-24T23:06:23.446Z"
+    },
+    {
+      "id": 103,
+      "itemId": "bf7758ce-31c5-45af-935c-7393037ea976",
+      "fromState": "RESERVED",
+      "toState": "CONFIRMING",
+      "detail": {
+        "error": null,
+        "event": "CONFIRM_STARTED",
+        "provider": "Fixture Grand Hotel",
+        "operation": "CONFIRM",
+        "reference": "bg-hotel-f6630818-a602-4d1c-8cfe-9812f3bd778b"
+      },
+      "createdAt": "2026-09-24T23:06:23.451Z"
+    },
+    {
+      "id": 104,
+      "itemId": "bf7758ce-31c5-45af-935c-7393037ea976",
+      "fromState": "CONFIRMING",
+      "toState": "CONFIRMED",
+      "detail": {
+        "error": null,
+        "event": "PROVIDER_CONFIRMED",
+        "provider": "Fixture Grand Hotel",
+        "operation": "CONFIRM",
+        "reference": "bg-hotel-f6630818-a602-4d1c-8cfe-9812f3bd778b"
+      },
+      "createdAt": "2026-09-24T23:06:23.463Z"
+    },
+    {
+      "id": 105,
+      "itemId": "a831d79a-d733-4ab3-90c0-231f861319a7",
+      "fromState": "RESERVED",
+      "toState": "CONFIRMING",
+      "detail": {
+        "error": null,
+        "event": "CONFIRM_STARTED",
+        "provider": "Fixture Air",
+        "operation": "CONFIRM",
+        "reference": "bg-flight-7229e977-0276-41bc-8cbb-d1fe518e537a"
+      },
+      "createdAt": "2026-09-24T23:06:23.476Z"
+    },
+    {
+      "id": 106,
+      "itemId": "a831d79a-d733-4ab3-90c0-231f861319a7",
+      "fromState": "CONFIRMING",
+      "toState": "CONFIRMED",
+      "detail": {
+        "error": null,
+        "event": "PROVIDER_CONFIRMED",
+        "provider": "Fixture Air",
+        "operation": "CONFIRM",
+        "reference": "bg-flight-7229e977-0276-41bc-8cbb-d1fe518e537a"
+      },
+      "createdAt": "2026-09-24T23:06:23.489Z"
+    },
+    {
+      "id": 107,
+      "itemId": "5ff63e85-fc21-448d-bdff-f026f5fd687e",
+      "fromState": "RESERVED",
+      "toState": "CONFIRMING",
+      "detail": {
+        "error": null,
+        "event": "CONFIRM_STARTED",
+        "provider": "Fixture CityRide",
+        "operation": "CONFIRM",
+        "reference": "bg-transport-75f9b367-712d-43d6-b98f-566aeb474210"
+      },
+      "createdAt": "2026-09-24T23:06:23.508Z"
+    },
+    {
+      "id": 108,
+      "itemId": "5ff63e85-fc21-448d-bdff-f026f5fd687e",
+      "fromState": "CONFIRMING",
+      "toState": "CONFIRMED",
+      "detail": {
+        "error": null,
+        "event": "PROVIDER_CONFIRMED",
+        "provider": "Fixture CityRide",
+        "operation": "CONFIRM",
+        "reference": "bg-transport-75f9b367-712d-43d6-b98f-566aeb474210"
+      },
+      "createdAt": "2026-09-24T23:06:23.521Z"
+    },
+    {
+      "id": 109,
+      "itemId": null,
+      "fromState": "PROCESSING",
+      "toState": "COMPLETED",
+      "detail": {
+        "event": "SAGA_COMPLETED",
+        "providerCount": 3
+      },
+      "createdAt": "2026-09-24T23:06:23.539Z"
+    }
+  ],
+  "locks": [
+    {
+      "id": "15741550-cc30-48ef-bc87-376ba50bddc8",
+      "itemId": "5ff63e85-fc21-448d-bdff-f026f5fd687e",
+      "resourceType": "transport",
+      "resourceId": "TRZ-1",
+      "quantity": 1,
+      "status": "CONFIRMED",
+      "expiresAt": "2026-09-24T23:16:23.410Z",
+      "createdAt": "2026-09-24T23:06:23.313Z"
+    },
+    {
+      "id": "497084b2-e861-44f3-aba1-1feca81a761a",
+      "itemId": "a831d79a-d733-4ab3-90c0-231f861319a7",
+      "resourceType": "flight",
+      "resourceId": "FL-FIXTURE",
+      "quantity": 1,
+      "status": "CONFIRMED",
+      "expiresAt": "2026-09-24T23:16:23.384Z",
+      "createdAt": "2026-09-24T23:06:23.313Z"
+    },
+    {
+      "id": "e9cf49c0-f5a3-4c04-bced-bd2ffabdf295",
+      "itemId": "bf7758ce-31c5-45af-935c-7393037ea976",
+      "resourceType": "hotel",
+      "resourceId": "RM-FIXTURE",
+      "quantity": 1,
+      "status": "CONFIRMED",
+      "expiresAt": "2026-09-24T23:16:23.356Z",
+      "createdAt": "2026-09-24T23:06:23.313Z"
+    }
+  ],
+  "recoveryRequired": [],
+  "riskAssessment": {
+    "riskScore": 45,
+    "riskLevel": "MEDIUM",
+    "decision": "PROCEED",
+    "factors": [
+      {
+        "code": "SUBOPTIMAL_PROVIDER_RELIABILITY",
+        "value": 0.96,
+        "severity": "LOW",
+        "evidenceIds": [
+          "prov_Fixture Grand Hotel_rel_0.960"
+        ],
+        "explanation": "Provider \"Fixture Grand Hotel\" reliability score (0.960) is slightly below optimal 0.98 baseline"
+      },
+      {
+        "code": "SUBOPTIMAL_PROVIDER_RELIABILITY",
+        "value": 0.96,
+        "severity": "LOW",
+        "evidenceIds": [
+          "prov_Fixture Air_rel_0.960"
+        ],
+        "explanation": "Provider \"Fixture Air\" reliability score (0.960) is slightly below optimal 0.98 baseline"
+      },
+      {
+        "code": "SUBOPTIMAL_PROVIDER_RELIABILITY",
+        "value": 0.96,
+        "severity": "LOW",
+        "evidenceIds": [
+          "prov_Fixture CityRide_rel_0.960"
+        ],
+        "explanation": "Provider \"Fixture CityRide\" reliability score (0.960) is slightly below optimal 0.98 baseline"
+      },
+      {
+        "code": "MULTI_PROVIDER_BUNDLE_3",
+        "value": 3,
+        "severity": "MEDIUM",
+        "evidenceIds": [
+          "tx_providers_count_3"
+        ],
+        "explanation": "Transaction coordinates 3 independent providers; multi-leg Saga compensation risk is elevated"
+      }
+    ],
+    "providerAssessments": [
+      {
+        "status": "active",
+        "provider": "Fixture Grand Hotel",
+        "riskScore": 15,
+        "evidenceIds": [
+          "prov_Fixture Grand Hotel_rel_0.960"
+        ],
+        "responseTimeMs": 800,
+        "reliabilityScore": 0.96,
+        "supportsRollback": true
+      },
+      {
+        "status": "active",
+        "provider": "Fixture Air",
+        "riskScore": 15,
+        "evidenceIds": [
+          "prov_Fixture Air_rel_0.960"
+        ],
+        "responseTimeMs": 800,
+        "reliabilityScore": 0.96,
+        "supportsRollback": true
+      },
+      {
+        "status": "active",
+        "provider": "Fixture CityRide",
+        "riskScore": 15,
+        "evidenceIds": [
+          "prov_Fixture CityRide_rel_0.960"
+        ],
+        "responseTimeMs": 800,
+        "reliabilityScore": 0.96,
+        "supportsRollback": true
+      }
+    ],
+    "calculatedAt": "2026-09-24T23:06:23.311Z"
+  },
+  "recoveryAdvisory": null
+}

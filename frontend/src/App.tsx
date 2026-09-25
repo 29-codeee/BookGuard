@@ -30,9 +30,14 @@ import {
   getBooking,
   fetchActiveHold,
   fetchTraceHistory,
-  fetchBookingEventHistory
+  fetchBookingEventHistory,
+  getBookingStatus,
+  releaseHold
 } from './services/api';
 import { sseManager } from './services/sse';
+import { AiPlannerView } from './components/AiPlanner/AiPlannerView';
+import { DataCatalogView } from './components/DataCatalog/DataCatalogView';
+import { TransactionOpsView } from './components/TransactionOps/TransactionOpsView';
 
 // A single concurrency-demo run emits ~2,500 real trace rows (5 successful holds x
 // ~12 stages + 495 rejected holds x 5 stages). This cap must comfortably exceed one
@@ -41,7 +46,7 @@ import { sseManager } from './services/sse';
 const TRACE_HISTORY_LIMIT = 6000;
 
 export const App: React.FC = () => {
-  const [currentView, setCurrentView] = useState<'trip_guide' | 'my_trips' | 'plugin_sdk' | 'ops' | 'demo'>('trip_guide');
+  const [currentView, setCurrentView] = useState<'trip_guide' | 'ai_planner' | 'data_catalog' | 'my_trips' | 'plugin_sdk' | 'ops' | 'tx_ops' | 'demo'>('ai_planner');
   const [lang, setLang] = useState<Language>('en');
 
   // Inventory & System State
@@ -265,7 +270,7 @@ export const App: React.FC = () => {
 
     setIsHolding(true);
     try {
-      const res = await createHold(targetInvId, 1, 60, 'traveller_priya', idemKey);
+      const res = await createHold(targetInvId, 1, 45, 'traveller_priya', idemKey);
       if (res.success) {
         const heldItem = inventoryItems.find(i => i.id === targetInvId) || primaryFlight;
         setSelectedInventoryItem(heldItem);
@@ -343,6 +348,41 @@ export const App: React.FC = () => {
     }
   };
 
+  const handleHoldExpired = async () => {
+    if (!currentBookingId) return;
+    try {
+      // Status reads apply expiry using the database clock and the shared booking engine.
+      const status = await getBookingStatus(currentBookingId);
+      if (status.status === 'EXPIRED' || status.status === 'RELEASED') {
+        setIsCheckoutModalOpen(false);
+        setRecoveryInfo({ message: 'Payment session expired. The backend released the hold and returned the inventory.', alternatives: [] });
+        setTravellerStep('FAILED');
+        loadData();
+      } else if (status.status === 'HELD') {
+        window.setTimeout(() => { void handleHoldExpired(); }, 750);
+      }
+    } catch {
+      setRecoveryInfo({ message: 'Payment session expired, but the backend could not be reached to verify the hold. Reconnect and check booking status before retrying.', alternatives: [] });
+    }
+  };
+
+  const handleDemoPaymentFailure = async () => {
+    if (!currentBookingId) return;
+    try {
+      const result = await releaseHold(currentBookingId, 'Demo payment failed; release the inventory hold');
+      if (result.success) {
+        setIsCheckoutModalOpen(false);
+        setRecoveryInfo({ message: 'Demo payment failed. The backend released the hold; you can retry or choose another option.', alternatives: [] });
+        setTravellerStep('FAILED');
+        loadData();
+      } else {
+        showToast(result.message || 'Could not release the hold. Check booking status.');
+      }
+    } catch {
+      showToast('Could not reach the backend to release this hold. Check booking status before retrying.');
+    }
+  };
+
   // Handler: Apply AI Copilot Recommendation
   const handleApplyCopilot = async (
     bookingId: string,
@@ -415,6 +455,10 @@ export const App: React.FC = () => {
         
         {/* Real-Time Live Activity Ticker Feed */}
         <LiveActivityTicker />
+
+        {/* AI TRAVEL PLANNER CHATBOT */}
+        {currentView === 'ai_planner' && <AiPlannerView />}
+        {currentView === 'data_catalog' && <DataCatalogView />}
 
         {/* VIEW 1: UNIFIED MULTI-MODAL TRIP GUIDE & PLANNER */}
         {currentView === 'trip_guide' && (
@@ -489,6 +533,13 @@ export const App: React.FC = () => {
           </div>
         )}
 
+        {/* VIEW 5B: TRANSACTION OPERATIONS & RESEARCH DASHBOARD (saga engine, read-only) */}
+        {currentView === 'tx_ops' && (
+          <TransactionOpsView
+            copilot={{ reconciliations, onApply: handleApplyCopilot, isApplying: isApplyingCopilot }}
+          />
+        )}
+
         {/* VIEW 6: DEMO CONTROL CENTER */}
         {currentView === 'demo' && (
           <DemoControls
@@ -507,6 +558,8 @@ export const App: React.FC = () => {
         isOpen={isCheckoutModalOpen}
         onClose={() => setIsCheckoutModalOpen(false)}
         onConfirmPayment={handleConfirmBooking}
+        onHoldExpired={handleHoldExpired}
+        onPaymentFailure={handleDemoPaymentFailure}
         isProcessing={isConfirming}
       />
 

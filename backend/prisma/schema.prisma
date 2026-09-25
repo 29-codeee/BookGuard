@@ -1,0 +1,363 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// Research dataset models are deliberately isolated from the live booking
+// engine tables in db/schema.sql. IDs retain the source CSV values.
+model Customer {
+  id String @id @map("customer_id") @db.VarChar(32)
+  name String @map("customer_name") @db.VarChar(255)
+  email String @unique @db.VarChar(255)
+  phone String? @db.VarChar(32)
+  preferredCurrency String @map("preferred_currency") @db.VarChar(8)
+  accountStatus String @map("account_status") @db.VarChar(24)
+  totalBookings Int @map("total_bookings")
+  successfulBookings Int @map("successful_bookings")
+  cancelledBookings Int @map("cancelled_bookings")
+  createdAt DateTime @map("created_at") @db.Date
+  bookings BookingRecord[]
+  payments Payment[]
+  compensations CompensationRecord[]
+  transactions TransactionLog[]
+  availabilityChecks AvailabilityCheck[]
+  scenarios TestScenario[]
+  @@map("dataset_customers")
+}
+
+model Provider {
+  id String @id @map("provider_id") @db.VarChar(32)
+  name String @map("provider_name") @db.VarChar(255)
+  type String @map("provider_type") @db.VarChar(32)
+  apiEndpoint String? @map("api_endpoint") @db.Text
+  responseTimeMs Int @map("response_time_ms")
+  reliabilityScore Decimal @map("reliability_score") @db.Decimal(4, 3)
+  supportsRollback Boolean @map("supports_rollback")
+  supportsIdempotency Boolean @map("supports_idempotency")
+  status String @db.VarChar(24)
+  events EventLog[]
+  @@index([type, status])
+  @@map("dataset_providers")
+}
+
+model Flight {
+  id String @id @map("flight_id") @db.VarChar(32)
+  airline String @db.VarChar(128)
+  flightNumber String @map("flight_number") @db.VarChar(32)
+  originAirport String @map("origin_airport") @db.VarChar(8)
+  originCity String @map("origin_city") @db.VarChar(128)
+  destinationAirport String @map("destination_airport") @db.VarChar(8)
+  destinationCity String @map("destination_city") @db.VarChar(128)
+  departureDate DateTime @map("departure_date") @db.Date
+  departureTime String @map("departure_time") @db.VarChar(8)
+  arrivalTime String @map("arrival_time") @db.VarChar(8)
+  availableSeats Int @map("available_seats")
+  price Decimal @db.Decimal(12, 2)
+  currency String @db.VarChar(8)
+  bookings FlightBooking[]
+  @@index([originAirport, destinationAirport, departureDate])
+  @@map("dataset_flights")
+}
+
+model Hotel {
+  id String @id @map("hotel_id") @db.VarChar(32)
+  name String @db.VarChar(255)
+  city String @db.VarChar(128)
+  location String @db.Text
+  rating Decimal @db.Decimal(3, 1)
+  reviews Int
+  pricePerNight Decimal @map("price_per_night") @db.Decimal(12, 2)
+  currency String @db.VarChar(8)
+  hotelType String @map("hotel_type") @db.VarChar(64)
+  rooms RoomInventory[]
+  bookings HotelBooking[]
+  @@index([city, pricePerNight])
+  @@map("dataset_hotels")
+}
+
+model Vehicle {
+  id String @id @map("vehicle_id") @db.VarChar(32)
+  provider String @db.VarChar(128)
+  vehicleType String @map("vehicle_type") @db.VarChar(64)
+  city String @db.VarChar(128)
+  state String @db.VarChar(128)
+  pickupLocation String @map("pickup_location") @db.Text
+  dropLocation String @map("drop_location") @db.Text
+  price Decimal @db.Decimal(12, 2)
+  currency String @db.VarChar(8)
+  capacity Int
+  inventory TransportInventory[]
+  bookings TransportBooking[]
+  @@index([city, vehicleType])
+  @@map("dataset_vehicles")
+}
+
+model Activity {
+  id String @id @map("activity_id") @db.VarChar(32)
+  provider String @db.VarChar(128)
+  name String @map("activity_name") @db.VarChar(255)
+  city String @db.VarChar(128)
+  date DateTime @db.Date
+  startTime String @map("start_time") @db.VarChar(8)
+  durationHours Decimal @map("duration_hours") @db.Decimal(5, 2)
+  capacity Int
+  pricePerPerson Decimal @map("price_per_person") @db.Decimal(12, 2)
+  currency String @db.VarChar(8)
+  inventory ActivityInventory[]
+  bookings ActivityBooking[]
+  @@index([city, date])
+  @@map("dataset_activities")
+}
+
+model RoomInventory {
+  id String @id @map("room_inventory_id") @db.VarChar(32)
+  hotelId String @map("hotel_id") @db.VarChar(32)
+  roomType String @map("room_type") @db.VarChar(128)
+  checkIn DateTime @map("check_in") @db.Date
+  checkOut DateTime @map("check_out") @db.Date
+  totalRooms Int @map("total_rooms")
+  availableRooms Int @map("available_rooms")
+  pricePerNight Decimal @map("price_per_night") @db.Decimal(12, 2)
+  currency String @db.VarChar(8)
+  status String @db.VarChar(24)
+  hotel Hotel @relation(fields: [hotelId], references: [id])
+  bookings HotelBooking[]
+  @@index([hotelId, checkIn, checkOut])
+  @@map("dataset_room_inventory")
+}
+
+model ActivityInventory {
+  id String @id @map("activity_inventory_id") @db.VarChar(32)
+  activityId String @map("activity_id") @db.VarChar(32)
+  date DateTime @db.Date
+  startTime String @map("start_time") @db.VarChar(8)
+  totalCapacity Int @map("total_capacity")
+  bookedSlots Int @map("booked_slots")
+  availableSlots Int @map("available_slots")
+  pricePerPerson Decimal @map("price_per_person") @db.Decimal(12, 2)
+  status String @db.VarChar(24)
+  activity Activity @relation(fields: [activityId], references: [id])
+  bookings ActivityBooking[]
+  @@index([activityId, date])
+  @@map("dataset_activity_inventory")
+}
+
+model TransportInventory {
+  id String @id @map("transport_inventory_id") @db.VarChar(32)
+  vehicleId String @map("vehicle_id") @db.VarChar(32)
+  date DateTime @db.Date
+  timeSlot String @map("time_slot") @db.VarChar(32)
+  totalCapacity Int @map("total_capacity")
+  bookedUnits Int @map("booked_units")
+  availableUnits Int @map("available_units")
+  price Decimal @db.Decimal(12, 2)
+  status String @db.VarChar(24)
+  vehicle Vehicle @relation(fields: [vehicleId], references: [id])
+  bookings TransportBooking[]
+  @@index([vehicleId, date])
+  @@map("dataset_transport_inventory")
+}
+
+model BookingRecord {
+  id String @id @db.VarChar(32)
+  kind String @db.VarChar(16)
+  customerId String @map("customer_id") @db.VarChar(32)
+  bookingDate DateTime @map("booking_date") @db.Date
+  status String @db.VarChar(24)
+  paymentStatus String @map("payment_status") @db.VarChar(24)
+  amount Decimal @db.Decimal(12, 2)
+  currency String @db.VarChar(8)
+  createdAt DateTime @map("created_at") @db.Date
+  customer Customer @relation(fields: [customerId], references: [id])
+  hotelDetails HotelBooking?
+  flightDetails FlightBooking?
+  transportDetails TransportBooking?
+  activityDetails ActivityBooking?
+  payments Payment[]
+  compensations CompensationRecord[]
+  transactions TransactionLog[]
+  events EventLog[]
+  locks ReservationLock[]
+  @@index([customerId, createdAt])
+  @@index([kind, status])
+  @@map("dataset_booking_records")
+}
+
+model HotelBooking {
+  bookingId String @id @map("booking_id") @db.VarChar(32)
+  hotelId String @map("hotel_id") @db.VarChar(32)
+  roomInventoryId String @map("room_inventory_id") @db.VarChar(32)
+  guests Int
+  booking BookingRecord @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+  hotel Hotel @relation(fields: [hotelId], references: [id])
+  room RoomInventory @relation(fields: [roomInventoryId], references: [id])
+  @@map("dataset_hotel_bookings")
+}
+
+model FlightBooking {
+  bookingId String @id @map("flight_booking_id") @db.VarChar(32)
+  flightId String @map("flight_id") @db.VarChar(32)
+  travelDate DateTime @map("travel_date") @db.Date
+  originAirport String @map("origin_airport") @db.VarChar(8)
+  destinationAirport String @map("destination_airport") @db.VarChar(8)
+  passengers Int
+  booking BookingRecord @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+  flight Flight @relation(fields: [flightId], references: [id])
+  @@map("dataset_flight_bookings")
+}
+
+model TransportBooking {
+  bookingId String @id @map("transport_booking_id") @db.VarChar(32)
+  vehicleId String @map("vehicle_id") @db.VarChar(32)
+  inventoryId String @map("transport_inventory_id") @db.VarChar(32)
+  travelDate DateTime @map("travel_date") @db.Date
+  passengers Int
+  pickupLocation String @map("pickup_location") @db.Text
+  dropLocation String @map("drop_location") @db.Text
+  booking BookingRecord @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+  vehicle Vehicle @relation(fields: [vehicleId], references: [id])
+  inventory TransportInventory @relation(fields: [inventoryId], references: [id])
+  @@map("dataset_transport_bookings")
+}
+
+model ActivityBooking {
+  bookingId String @id @map("activity_booking_id") @db.VarChar(32)
+  activityId String @map("activity_id") @db.VarChar(32)
+  inventoryId String @map("activity_inventory_id") @db.VarChar(32)
+  activityDate DateTime @map("activity_date") @db.Date
+  participants Int
+  booking BookingRecord @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+  activity Activity @relation(fields: [activityId], references: [id])
+  inventory ActivityInventory @relation(fields: [inventoryId], references: [id])
+  @@map("dataset_activity_bookings")
+}
+
+model Payment {
+  id String @id @map("payment_id") @db.VarChar(32)
+  bookingId String @map("booking_id") @db.VarChar(32)
+  customerId String @map("customer_id") @db.VarChar(32)
+  transactionReference String @unique @map("transaction_reference") @db.VarChar(64)
+  amount Decimal @db.Decimal(12, 2)
+  currency String @db.VarChar(8)
+  paymentMethod String @map("payment_method") @db.VarChar(64)
+  status String @map("payment_status") @db.VarChar(24)
+  gateway String @db.VarChar(64)
+  createdAt DateTime @map("created_at") @db.Date
+  failureReason String? @map("failure_reason") @db.Text
+  booking BookingRecord @relation(fields: [bookingId], references: [id])
+  customer Customer @relation(fields: [customerId], references: [id])
+  @@index([bookingId, status])
+  @@map("dataset_payments")
+}
+
+model CompensationRecord {
+  id String @id @map("compensation_id") @db.VarChar(32)
+  bookingId String @map("booking_id") @db.VarChar(32)
+  customerId String @map("customer_id") @db.VarChar(32)
+  incidentType String @map("incident_type") @db.VarChar(64)
+  originalAmount Decimal @map("original_amount") @db.Decimal(12, 2)
+  compensationAmount Decimal @map("compensation_amount") @db.Decimal(12, 2)
+  currency String @db.VarChar(8)
+  compensationType String @map("compensation_type") @db.VarChar(64)
+  status String @db.VarChar(24)
+  resolution String @db.Text
+  createdAt DateTime @map("created_at") @db.Date
+  booking BookingRecord @relation(fields: [bookingId], references: [id])
+  customer Customer @relation(fields: [customerId], references: [id])
+  @@index([bookingId, status])
+  @@map("dataset_compensation_records")
+}
+
+model TransactionLog {
+  id String @id @map("transaction_id") @db.VarChar(32)
+  bookingId String @map("booking_id") @db.VarChar(32)
+  customerId String @map("customer_id") @db.VarChar(32)
+  transactionType String @map("transaction_type") @db.VarChar(64)
+  providerCount Int @map("provider_count")
+  totalAmount Decimal @map("total_amount") @db.Decimal(12, 2)
+  currency String @db.VarChar(8)
+  status String @db.VarChar(24)
+  failureType String? @map("failure_type") @db.VarChar(64)
+  rollbackRequired Boolean @map("rollback_required")
+  retryCount Int @map("retry_count")
+  createdAt DateTime @map("created_at") @db.Date
+  booking BookingRecord @relation(fields: [bookingId], references: [id])
+  customer Customer @relation(fields: [customerId], references: [id])
+  events EventLog[]
+  scenarios TestScenario[]
+  @@index([bookingId, createdAt])
+  @@map("dataset_transaction_logs")
+}
+
+model EventLog {
+  id String @id @map("event_id") @db.VarChar(32)
+  transactionId String @map("transaction_id") @db.VarChar(32)
+  bookingId String @map("booking_id") @db.VarChar(32)
+  providerId String @map("provider_id") @db.VarChar(32)
+  eventType String @map("event_type") @db.VarChar(64)
+  resourceType String @map("resource_type") @db.VarChar(32)
+  status String @db.VarChar(24)
+  message String @db.Text
+  timestamp DateTime @db.Timestamp(3)
+  booking BookingRecord @relation(fields: [bookingId], references: [id])
+  transaction TransactionLog @relation(fields: [transactionId], references: [id])
+  provider Provider @relation(fields: [providerId], references: [id])
+  @@index([bookingId, timestamp])
+  @@index([transactionId])
+  @@map("dataset_event_logs")
+}
+
+model ReservationLock {
+  id String @id @map("lock_id") @db.VarChar(32)
+  resourceType String @map("resource_type") @db.VarChar(32)
+  resourceId String @map("resource_id") @db.VarChar(32)
+  bookingId String @map("booking_id") @db.VarChar(32)
+  quantity Int
+  status String @map("lock_status") @db.VarChar(32)
+  lockedAt DateTime @map("locked_at") @db.Timestamp(3)
+  expiresAt DateTime @map("expires_at") @db.Timestamp(3)
+  releaseReason String? @map("release_reason") @db.Text
+  booking BookingRecord @relation(fields: [bookingId], references: [id])
+  @@index([resourceType, resourceId, status])
+  @@index([bookingId])
+  @@map("dataset_reservation_locks")
+}
+
+model AvailabilityCheck {
+  id String @id @map("availability_check_id") @db.VarChar(32)
+  customerId String @map("customer_id") @db.VarChar(32)
+  resourceType String @map("resource_type") @db.VarChar(32)
+  resourceId String @map("resource_id") @db.VarChar(32)
+  requestedQuantity Int @map("requested_quantity")
+  availableQuantity Int @map("available_quantity_at_check")
+  result String @map("availability_result") @db.VarChar(24)
+  reservationLock String @map("reservation_lock") @db.VarChar(32)
+  checkDurationMs Int @map("check_duration_ms")
+  status String @db.VarChar(24)
+  customer Customer @relation(fields: [customerId], references: [id])
+  @@index([resourceType, resourceId])
+  @@index([customerId, status])
+  @@map("dataset_availability_checks")
+}
+
+model TestScenario {
+  id String @id @map("scenario_id") @db.VarChar(32)
+  scenarioType String @map("scenario_type") @db.VarChar(64)
+  customerId String @map("customer_id") @db.VarChar(32)
+  transactionId String @map("transaction_id") @db.VarChar(32)
+  providerCount Int @map("provider_count")
+  resourcesInvolved Int @map("resources_involved")
+  paymentAttempted Boolean @map("payment_attempted")
+  expectedSystemAction String @map("expected_system_action") @db.Text
+  expectedFinalStatus String @map("expected_final_status") @db.VarChar(32)
+  severity String @db.VarChar(16)
+  scenarioDate DateTime @map("scenario_date") @db.Date
+  customer Customer @relation(fields: [customerId], references: [id])
+  transaction TransactionLog @relation(fields: [transactionId], references: [id])
+  @@index([scenarioType, scenarioDate])
+  @@map("dataset_test_scenarios")
+}

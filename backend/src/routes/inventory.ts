@@ -1,7 +1,33 @@
 import { FastifyInstance, FastifyPluginOptions } from 'fastify';
 import { query } from '../db/client.js';
+import { checkInvariants } from '../booking/engine.js';
 
 export default async function inventoryRoutes(fastify: FastifyInstance, _opts: FastifyPluginOptions) {
+  // Historical Kaggle fares are for route-price context only; they are never inventory.
+  fastify.get('/api/analytics/historical-fares', async (req, reply) => {
+    const { origin, destination } = req.query as { origin?: string; destination?: string };
+    const params: string[] = [];
+    let where = '';
+    if (origin) { params.push(origin.trim().toUpperCase()); where += ` AND origin = $${params.length}`; }
+    if (destination) { params.push(destination.trim().toUpperCase()); where += ` AND destination = $${params.length}`; }
+    const summary = await query(`
+      SELECT origin, destination, COUNT(*)::int AS observations,
+             ROUND(AVG(price_inr), 0)::int AS average_price_inr,
+             MIN(price_inr)::int AS min_price_inr, MAX(price_inr)::int AS max_price_inr,
+             MIN(travel_date)::text AS first_travel_date, MAX(travel_date)::text AS last_travel_date,
+             MIN(source) AS source
+      FROM historical_flight_fares WHERE 1=1 ${where}
+      GROUP BY origin, destination ORDER BY origin, destination
+    `, params);
+    return reply.send({
+      success: true,
+      dataType: 'historical_reference_only',
+      currentAvailability: false,
+      currency: 'INR',
+      items: summary.rows
+    });
+  });
+
   // Get all inventory items with invariant verification
   fastify.get('/api/inventory', async (_req, reply) => {
     const res = await query(`
@@ -161,6 +187,7 @@ export default async function inventoryRoutes(fastify: FastifyInstance, _opts: F
       CONFIRMED: 0,
       FAILED: 0,
       EXPIRED: 0,
+      RELEASED: 0,
       CANCELLED: 0
     };
 
@@ -171,6 +198,7 @@ export default async function inventoryRoutes(fastify: FastifyInstance, _opts: F
     const row = invRes.rows[0];
     const oversoldCount = parseInt(row?.oversold_count || '0', 10);
     const duplicatesPrevented = parseInt(duplicateKeysRes.rows[0]?.duplicate_bookings_prevented || '0', 10);
+    const engineCheck = await checkInvariants();
 
     return reply.send({
       success: true,
@@ -180,20 +208,25 @@ export default async function inventoryRoutes(fastify: FastifyInstance, _opts: F
         availableUnits: parseInt(row?.available_units || '0', 10),
         heldUnits: parseInt(row?.held_units || '0', 10),
         confirmedUnits: parseInt(row?.confirmed_units || '0', 10),
-        invariantValid: Boolean(row?.all_invariants_valid),
+        invariantValid: Boolean(row?.all_invariants_valid) && engineCheck.invariantValid,
         equation: `${row?.available_units || 0} (avail) + ${row?.held_units || 0} (held) + ${row?.confirmed_units || 0} (conf) = ${row?.total_units || 0} (total)`
       },
       auditCounters: {
         oversold: oversoldCount,
-        duplicateBookings: 0, // Invariant: duplicate bookings allowed is always 0
+        duplicateBookings: engineCheck.duplicateConfirmations, // measured, must stay 0
         duplicatesPrevented,
         activeHolds: counts.HELD,
         reconcilingBookings: counts.RECONCILING,
         confirmedBookings: counts.CONFIRMED,
         failedBookings: counts.FAILED,
-        expiredHolds: counts.EXPIRED
+        expiredHolds: counts.EXPIRED,
+        releasedHolds: counts.RELEASED,
+        cancelledBookings: counts.CANCELLED,
+        overdueActiveHolds: engineCheck.overdueActiveHolds
       },
-      statusDistribution: counts
+      statusDistribution: counts,
+      violations: engineCheck.violations,
+      ledger: engineCheck.ledger
     });
   });
 
@@ -224,7 +257,7 @@ export default async function inventoryRoutes(fastify: FastifyInstance, _opts: F
     `);
     
     const counts: Record<string, number> = {
-      PENDING: 0, HELD: 0, RECONCILING: 0, CONFIRMED: 0, FAILED: 0, EXPIRED: 0, CANCELLED: 0
+      PENDING: 0, HELD: 0, RECONCILING: 0, CONFIRMED: 0, FAILED: 0, EXPIRED: 0, RELEASED: 0, CANCELLED: 0
     };
     for (const row of bookingStatsRes.rows) {
       counts[row.status] = parseInt(row.count, 10);
@@ -270,5 +303,21 @@ export default async function inventoryRoutes(fastify: FastifyInstance, _opts: F
         }
       }
     });
+  });
+
+  // Single inventory item with live counters and active holds
+  fastify.get('/api/inventory/:id', async (req, reply) => {
+    const { id } = req.params as { id: string };
+    const res = await query(`SELECT * FROM v_inventory WHERE id = $1`, [id]);
+    if (res.rows.length === 0) {
+      return reply.status(404).send({ success: false, error: 'INVENTORY_NOT_FOUND', message: `Inventory ${id} not found` });
+    }
+    const holds = await query(
+      `SELECT hold_id AS "holdId", booking_id AS "bookingId", quantity, expires_at AS "expiresAt",
+              FLOOR(seconds_remaining) AS "secondsRemaining"
+       FROM v_active_holds WHERE inventory_id = $1 ORDER BY expires_at ASC`,
+      [id]
+    );
+    return reply.send({ success: true, item: res.rows[0], activeHolds: holds.rows });
   });
 }

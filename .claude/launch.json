@@ -1,0 +1,35 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "frontend",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": [
+        "--prefix",
+        "frontend",
+        "run",
+        "dev"
+      ],
+      "port": 3000
+    },
+    {
+      "name": "frontend-sandbox",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": [
+        "--prefix",
+        "frontend",
+        "exec",
+        "--",
+        "vite",
+        "frontend",
+        "--port",
+        "3100",
+        "--strictPort"
+      ],
+      "port": 3100,
+      "env": {
+        "VITE_API_URL": "http://127.0.0.1:3101"
+      }
+    }
+  ]
+}

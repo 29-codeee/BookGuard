@@ -1,0 +1,1835 @@
+{
+  "schemaVersion": 1,
+  "runId": "20260924_214405_y04i",
+  "startedAt": "2026-09-24T21:44:05.752Z",
+  "finishedAt": "2026-09-24T21:44:21.324Z",
+  "command": "npm run experiments -- --only E01",
+  "options": {
+    "engine": "pglite",
+    "only": [
+      "E01"
+    ],
+    "requests": null,
+    "concurrency": null,
+    "seed": 42,
+    "keepDatabase": false
+  },
+  "environment": {
+    "node": "v25.4.0",
+    "platform": "win32",
+    "arch": "x64",
+    "cpus": 12,
+    "cpuModel": "13th Gen Intel(R) Core(TM) i5-1334U",
+    "totalMemoryMb": 16069,
+    "engine": "pglite",
+    "databaseVersion": "PostgreSQL 16.4 on x86_64-pc-linux-gnu, compiled by emcc (Emscripten gcc/clang-like replacement + linker emulating GNU ld) 3.1.74 (1092ec30a3fb1d46b1782ff1b4db5094d3d06ae5), 32-bit",
+    "poolMax": null,
+    "isolatedDatabase": null,
+    "gitCommit": "9ed84dc767cfcaf7746e06b1d1629a59d82b7846",
+    "gitDirty": true
+  },
+  "experiments": [
+    {
+      "experimentId": "E01-baseline-success",
+      "category": 1,
+      "title": "Baseline successful booking",
+      "description": "Three-provider bookings (hotel, flight, transport) with no injected failures, executed sequentially to establish baseline latency.",
+      "config": {
+        "requests": 20,
+        "concurrency": 1,
+        "providers": 3,
+        "failureInjection": "none"
+      },
+      "trials": 20,
+      "startedAt": "2026-09-24T21:44:12.551Z",
+      "finishedAt": "2026-09-24T21:44:20.519Z",
+      "metrics": {
+        "totalRequests": 20,
+        "successfulTransactions": 20,
+        "failedTransactions": 0,
+        "rolledBackTransactions": 0,
+        "rollbackFailures": 0,
+        "distinctTransactions": 20,
+        "idempotentReplays": 0,
+        "rejectedRequests": {},
+        "rejectedLockAttempts": 0,
+        "confirmedReservations": 60,
+        "releasedReservations": 0,
+        "unresolvedLocks": 0,
+        "compensationsAttempted": 0,
+        "compensationsSucceeded": 0,
+        "compensationsFailed": 0,
+        "compensationSuccessRate": null,
+        "compensationFailureRate": null,
+        "payment": {
+          "authorized": 20,
+          "authorizationFailed": 0,
+          "captured": 20,
+          "captureFailed": 0,
+          "refunded": 0,
+          "voided": 0,
+          "reversalFailed": 0
+        },
+        "finalStates": {
+          "COMPLETED": 20
+        },
+        "riskLevels": {
+          "LOW": 20
+        },
+        "recoveryRecommendations": {},
+        "latency": {
+          "endToEndMs": {
+            "count": 20,
+            "min": 231.548,
+            "max": 600.708,
+            "mean": 367.048,
+            "p50": 362.54,
+            "p95": 405.56,
+            "p99": 600.708,
+            "stddev": 72.107
+          },
+          "sagaMs": {
+            "count": 20,
+            "min": 187,
+            "max": 421,
+            "mean": 319.45,
+            "p50": 327,
+            "p95": 365,
+            "p99": 421,
+            "stddev": 51.149
+          },
+          "providerOpMs": {
+            "CONFIRM_SUCCEEDED": {
+              "count": 60,
+              "min": 4,
+              "max": 21,
+              "mean": 10.383,
+              "p50": 10,
+              "p95": 17,
+              "p99": 21,
+              "stddev": 3.226
+            },
+            "RESERVE_SUCCEEDED": {
+              "count": 60,
+              "min": 3,
+              "max": 17,
+              "mean": 9.317,
+              "p50": 9,
+              "p95": 13,
+              "p99": 17,
+              "stddev": 2.613
+            }
+          }
+        },
+        "throughputRps": 2.53,
+        "wallClockMs": 7903.599,
+        "concurrency": 1,
+        "observedMaxInFlight": 1
+      },
+      "variants": {
+        "baseline": {
+          "totalRequests": 20,
+          "successfulTransactions": 20,
+          "failedTransactions": 0,
+          "rolledBackTransactions": 0,
+          "rollbackFailures": 0,
+          "distinctTransactions": 20,
+          "idempotentReplays": 0,
+          "rejectedRequests": {},
+          "rejectedLockAttempts": 0,
+          "confirmedReservations": 60,
+          "releasedReservations": 0,
+          "unresolvedLocks": 0,
+          "compensationsAttempted": 0,
+          "compensationsSucceeded": 0,
+          "compensationsFailed": 0,
+          "compensationSuccessRate": null,
+          "compensationFailureRate": null,
+          "payment": {
+            "authorized": 20,
+            "authorizationFailed": 0,
+            "captured": 20,
+            "captureFailed": 0,
+            "refunded": 0,
+            "voided": 0,
+            "reversalFailed": 0
+          },
+          "finalStates": {
+            "COMPLETED": 20
+          },
+          "riskLevels": {
+            "LOW": 20
+          },
+          "recoveryRecommendations": {},
+          "latency": {
+            "endToEndMs": {
+              "count": 20,
+              "min": 231.548,
+              "max": 600.708,
+              "mean": 367.048,
+              "p50": 362.54,
+              "p95": 405.56,
+              "p99": 600.708,
+              "stddev": 72.107
+            },
+            "sagaMs": {
+              "count": 20,
+              "min": 187,
+              "max": 421,
+              "mean": 319.45,
+              "p50": 327,
+              "p95": 365,
+              "p99": 421,
+              "stddev": 51.149
+            },
+            "providerOpMs": {
+              "CONFIRM_SUCCEEDED": {
+                "count": 60,
+                "min": 4,
+                "max": 21,
+                "mean": 10.383,
+                "p50": 10,
+                "p95": 17,
+                "p99": 21,
+                "stddev": 3.226
+              },
+              "RESERVE_SUCCEEDED": {
+                "count": 60,
+                "min": 3,
+                "max": 17,
+                "mean": 9.317,
+                "p50": 9,
+                "p95": 13,
+                "p99": 17,
+                "stddev": 2.613
+              }
+            }
+          },
+          "throughputRps": 2.53,
+          "wallClockMs": 7903.599,
+          "concurrency": 1,
+          "observedMaxInFlight": 1
+        }
+      },
+      "extraMetrics": {},
+      "criteria": [
+        {
+          "id": "all-completed",
+          "description": "Every request completes",
+          "expected": 20,
+          "actual": 20,
+          "passed": true
+        },
+        {
+          "id": "locks-confirmed",
+          "description": "One CONFIRMED lock per item (3 per booking)",
+          "expected": 60,
+          "actual": 60,
+          "passed": true
+        },
+        {
+          "id": "payment-captured",
+          "description": "Payment captured for every booking",
+          "expected": 20,
+          "actual": 20,
+          "passed": true
+        },
+        {
+          "id": "no-compensation",
+          "description": "No compensation attempted",
+          "expected": 0,
+          "actual": 0,
+          "passed": true
+        },
+        {
+          "id": "inv:terminal-states",
+          "description": "Every transaction reached a terminal state",
+          "expected": [],
+          "actual": [],
+          "passed": true
+        },
+        {
+          "id": "inv:no-active-locks",
+          "description": "No ACTIVE (provisional) lock outlives its transaction",
+          "expected": 0,
+          "actual": 0,
+          "passed": true
+        },
+        {
+          "id": "inv:no-capacity-held-after-rollback",
+          "description": "ROLLED_BACK/FAILED transactions hold no CONFIRMED locks",
+          "expected": 0,
+          "actual": 0,
+          "passed": true
+        },
+        {
+          "id": "inv:no-server-errors",
+          "description": "No 5xx responses",
+          "expected": 0,
+          "actual": 0,
+          "passed": true
+        }
+      ],
+      "passed": true,
+      "findings": [],
+      "errors": [],
+      "cleanup": {
+        "transactionsDeleted": 20,
+        "idempotencyKeysDeleted": 20,
+        "verifiedEmpty": true
+      },
+      "trialRecords": [
+        {
+          "trial": 0,
+          "variant": "baseline",
+          "idempotencyKey": "exp:20260924_214405_y04i:E01:b:0",
+          "httpStatus": 201,
+          "errorCode": null,
+          "errorMessage": null,
+          "transactionId": "786c89fc-e52e-4f58-87e6-aa981c79d67b",
+          "finalState": "COMPLETED",
+          "failurePhase": null,
+          "idempotentReplay": false,
+          "endToEndMs": 600.708,
+          "sagaMs": 421,
+          "providerOps": [
+            {
+              "itemType": "hotel",
+              "operation": "RESERVE",
+              "outcome": "SUCCEEDED",
+              "latencyMs": 5
+            },
+            {
+              "itemType": "flight",
+              "operation": "RESERVE",
+              "outcome": "SUCCEEDED",
+              "latencyMs": 6
+            },
+            {
+              "itemType": "transport",
+              "operation": "RESERVE",
+              "outcome": "SUCCEEDED",
+              "latencyMs": 5
+            },
+            {
+              "itemType": "hotel",
+              "operation": "CONFIRM",
+              "outcome": "SUCCEEDED",
+              "latencyMs": 5
+            },
+            {
+              "itemType": "flight",
+              "operation": "CONFIRM",
+              "outcome": "SUCCEEDED",
+              "latencyMs": 11
+            },
+            {
+              "itemType": "transport",
+              "operation": "CONFIRM",
+              "outcome": "SUCCEEDED",
+              "latencyMs": 8
+            }
+          ],
+          "compensationsSucceeded": 0,
+          "compensationsFailed": 0,
+          "payment": {
+            "authorized": true,
+            "authorizationFailed": false,
+            "captured": true,
+            "captureFailed": false,
+            "reversal": null
+          },
+          "locks": {
+            "confirmed": 3,
+            "released": 0,
+            "active": 0,
+            "expired": 0
+          },
+          "unresolvedLocks": 0,
+          "riskLevel": "LOW",
+          "riskScore": 30,
+          "riskDecision": "PROCEED",
+          "riskFactorCodes": [
+            "MULTI_PROVIDER_BUNDLE_3"
+          ],
+          "recoveryRecommendation": null,
+          "recoverySeverity": null,
+          "recoveryConfidence": null
+        },
+        {
+          "trial": 1,
+          "variant": "baseline",
+          "idempotencyKey": "exp:20260924_214405_y04i:E01:b:1",
+          "httpStatus": 201,
+          "errorCode": null,
+          "errorMessage": null,
+          "transactionId": "952570db-fc1a-42e5-a5df-b65431891136",
+          "finalState": "COMPLETED",
+          "failurePhase": null,
+          "idempotentReplay": false,
+          "endToEndMs": 231.548,
+          "sagaMs": 187,
+          "providerOps": [
+            {
+              "itemType": "hotel",
+              "operation": "RESERVE",
+              "outcome": "SUCCEEDED",
+              "latencyMs": 8
+            },
+            {
+              "itemType": "flight",
+              "operation": "RESERVE",
+              "outcome": "SUCCEEDED",
+              "latencyMs": 4
+            },
+            {
+              "itemType": "transport",
+              "operation": "RESERVE",
+              "outcome": "SUCCEEDED",
+              "latencyMs": 4
+            },
+            {
+              "itemType": "hotel",
+              "operation": "CONFIRM",
+              "outcome": "SUCCEEDED",
+              "latencyMs": 5
+            },
+            {
+              "itemType": "flight",
+              "operation": "CONFIRM",
+              "outcome": "SUCCEEDED",
+              "latencyMs": 6
+            },
+            {
+              "itemType": "transport",
+              "operation": "CONFIRM",
+              "outcome": "SUCCEEDED",
+              "latencyMs": 7
+            }
+          ],
+          "compensationsSucceeded": 0,
+          "compensationsFailed": 0,
+          "payment": {
+            "authorized": true,
+            "authorizationFailed": false,
+            "captured": true,
+            "captureFailed": false,
+            "reversal": null
+          },
+          "locks": {
+            "confirmed": 3,
+            "released": 0,
+            "active": 0,
+            "expired": 0
+          },
+          "unresolvedLocks": 0,
+          "riskLevel": "LOW",
+          "riskScore": 30,
+          "riskDecision": "PROCEED",
+          "riskFactorCodes": [
+            "MULTI_PROVIDER_BUNDLE_3"
+          ],
+          "recoveryRecommendation": null,
+          "recoverySeverity": null,
+          "recoveryConfidence": null
+        },
+        {
+          "trial": 2,
+          "variant": "baseline",
+          "idempotencyKey": "exp:20260924_214405_y04i:E01:b:2",
+          "httpStatus": 201,
+          "errorCode": null,
+          "errorMessage": null,
+          "transactionId": "b5505ad1-7902-4257-a49e-5941c54e6f9e",
+          "finalState": "COMPLETED",
+          "failurePhase": null,
+          "idempotentReplay": false,
+          "endToEndMs": 348.364,
+          "sagaMs": 308,
+          "providerOps": [
+            {
+              "itemType": "hotel",
+              "operation": "RESERVE",
+              "outcome": "SUCCEEDED",
+              "latencyMs": 8
+            },
+            {
+              "itemType": "flight",
+              "operation": "RESERVE",
+              "outcome": "SUCCEEDED",
+              "latencyMs": 9
+            },
+            {
+              "itemType": "transport",
+              "operation": "RESERVE",
+              "outcome": "SUCCEEDED",
+              "latencyMs": 8
+            },
+            {
+              "itemType": "hotel",
+              "operation": "CONFIRM",
+              "outcome": "SUCCEEDED",
+              "latencyMs": 11
+            },
+            {
+              "itemType": "flight",
+              "operation": "CONFIRM",
+              "outcome": "SUCCEEDED",
+              "latencyMs": 12
+            },
+            {
+              "itemType": "transport",
+              "operation": "CONFIRM",
+              "outcome": "SUCCEEDED",
+              "latencyMs": 12
+            }
+          ],
+          "compensationsSucceeded": 0,
+          "compensationsFailed": 0,
+          "payment": {
+            "authorized": true,
+            "authorizationFailed": false,
+            "captured": true,
+            "captureFailed": false,
+            "reversal": null
+          },
+          "locks": {
+            "confirmed": 3,
+            "released": 0,
+            "active": 0,
+            "expired": 0
+          },
+          "unresolvedLocks": 0,
+          "riskLevel": "LOW",
+          "riskScore": 30,
+          "riskDecision": "PROCEED",
+          "riskFactorCodes": [
+            "MULTI_PROVIDER_BUNDLE_3"
+          ],
+          "recoveryRecommendation": null,
+          "recoverySeverity": null,
+          "recoveryConfidence": null
+        },
+        {
+          "trial": 3,
+          "variant": "baseline",
+          "idempotencyKey": "exp:20260924_214405_y04i:E01:b:3",
+          "httpStatus": 201,
+          "errorCode": null,
+          "errorMessage": null,
+          "transactionId": "5f2b2317-5a91-4098-8197-9f8882426e12",
+          "finalState": "COMPLETED",
+          "failurePhase": null,
+          "idempotentReplay": false,
+          "endToEndMs": 361.898,
+          "sagaMs": 327,
+          "providerOps": [
+            {
+              "itemType": "hotel",
+              "operation": "RESERVE",
+              "outcome": "SUCCEEDED",
+              "latencyMs": 10
+            },
+            {
+              "itemType": "flight",
+              "operation": "RESERVE",
+              "outcome": "SUCCEEDED",
+              "latencyMs": 7
+            },
+            {
+              "itemType": "transport",
+              "operation": "RESERVE",
+              "outcome": "SUCCEEDED",
+              "latencyMs": 10
+            },
+            {
+              "itemType": "hotel",
+              "operation": "CONFIRM",
+              "outcome": "SUCCEEDED",
+              "latencyMs": 9
+            },
+            {
+              "itemType": "flight",
+              "operation": "CONFIRM",
+              "outcome": "SUCCEEDED",
+              "latencyMs": 11
+            },
+            {
+              "itemType": "transport",
+              "operation": "CONFIRM",
+              "outcome": "SUCCEEDED",
+              "latencyMs": 8
+            }
+          ],
+          "compensationsSucceeded": 0,
+          "compensationsFailed": 0,
+          "payment": {
+            "authorized": true,
+            "authorizationFailed": false,
+            "captured": true,
+            "captureFailed": false,
+            "reversal": null
+          },
+          "locks": {
+            "confirmed": 3,
+            "released": 0,
+            "active": 0,
+            "expired": 0
+          },
+          "unresolvedLocks": 0,
+          "riskLevel": "LOW",
+          "riskScore": 30,
+          "riskDecision": "PROCEED",
+          "riskFactorCodes": [
+            "MULTI_PROVIDER_BUNDLE_3"
+          ],
+          "recoveryRecommendation": null,
+          "recoverySeverity": null,
+          "recoveryConfidence": null
+        },
+        {
+          "trial": 4,
+          "variant": "baseline",
+          "idempotencyKey": "exp:20260924_214405_y04i:E01:b:4",
+          "httpStatus": 201,
+          "errorCode": null,
+          "errorMessage": null,
+          "transactionId": "fb12356a-65ee-4954-a373-795c5be3b807",
+          "finalState": "COMPLETED",
+          "failurePhase": null,
+          "idempotentReplay": false,
+          "endToEndMs": 377.501,
+          "sagaMs": 336,
+          "providerOps": [
+            {
+              "itemType": "hotel",
+              "operation": "RESERVE",
+              "outcome": "SUCCEEDED",
+              "latencyMs": 12
+            },
+            {
+              "itemType": "flight",
+              "operation": "RESERVE",
+              "outcome": "SUCCEEDED",
+              "latencyMs": 12
+            },
+            {
+              "itemType": "transport",
+              "operation": "RESERVE",
+              "outcome": "SUCCEEDED",
+              "latencyMs": 9
+            },
+            {
+              "itemType": "hotel",
+              "operation": "CONFIRM",
+              "outcome": "SUCCEEDED",
+              "latencyMs": 12
+            },
+            {
+              "itemType": "flight",
+              "operation": "CONFIRM",
+              "outcome": "SUCCEEDED",
+              "latencyMs": 11
+            },
+            {
+              "itemType": "transport",
+              "operation": "CONFIRM",
+              "outcome": "SUCCEEDED",
+              "latencyMs": 13
+            }
+          ],
+          "compensationsSucceeded": 0,
+          "compensationsFailed": 0,
+          "payment": {
+            "authorized": true,
+            "authorizationFailed": false,
+            "captured": true,
+            "captureFailed": false,
+            "reversal": null
+          },
+          "locks": {
+            "confirmed": 3,
+            "released": 0,
+            "active": 0,
+            "expired": 0
+          },
+          "unresolvedLocks": 0,
+          "riskLevel": "LOW",
+          "riskScore": 30,
+          "riskDecision": "PROCEED",
+          "riskFactorCodes": [
+            "MULTI_PROVIDER_BUNDLE_3"
+          ],
+          "recoveryRecommendation": null,
+          "recoverySeverity": null,
+          "recoveryConfidence": null
+        },
+        {
+          "trial": 5,
+          "variant": "baseline",
+          "idempotencyKey": "exp:20260924_214405_y04i:E01:b:5",
+          "httpStatus": 201,
+          "errorCode": null,
+          "errorMessage": null,
+          "transactionId": "bec6deee-70b0-4aa5-8004-52a5c9028d5b",
+          "finalState": "COMPLETED",
+          "failurePhase": null,
+          "idempotentReplay": false,
+          "endToEndMs": 401.612,
+          "sagaMs": 344,
+          "providerOps": [
+            {
+              "itemType": "hotel",
+              "operation": "RESERVE",
+              "outcome": "SUCCEEDED",
+              "latencyMs": 12
+            },
+            {
+              "itemType": "flight",
+              "operation": "RESERVE",
+              "outcome": "SUCCEEDED",
+              "latencyMs": 9
+            },
+            {
+              "itemType": "transport",
+              "operation": "RESERVE",
+              "outcome": "SUCCEEDED",
+              "latencyMs": 9
+            },
+            {
+              "itemType": "hotel",
+              "operation": "CONFIRM",
+              "outcome": "SUCCEEDED",
+              "latencyMs": 11
+            },
+            {
+              "itemType": "flight",
+              "operation": "CONFIRM",
+              "outcome": "SUCCEEDED",
+              "latencyMs": 14
+            },
+            {
+              "itemType": "transport",
+              "operation": "CONFIRM",
+              "outcome": "SUCCEEDED",
+              "latencyMs": 15
+            }
+          ],
+          "compensationsSucceeded": 0,
+          "compensationsFailed": 0,
+          "payment": {
+            "authorized": true,
+            "authorizationFailed": false,
+            "captured": true,
+            "captureFailed": false,
+            "reversal": null
+          },
+          "locks": {
+            "confirmed": 3,
+            "released": 0,
+            "active": 0,
+            "expired": 0
+          },
+          "unresolvedLocks": 0,
+          "riskLevel": "LOW",
+          "riskScore": 30,
+          "riskDecision": "PROCEED",
+          "riskFactorCodes": [
+            "MULTI_PROVIDER_BUNDLE_3"
+          ],
+          "recoveryRecommendation": null,
+          "recoverySeverity": null,
+          "recoveryConfidence": null
+        },
+        {
+          "trial": 6,
+          "variant": "baseline",
+          "idempotencyKey": "exp:20260924_214405_y04i:E01:b:6",
+          "httpStatus": 201,
+          "errorCode": null,
+          "errorMessage": null,
+          "transactionId": "2dcb8e52-29e9-4797-9dce-a5342e26cb7a",
+          "finalState": "COMPLETED",
+          "failurePhase": null,
+          "idempotentReplay": false,
+          "endToEndMs": 359.522,
+          "sagaMs": 327,
+          "providerOps": [
+            {
+              "itemType": "hotel",
+              "operation": "RESERVE",
+              "outcome": "SUCCEEDED",
+              "latencyMs": 10
+            },
+            {
+              "itemType": "flight",
+              "operation": "RESERVE",
+              "outcome": "SUCCEEDED",
+              "latencyMs": 9
+            },
+            {
+              "itemType": "transport",
+              "operation": "RESERVE",
+              "outcome": "SUCCEEDED",
+              "latencyMs": 6
+            },
+            {
+              "itemType": "hotel",
+              "operation": "CONFIRM",
+              "outcome": "SUCCEEDED",
+              "latencyMs": 12
+            },
+            {
+              "itemType": "flight",
+              "operation": "CONFIRM",
+              "outcome": "SUCCEEDED",
+              "latencyMs": 10
+            },
+            {
+              "itemType": "transport",
+              "operation": "CONFIRM",
+              "outcome": "SUCCEEDED",
+              "latencyMs": 12
+            }
+          ],
+          "compensationsSucceeded": 0,
+          "compensationsFailed": 0,
+          "payment": {
+            "authorized": true,
+            "authorizationFailed": false,
+            "captured": true,
+            "captureFailed": false,
+            "reversal": null
+          },
+          "locks": {
+            "confirmed": 3,
+            "released": 0,
+            "active": 0,
+            "expired": 0
+          },
+          "unresolvedLocks": 0,
+          "riskLevel": "LOW",
+          "riskScore": 30,
+          "riskDecision": "PROCEED",
+          "riskFactorCodes": [
+            "MULTI_PROVIDER_BUNDLE_3"
+          ],
+          "recoveryRecommendation": null,
+          "recoverySeverity": null,
+          "recoveryConfidence": null
+        },
+        {
+          "trial": 7,
+          "variant": "baseline",
+          "idempotencyKey": "exp:20260924_214405_y04i:E01:b:7",
+          "httpStatus": 201,
+          "errorCode": null,
+          "errorMessage": null,
+          "transactionId": "b57be03f-a002-48fe-bd6a-35b019dec04c",
+          "finalState": "COMPLETED",
+          "failurePhase": null,
+          "idempotentReplay": false,
+          "endToEndMs": 342.29,
+          "sagaMs": 304,
+          "providerOps": [
+            {
+              "itemType": "hotel",
+              "operation": "RESERVE",
+              "outcome": "SUCCEEDED",
+              "latencyMs": 10
+            },
+            {
+              "itemType": "flight",
+              "operation": "RESERVE",
+              "outcome": "SUCCEEDED",
+              "latencyMs": 9
+            },
+            {
+              "itemType": "transport",
+              "operation": "RESERVE",
+              "outcome": "SUCCEEDED",
+              "latencyMs": 9
+            },
+            {
+              "itemType": "hotel",
+              "operation": "CONFIRM",
+              "outcome": "SUCCEEDED",
+              "latencyMs": 10
+            },
+            {
+              "itemType": "flight",
+              "operation": "CONFIRM",
+              "outcome": "SUCCEEDED",
+              "latencyMs": 9
+            },
+            {
+              "itemType": "transport",
+              "operation": "CONFIRM",
+              "outcome": "SUCCEEDED",
+              "latencyMs": 10
+            }
+          ],
+          "compensationsSucceeded": 0,
+          "compensationsFailed": 0,
+          "payment": {
+            "authorized": true,
+            "authorizationFailed": false,
+            "captured": true,
+            "captureFailed": false,
+            "reversal": null
+          },
+          "locks": {
+            "confirmed": 3,
+            "released": 0,
+            "active": 0,
+            "expired": 0
+          },
+          "unresolvedLocks": 0,
+          "riskLevel": "LOW",
+          "riskScore": 30,
+          "riskDecision": "PROCEED",
+          "riskFactorCodes": [
+            "MULTI_PROVIDER_BUNDLE_3"
+          ],
+          "recoveryRecommendation": null,
+          "recoverySeverity": null,
+          "recoveryConfidence": null
+        },
+        {
+          "trial": 8,
+          "variant": "baseline",
+          "idempotencyKey": "exp:20260924_214405_y04i:E01:b:8",
+          "httpStatus": 201,
+          "errorCode": null,
+          "errorMessage": null,
+          "transactionId": "d2997e59-9fd1-4297-9415-4295c293f4ba",
+          "finalState": "COMPLETED",
+          "failurePhase": null,
+          "idempotentReplay": false,
+          "endToEndMs": 402.469,
+          "sagaMs": 365,
+          "providerOps": [
+            {
+              "itemType": "hotel",
+              "operation": "RESERVE",
+              "outcome": "SUCCEEDED",
+              "latencyMs": 10
+            },
+            {
+              "itemType": "flight",
+              "operation": "RESERVE",
+              "outcome": "SUCCEEDED",
+              "latencyMs": 9
+            },
+            {
+              "itemType": "transport",
+              "operation": "RESERVE",
+              "outcome": "SUCCEEDED",
+              "latencyMs": 8
+            },
+            {
+              "itemType": "hotel",
+              "operation": "CONFIRM",
+              "outcome": "SUCCEEDED",
+              "latencyMs": 11
+            },
+            {
+              "itemType": "flight",
+              "operation": "CONFIRM",
+              "outcome": "SUCCEEDED",
+              "latencyMs": 9
+            },
+            {
+              "itemType": "transport",
+              "operation": "CONFIRM",
+              "outcome": "SUCCEEDED",
+              "latencyMs": 10
+            }
+          ],
+          "compensationsSucceeded": 0,
+          "compensationsFailed": 0,
+          "payment": {
+            "authorized": true,
+            "authorizationFailed": false,
+            "captured": true,
+            "captureFailed": false,
+            "reversal": null
+          },
+          "locks": {
+            "confirmed": 3,
+            "released": 0,
+            "active": 0,
+            "expired": 0
+          },
+          "unresolvedLocks": 0,
+          "riskLevel": "LOW",
+          "riskScore": 30,
+          "riskDecision": "PROCEED",
+          "riskFactorCodes": [
+            "MULTI_PROVIDER_BUNDLE_3"
+          ],
+          "recoveryRecommendation": null,
+          "recoverySeverity": null,
+          "recoveryConfidence": null
+        },
+        {
+          "trial": 9,
+          "variant": "baseline",
+          "idempotencyKey": "exp:20260924_214405_y04i:E01:b:9",
+          "httpStatus": 201,
+          "errorCode": null,
+          "errorMessage": null,
+          "transactionId": "85a43203-9439-442a-b33e-c16e2f5b2381",
+          "finalState": "COMPLETED",
+          "failurePhase": null,
+          "idempotentReplay": false,
+          "endToEndMs": 327.282,
+          "sagaMs": 293,
+          "providerOps": [
+            {
+              "itemType": "hotel",
+              "operation": "RESERVE",
+              "outcome": "SUCCEEDED",
+              "latencyMs": 9
+            },
+            {
+              "itemType": "flight",
+              "operation": "RESERVE",
+              "outcome": "SUCCEEDED",
+              "latencyMs": 9
+            },
+            {
+              "itemType": "transport",
+              "operation": "RESERVE",
+              "outcome": "SUCCEEDED",
+              "latencyMs": 9
+            },
+            {
+              "itemType": "hotel",
+              "operation": "CONFIRM",
+              "outcome": "SUCCEEDED",
+              "latencyMs": 9
+            },
+            {
+              "itemType": "flight",
+              "operation": "CONFIRM",
+              "outcome": "SUCCEEDED",
+              "latencyMs": 9
+            },
+            {
+              "itemType": "transport",
+              "operation": "CONFIRM",
+              "outcome": "SUCCEEDED",
+              "latencyMs": 11
+            }
+          ],
+          "compensationsSucceeded": 0,
+          "compensationsFailed": 0,
+          "payment": {
+            "authorized": true,
+            "authorizationFailed": false,
+            "captured": true,
+            "captureFailed": false,
+            "reversal": null
+          },
+          "locks": {
+            "confirmed": 3,
+            "released": 0,
+            "active": 0,
+            "expired": 0
+          },
+          "unresolvedLocks": 0,
+          "riskLevel": "LOW",
+          "riskScore": 30,
+          "riskDecision": "PROCEED",
+          "riskFactorCodes": [
+            "MULTI_PROVIDER_BUNDLE_3"
+          ],
+          "recoveryRecommendation": null,
+          "recoverySeverity": null,
+          "recoveryConfidence": null
+        },
+        {
+          "trial": 10,
+          "variant": "baseline",
+          "idempotencyKey": "exp:20260924_214405_y04i:E01:b:10",
+          "httpStatus": 201,
+          "errorCode": null,
+          "errorMessage": null,
+          "transactionId": "d5712e32-8f7a-4642-90c2-d1b36bc2e1c8",
+          "finalState": "COMPLETED",
+          "failurePhase": null,
+          "idempotentReplay": false,
+          "endToEndMs": 350.035,
+          "sagaMs": 308,
+          "providerOps": [
+            {
+              "itemType": "hotel",
+              "operation": "RESERVE",
+              "outcome": "SUCCEEDED",
+              "latencyMs": 8
+            },
+            {
+              "itemType": "flight",
+              "operation": "RESERVE",
+              "outcome": "SUCCEEDED",
+              "latencyMs": 8
+            },
+            {
+              "itemType": "transport",
+              "operation": "RESERVE",
+              "outcome": "SUCCEEDED",
+              "latencyMs": 12
+            },
+            {
+              "itemType": "hotel",
+              "operation": "CONFIRM",
+              "outcome": "SUCCEEDED",
+              "latencyMs": 12
+            },
+            {
+              "itemType": "flight",
+              "operation": "CONFIRM",
+              "outcome": "SUCCEEDED",
+              "latencyMs": 9
+            },
+            {
+              "itemType": "transport",
+              "operation": "CONFIRM",
+              "outcome": "SUCCEEDED",
+              "latencyMs": 11
+            }
+          ],
+          "compensationsSucceeded": 0,
+          "compensationsFailed": 0,
+          "payment": {
+            "authorized": true,
+            "authorizationFailed": false,
+            "captured": true,
+            "captureFailed": false,
+            "reversal": null
+          },
+          "locks": {
+            "confirmed": 3,
+            "released": 0,
+            "active": 0,
+            "expired": 0
+          },
+          "unresolvedLocks": 0,
+          "riskLevel": "LOW",
+          "riskScore": 30,
+          "riskDecision": "PROCEED",
+          "riskFactorCodes": [
+            "MULTI_PROVIDER_BUNDLE_3"
+          ],
+          "recoveryRecommendation": null,
+          "recoverySeverity": null,
+          "recoveryConfidence": null
+        },
+        {
+          "trial": 11,
+          "variant": "baseline",
+          "idempotencyKey": "exp:20260924_214405_y04i:E01:b:11",
+          "httpStatus": 201,
+          "errorCode": null,
+          "errorMessage": null,
+          "transactionId": "c80f3e22-c94b-4e10-b229-ac454bb6329c",
+          "finalState": "COMPLETED",
+          "failurePhase": null,
+          "idempotentReplay": false,
+          "endToEndMs": 405.56,
+          "sagaMs": 365,
+          "providerOps": [
+            {
+              "itemType": "hotel",
+              "operation": "RESERVE",
+              "outcome": "SUCCEEDED",
+              "latencyMs": 14
+            },
+            {
+              "itemType": "flight",
+              "operation": "RESERVE",
+              "outcome": "SUCCEEDED",
+              "latencyMs": 9
+            },
+            {
+              "itemType": "transport",
+              "operation": "RESERVE",
+              "outcome": "SUCCEEDED",
+              "latencyMs": 9
+            },
+            {
+              "itemType": "hotel",
+              "operation": "CONFIRM",
+              "outcome": "SUCCEEDED",
+              "latencyMs": 21
+            },
+            {
+              "itemType": "flight",
+              "operation": "CONFIRM",
+              "outcome": "SUCCEEDED",
+              "latencyMs": 17
+            },
+            {
+              "itemType": "transport",
+              "operation": "CONFIRM",
+              "outcome": "SUCCEEDED",
+              "latencyMs": 12
+            }
+          ],
+          "compensationsSucceeded": 0,
+          "compensationsFailed": 0,
+          "payment": {
+            "authorized": true,
+            "authorizationFailed": false,
+            "captured": true,
+            "captureFailed": false,
+            "reversal": null
+          },
+          "locks": {
+            "confirmed": 3,
+            "released": 0,
+            "active": 0,
+            "expired": 0
+          },
+          "unresolvedLocks": 0,
+          "riskLevel": "LOW",
+          "riskScore": 30,
+          "riskDecision": "PROCEED",
+          "riskFactorCodes": [
+            "MULTI_PROVIDER_BUNDLE_3"
+          ],
+          "recoveryRecommendation": null,
+          "recoverySeverity": null,
+          "recoveryConfidence": null
+        },
+        {
+          "trial": 12,
+          "variant": "baseline",
+          "idempotencyKey": "exp:20260924_214405_y04i:E01:b:12",
+          "httpStatus": 201,
+          "errorCode": null,
+          "errorMessage": null,
+          "transactionId": "0e4e1122-91e5-4706-8b0c-f1b6b41747e7",
+          "finalState": "COMPLETED",
+          "failurePhase": null,
+          "idempotentReplay": false,
+          "endToEndMs": 355.867,
+          "sagaMs": 283,
+          "providerOps": [
+            {
+              "itemType": "hotel",
+              "operation": "RESERVE",
+              "outcome": "SUCCEEDED",
+              "latencyMs": 8
+            },
+            {
+              "itemType": "flight",
+              "operation": "RESERVE",
+              "outcome": "SUCCEEDED",
+              "latencyMs": 12
+            },
+            {
+              "itemType": "transport",
+              "operation": "RESERVE",
+              "outcome": "SUCCEEDED",
+              "latencyMs": 8
+            },
+            {
+              "itemType": "hotel",
+              "operation": "CONFIRM",
+              "outcome": "SUCCEEDED",
+              "latencyMs": 7
+            },
+            {
+              "itemType": "flight",
+              "operation": "CONFIRM",
+              "outcome": "SUCCEEDED",
+              "latencyMs": 9
+            },
+            {
+              "itemType": "transport",
+              "operation": "CONFIRM",
+              "outcome": "SUCCEEDED",
+              "latencyMs": 9
+            }
+          ],
+          "compensationsSucceeded": 0,
+          "compensationsFailed": 0,
+          "payment": {
+            "authorized": true,
+            "authorizationFailed": false,
+            "captured": true,
+            "captureFailed": false,
+            "reversal": null
+          },
+          "locks": {
+            "confirmed": 3,
+            "released": 0,
+            "active": 0,
+            "expired": 0
+          },
+          "unresolvedLocks": 0,
+          "riskLevel": "LOW",
+          "riskScore": 30,
+          "riskDecision": "PROCEED",
+          "riskFactorCodes": [
+            "MULTI_PROVIDER_BUNDLE_3"
+          ],
+          "recoveryRecommendation": null,
+          "recoverySeverity": null,
+          "recoveryConfidence": null
+        },
+        {
+          "trial": 13,
+          "variant": "baseline",
+          "idempotencyKey": "exp:20260924_214405_y04i:E01:b:13",
+          "httpStatus": 201,
+          "errorCode": null,
+          "errorMessage": null,
+          "transactionId": "852865b2-6b82-440e-848d-3c7f1e111292",
+          "finalState": "COMPLETED",
+          "failurePhase": null,
+          "idempotentReplay": false,
+          "endToEndMs": 382.766,
+          "sagaMs": 323,
+          "providerOps": [
+            {
+              "itemType": "hotel",
+              "operation": "RESERVE",
+              "outcome": "SUCCEEDED",
+              "latencyMs": 8
+            },
+            {
+              "itemType": "flight",
+              "operation": "RESERVE",
+              "outcome": "SUCCEEDED",
+              "latencyMs": 8
+            },
+            {
+              "itemType": "transport",
+              "operation": "RESERVE",
+              "outcome": "SUCCEEDED",
+              "latencyMs": 8
+            },
+            {
+              "itemType": "hotel",
+              "operation": "CONFIRM",
+              "outcome": "SUCCEEDED",
+              "latencyMs": 13
+            },
+            {
+              "itemType": "flight",
+              "operation": "CONFIRM",
+              "outcome": "SUCCEEDED",
+              "latencyMs": 9
+            },
+            {
+              "itemType": "transport",
+              "operation": "CONFIRM",
+              "outcome": "SUCCEEDED",
+              "latencyMs": 11
+            }
+          ],
+          "compensationsSucceeded": 0,
+          "compensationsFailed": 0,
+          "payment": {
+            "authorized": true,
+            "authorizationFailed": false,
+            "captured": true,
+            "captureFailed": false,
+            "reversal": null
+          },
+          "locks": {
+            "confirmed": 3,
+            "released": 0,
+            "active": 0,
+            "expired": 0
+          },
+          "unresolvedLocks": 0,
+          "riskLevel": "LOW",
+          "riskScore": 30,
+          "riskDecision": "PROCEED",
+          "riskFactorCodes": [
+            "MULTI_PROVIDER_BUNDLE_3"
+          ],
+          "recoveryRecommendation": null,
+          "recoverySeverity": null,
+          "recoveryConfidence": null
+        },
+        {
+          "trial": 14,
+          "variant": "baseline",
+          "idempotencyKey": "exp:20260924_214405_y04i:E01:b:14",
+          "httpStatus": 201,
+          "errorCode": null,
+          "errorMessage": null,
+          "transactionId": "5242b2e2-0393-4456-8ca5-c3a82188fcb2",
+          "finalState": "COMPLETED",
+          "failurePhase": null,
+          "idempotentReplay": false,
+          "endToEndMs": 233.599,
+          "sagaMs": 211,
+          "providerOps": [
+            {
+              "itemType": "hotel",
+              "operation": "RESERVE",
+              "outcome": "SUCCEEDED",
+              "latencyMs": 8
+            },
+            {
+              "itemType": "flight",
+              "operation": "RESERVE",
+              "outcome": "SUCCEEDED",
+              "latencyMs": 3
+            },
+            {
+              "itemType": "transport",
+              "operation": "RESERVE",
+              "outcome": "SUCCEEDED",
+              "latencyMs": 9
+            },
+            {
+              "itemType": "hotel",
+              "operation": "CONFIRM",
+              "outcome": "SUCCEEDED",
+              "latencyMs": 4
+            },
+            {
+              "itemType": "flight",
+              "operation": "CONFIRM",
+              "outcome": "SUCCEEDED",
+              "latencyMs": 18
+            },
+            {
+              "itemType": "transport",
+              "operation": "CONFIRM",
+              "outcome": "SUCCEEDED",
+              "latencyMs": 18
+            }
+          ],
+          "compensationsSucceeded": 0,
+          "compensationsFailed": 0,
+          "payment": {
+            "authorized": true,
+            "authorizationFailed": false,
+            "captured": true,
+            "captureFailed": false,
+            "reversal": null
+          },
+          "locks": {
+            "confirmed": 3,
+            "released": 0,
+            "active": 0,
+            "expired": 0
+          },
+          "unresolvedLocks": 0,
+          "riskLevel": "LOW",
+          "riskScore": 30,
+          "riskDecision": "PROCEED",
+          "riskFactorCodes": [
+            "MULTI_PROVIDER_BUNDLE_3"
+          ],
+          "recoveryRecommendation": null,
+          "recoverySeverity": null,
+          "recoveryConfidence": null
+        },
+        {
+          "trial": 15,
+          "variant": "baseline",
+          "idempotencyKey": "exp:20260924_214405_y04i:E01:b:15",
+          "httpStatus": 201,
+          "errorCode": null,
+          "errorMessage": null,
+          "transactionId": "e5d67129-a44c-4957-b450-91d08ab37fd5",
+          "finalState": "COMPLETED",
+          "failurePhase": null,
+          "idempotentReplay": false,
+          "endToEndMs": 365.363,
+          "sagaMs": 324,
+          "providerOps": [
+            {
+              "itemType": "hotel",
+              "operation": "RESERVE",
+              "outcome": "SUCCEEDED",
+              "latencyMs": 11
+            },
+            {
+              "itemType": "flight",
+              "operation": "RESERVE",
+              "outcome": "SUCCEEDED",
+              "latencyMs": 10
+            },
+            {
+              "itemType": "transport",
+              "operation": "RESERVE",
+              "outcome": "SUCCEEDED",
+              "latencyMs": 9
+            },
+            {
+              "itemType": "hotel",
+              "operation": "CONFIRM",
+              "outcome": "SUCCEEDED",
+              "latencyMs": 9
+            },
+            {
+              "itemType": "flight",
+              "operation": "CONFIRM",
+              "outcome": "SUCCEEDED",
+              "latencyMs": 8
+            },
+            {
+              "itemType": "transport",
+              "operation": "CONFIRM",
+              "outcome": "SUCCEEDED",
+              "latencyMs": 13
+            }
+          ],
+          "compensationsSucceeded": 0,
+          "compensationsFailed": 0,
+          "payment": {
+            "authorized": true,
+            "authorizationFailed": false,
+            "captured": true,
+            "captureFailed": false,
+            "reversal": null
+          },
+          "locks": {
+            "confirmed": 3,
+            "released": 0,
+            "active": 0,
+            "expired": 0
+          },
+          "unresolvedLocks": 0,
+          "riskLevel": "LOW",
+          "riskScore": 30,
+          "riskDecision": "PROCEED",
+          "riskFactorCodes": [
+            "MULTI_PROVIDER_BUNDLE_3"
+          ],
+          "recoveryRecommendation": null,
+          "recoverySeverity": null,
+          "recoveryConfidence": null
+        },
+        {
+          "trial": 16,
+          "variant": "baseline",
+          "idempotencyKey": "exp:20260924_214405_y04i:E01:b:16",
+          "httpStatus": 201,
+          "errorCode": null,
+          "errorMessage": null,
+          "transactionId": "254a8f75-aadd-4417-a3b2-67a9553c0896",
+          "finalState": "COMPLETED",
+          "failurePhase": null,
+          "idempotentReplay": false,
+          "endToEndMs": 364.937,
+          "sagaMs": 338,
+          "providerOps": [
+            {
+              "itemType": "hotel",
+              "operation": "RESERVE",
+              "outcome": "SUCCEEDED",
+              "latencyMs": 12
+            },
+            {
+              "itemType": "flight",
+              "operation": "RESERVE",
+              "outcome": "SUCCEEDED",
+              "latencyMs": 15
+            },
+            {
+              "itemType": "transport",
+              "operation": "RESERVE",
+              "outcome": "SUCCEEDED",
+              "latencyMs": 13
+            },
+            {
+              "itemType": "hotel",
+              "operation": "CONFIRM",
+              "outcome": "SUCCEEDED",
+              "latencyMs": 7
+            },
+            {
+              "itemType": "flight",
+              "operation": "CONFIRM",
+              "outcome": "SUCCEEDED",
+              "latencyMs": 7
+            },
+            {
+              "itemType": "transport",
+              "operation": "CONFIRM",
+              "outcome": "SUCCEEDED",
+              "latencyMs": 5
+            }
+          ],
+          "compensationsSucceeded": 0,
+          "compensationsFailed": 0,
+          "payment": {
+            "authorized": true,
+            "authorizationFailed": false,
+            "captured": true,
+            "captureFailed": false,
+            "reversal": null
+          },
+          "locks": {
+            "confirmed": 3,
+            "released": 0,
+            "active": 0,
+            "expired": 0
+          },
+          "unresolvedLocks": 0,
+          "riskLevel": "LOW",
+          "riskScore": 30,
+          "riskDecision": "PROCEED",
+          "riskFactorCodes": [
+            "MULTI_PROVIDER_BUNDLE_3"
+          ],
+          "recoveryRecommendation": null,
+          "recoverySeverity": null,
+          "recoveryConfidence": null
+        },
+        {
+          "trial": 17,
+          "variant": "baseline",
+          "idempotencyKey": "exp:20260924_214405_y04i:E01:b:17",
+          "httpStatus": 201,
+          "errorCode": null,
+          "errorMessage": null,
+          "transactionId": "8bdc92ff-3386-46d3-bbb8-562cca1287b5",
+          "finalState": "COMPLETED",
+          "failurePhase": null,
+          "idempotentReplay": false,
+          "endToEndMs": 375.804,
+          "sagaMs": 338,
+          "providerOps": [
+            {
+              "itemType": "hotel",
+              "operation": "RESERVE",
+              "outcome": "SUCCEEDED",
+              "latencyMs": 17
+            },
+            {
+              "itemType": "flight",
+              "operation": "RESERVE",
+              "outcome": "SUCCEEDED",
+              "latencyMs": 9
+            },
+            {
+              "itemType": "transport",
+              "operation": "RESERVE",
+              "outcome": "SUCCEEDED",
+              "latencyMs": 7
+            },
+            {
+              "itemType": "hotel",
+              "operation": "CONFIRM",
+              "outcome": "SUCCEEDED",
+              "latencyMs": 11
+            },
+            {
+              "itemType": "flight",
+              "operation": "CONFIRM",
+              "outcome": "SUCCEEDED",
+              "latencyMs": 12
+            },
+            {
+              "itemType": "transport",
+              "operation": "CONFIRM",
+              "outcome": "SUCCEEDED",
+              "latencyMs": 11
+            }
+          ],
+          "compensationsSucceeded": 0,
+          "compensationsFailed": 0,
+          "payment": {
+            "authorized": true,
+            "authorizationFailed": false,
+            "captured": true,
+            "captureFailed": false,
+            "reversal": null
+          },
+          "locks": {
+            "confirmed": 3,
+            "released": 0,
+            "active": 0,
+            "expired": 0
+          },
+          "unresolvedLocks": 0,
+          "riskLevel": "LOW",
+          "riskScore": 30,
+          "riskDecision": "PROCEED",
+          "riskFactorCodes": [
+            "MULTI_PROVIDER_BUNDLE_3"
+          ],
+          "recoveryRecommendation": null,
+          "recoverySeverity": null,
+          "recoveryConfidence": null
+        },
+        {
+          "trial": 18,
+          "variant": "baseline",
+          "idempotencyKey": "exp:20260924_214405_y04i:E01:b:18",
+          "httpStatus": 201,
+          "errorCode": null,
+          "errorMessage": null,
+          "transactionId": "1c02c00c-3792-470e-9094-a639916197fd",
+          "finalState": "COMPLETED",
+          "failurePhase": null,
+          "idempotentReplay": false,
+          "endToEndMs": 391.298,
+          "sagaMs": 360,
+          "providerOps": [
+            {
+              "itemType": "hotel",
+              "operation": "RESERVE",
+              "outcome": "SUCCEEDED",
+              "latencyMs": 12
+            },
+            {
+              "itemType": "flight",
+              "operation": "RESERVE",
+              "outcome": "SUCCEEDED",
+              "latencyMs": 13
+            },
+            {
+              "itemType": "transport",
+              "operation": "RESERVE",
+              "outcome": "SUCCEEDED",
+              "latencyMs": 12
+            },
+            {
+              "itemType": "hotel",
+              "operation": "CONFIRM",
+              "outcome": "SUCCEEDED",
+              "latencyMs": 13
+            },
+            {
+              "itemType": "flight",
+              "operation": "CONFIRM",
+              "outcome": "SUCCEEDED",
+              "latencyMs": 11
+            },
+            {
+              "itemType": "transport",
+              "operation": "CONFIRM",
+              "outcome": "SUCCEEDED",
+              "latencyMs": 7
+            }
+          ],
+          "compensationsSucceeded": 0,
+          "compensationsFailed": 0,
+          "payment": {
+            "authorized": true,
+            "authorizationFailed": false,
+            "captured": true,
+            "captureFailed": false,
+            "reversal": null
+          },
+          "locks": {
+            "confirmed": 3,
+            "released": 0,
+            "active": 0,
+            "expired": 0
+          },
+          "unresolvedLocks": 0,
+          "riskLevel": "LOW",
+          "riskScore": 30,
+          "riskDecision": "PROCEED",
+          "riskFactorCodes": [
+            "MULTI_PROVIDER_BUNDLE_3"
+          ],
+          "recoveryRecommendation": null,
+          "recoverySeverity": null,
+          "recoveryConfidence": null
+        },
+        {
+          "trial": 19,
+          "variant": "baseline",
+          "idempotencyKey": "exp:20260924_214405_y04i:E01:b:19",
+          "httpStatus": 201,
+          "errorCode": null,
+          "errorMessage": null,
+          "transactionId": "134565e3-30ba-470f-ad06-e3434428d031",
+          "finalState": "COMPLETED",
+          "failurePhase": null,
+          "idempotentReplay": false,
+          "endToEndMs": 362.54,
+          "sagaMs": 327,
+          "providerOps": [
+            {
+              "itemType": "hotel",
+              "operation": "RESERVE",
+              "outcome": "SUCCEEDED",
+              "latencyMs": 11
+            },
+            {
+              "itemType": "flight",
+              "operation": "RESERVE",
+              "outcome": "SUCCEEDED",
+              "latencyMs": 12
+            },
+            {
+              "itemType": "transport",
+              "operation": "RESERVE",
+              "outcome": "SUCCEEDED",
+              "latencyMs": 10
+            },
+            {
+              "itemType": "hotel",
+              "operation": "CONFIRM",
+              "outcome": "SUCCEEDED",
+              "latencyMs": 9
+            },
+            {
+              "itemType": "flight",
+              "operation": "CONFIRM",
+              "outcome": "SUCCEEDED",
+              "latencyMs": 10
+            },
+            {
+              "itemType": "transport",
+              "operation": "CONFIRM",
+              "outcome": "SUCCEEDED",
+              "latencyMs": 7
+            }
+          ],
+          "compensationsSucceeded": 0,
+          "compensationsFailed": 0,
+          "payment": {
+            "authorized": true,
+            "authorizationFailed": false,
+            "captured": true,
+            "captureFailed": false,
+            "reversal": null
+          },
+          "locks": {
+            "confirmed": 3,
+            "released": 0,
+            "active": 0,
+            "expired": 0
+          },
+          "unresolvedLocks": 0,
+          "riskLevel": "LOW",
+          "riskScore": 30,
+          "riskDecision": "PROCEED",
+          "riskFactorCodes": [
+            "MULTI_PROVIDER_BUNDLE_3"
+          ],
+          "recoveryRecommendation": null,
+          "recoverySeverity": null,
+          "recoveryConfidence": null
+        }
+      ]
+    }
+  ],
+  "summary": {
+    "total": 1,
+    "passed": 1,
+    "failed": 0
+  },
+  "isolation": {
+    "description": "In-memory PGlite database with a synthetic dataset; the research database was never connected.",
+    "researchDatabaseTouched": false,
+    "teardown": "In-memory PGlite instance closed; all experiment data discarded."
+  }
+}

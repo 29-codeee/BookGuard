@@ -5,6 +5,8 @@ import { broadcastInventoryUpdate } from '../redis/holdManager.js';
 import { getRedis } from '../redis/client.js';
 import { eventHub } from '../sse/eventHub.js';
 import { runReconciliationCopilot } from '../ai/copilot.js';
+import { applyReconciliationInventoryTx } from '../booking/engine.js';
+import { isBookingError } from '../booking/errors.js';
 
 export default async function reconciliationRoutes(fastify: FastifyInstance, _opts: FastifyPluginOptions) {
   // 1. Get all reconciling bookings with their AI recommendations
@@ -107,6 +109,7 @@ export default async function reconciliationRoutes(fastify: FastifyInstance, _op
       return reply.status(400).send({ error: `Booking is in ${booking.status} state, not RECONCILING` });
     }
 
+    try {
     await withTransaction(async (tx: TransactionClient) => {
       if (action === 'CONFIRM') {
         const pnr = `AIX-${Math.random().toString(36).substring(2, 8).toUpperCase()}`;
@@ -118,23 +121,12 @@ export default async function reconciliationRoutes(fastify: FastifyInstance, _op
           reason: `Reconciliation confirmed by operator ${operatorName} based on provider status inquiry`,
           evidence: { decisionId, operatorName, verifiedPnr: pnr },
           operator: operatorName,
-          tx
+          tx,
+          strict: true
         });
 
-        // 2. Move inventory: held -> confirmed
-        await tx.query(
-          `UPDATE inventory 
-           SET held_quantity = held_quantity - 1, 
-               confirmed_quantity = confirmed_quantity + 1,
-               updated_at = CURRENT_TIMESTAMP
-           WHERE id = $1`,
-          [booking.inventory_id]
-        );
-
-        // 3. Mark hold CONFIRMED
-        if (booking.hold_id) {
-          await tx.query(`UPDATE holds SET status = 'CONFIRMED' WHERE id = $1`, [booking.hold_id]);
-        }
+        // 2 & 3. Move inventory held -> confirmed (guarded, uses the hold's quantity) and mark hold CONFIRMED
+        await applyReconciliationInventoryTx(tx, bookingId, 'CONFIRM');
 
         // 4. Update provider reservation record
         await tx.query(
@@ -155,23 +147,12 @@ export default async function reconciliationRoutes(fastify: FastifyInstance, _op
           reason: `Reconciliation operator ${operatorName} verified non-creation at provider; released held seat`,
           evidence: { decisionId, operatorName },
           operator: operatorName,
-          tx
+          tx,
+          strict: true
         });
 
-        // Restock inventory: held -> available
-        await tx.query(
-          `UPDATE inventory 
-           SET available_quantity = available_quantity + 1, 
-               held_quantity = held_quantity - 1,
-               updated_at = CURRENT_TIMESTAMP
-           WHERE id = $1`,
-          [booking.inventory_id]
-        );
-
-        // Mark hold RELEASED
-        if (booking.hold_id) {
-          await tx.query(`UPDATE holds SET status = 'RELEASED' WHERE id = $1`, [booking.hold_id]);
-        }
+        // Restock inventory held -> available (guarded) and mark hold RELEASED
+        await applyReconciliationInventoryTx(tx, bookingId, 'FAIL');
       }
 
       // Update ai_decisions table with human apply record
@@ -184,6 +165,11 @@ export default async function reconciliationRoutes(fastify: FastifyInstance, _op
         );
       }
     });
+    } catch (err: any) {
+      // Lost a race with another operator (strict transition) or the hold ledger disagrees.
+      const status = isBookingError(err) ? err.httpStatus : 409;
+      return reply.status(status).send({ success: false, error: err.code || 'RECONCILIATION_CONFLICT', message: err.message });
+    }
 
     // Clean up Redis hold key
     if (booking.hold_id) {

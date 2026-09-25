@@ -34,7 +34,12 @@ async function runExpiryTests() {
   const initialHeld = initRes.rows[0].held_quantity;
 
   // Test 1: Hold expires and inventory returns exactly to previous state
-  const hold1 = await createHold({ travellerId: 'traveller_priya', inventoryId, quantity: 2, ttlSeconds: -10 }); // -10 forces immediate expiry mathematically
+  // The engine rejects TTLs below 1s, so backdate expires_at to force an immediate expiry.
+  const backdate = (holdId: string) =>
+    query(`UPDATE holds SET expires_at = CURRENT_TIMESTAMP - interval '10 seconds' WHERE id = $1`, [holdId]);
+
+  const hold1 = await createHold({ travellerId: 'traveller_priya', inventoryId, quantity: 2, ttlSeconds: 60 });
+  await backdate(hold1.holdId);
   assert(hold1.quantity === 2, 'Hold created successfully');
   
   const expireRes1 = await expireHold(hold1.holdId);
@@ -56,7 +61,8 @@ async function runExpiryTests() {
   assert(eventsRes.rows[0].from_state === 'HELD' && eventsRes.rows[0].to_state === 'EXPIRED', 'booking_events written correctly through state machine');
 
   // Test 2: Repeated/concurrent expiry attempts release only once
-  const hold2 = await createHold({ travellerId: 'traveller_priya', inventoryId, quantity: 1, ttlSeconds: -10 });
+  const hold2 = await createHold({ travellerId: 'traveller_priya', inventoryId, quantity: 1, ttlSeconds: 60 });
+  await backdate(hold2.holdId);
   const concurrentExpires = await Promise.all([
     expireHold(hold2.holdId),
     expireHold(hold2.holdId),

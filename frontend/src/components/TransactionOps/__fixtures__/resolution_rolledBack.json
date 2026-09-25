@@ -1,0 +1,49 @@
+{
+  "success": true,
+  "transactionId": "09536313-bea2-4c38-8bc2-c8c303eae297",
+  "state": "ROLLED_BACK",
+  "failedService": {
+    "itemId": "9f53a3f3-962e-4088-bf72-c68c65c715cd",
+    "type": "transport",
+    "resourceId": "TR-FIXTURE",
+    "provider": "Fixture Transit",
+    "quantity": 1,
+    "operation": "RESERVE",
+    "error": "injected transport reserve failure"
+  },
+  "matchCriteria": "Other transport providers in the same city; same date first, then the nearest available dates.",
+  "alternatives": [
+    {
+      "type": "transport",
+      "resourceId": "TRZ-1",
+      "provider": "Fixture CityRide",
+      "description": "Sedan",
+      "location": "Goa",
+      "date": "2027-01-10",
+      "endDate": null,
+      "time": "09:00-12:00",
+      "unitPrice": 450,
+      "currency": "INR",
+      "available": 4,
+      "match": "SAME_DATE"
+    },
+    {
+      "type": "transport",
+      "resourceId": "TRZ-2",
+      "provider": "Fixture MetroCab",
+      "description": "SUV",
+      "location": "Goa",
+      "date": "2027-01-11",
+      "endDate": null,
+      "time": "10:00-13:00",
+      "unitPrice": 520,
+      "currency": "INR",
+      "available": 2,
+      "match": "NEAREST_DATE"
+    }
+  ],
+  "alternativesSupported": true,
+  "replacementSupported": true,
+  "mode": "CUSTOMER_OPTIONS",
+  "reason": "The transport service could not be booked; the rest of the trip was rolled back."
+}

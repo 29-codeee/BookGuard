@@ -1,0 +1,60 @@
+{
+  "success": true,
+  "total": 4,
+  "limit": 20,
+  "offset": 0,
+  "transactions": [
+    {
+      "transactionId": "bbdcbdff-09fe-45e2-bb1a-5a76decd155b",
+      "state": "ROLLBACK_FAILED",
+      "currency": "INR",
+      "totalAmount": 8600,
+      "itemCount": 3,
+      "riskScore": 45,
+      "riskLevel": "MEDIUM",
+      "recoveryRecommendation": "MANUAL_OPERATOR_REVIEW",
+      "recoverySeverity": "HIGH",
+      "createdAt": "2026-09-24T23:06:22.605Z",
+      "updatedAt": "2026-09-24T23:06:23.052Z"
+    },
+    {
+      "transactionId": "d944057e-55e2-4506-b78f-bc839749f571",
+      "state": "ROLLED_BACK",
+      "currency": "INR",
+      "totalAmount": 8600,
+      "itemCount": 3,
+      "riskScore": 45,
+      "riskLevel": "MEDIUM",
+      "recoveryRecommendation": null,
+      "recoverySeverity": null,
+      "createdAt": "2026-09-24T23:06:22.275Z",
+      "updatedAt": "2026-09-24T23:06:22.463Z"
+    },
+    {
+      "transactionId": "09536313-bea2-4c38-8bc2-c8c303eae297",
+      "state": "ROLLED_BACK",
+      "currency": "INR",
+      "totalAmount": 8600,
+      "itemCount": 3,
+      "riskScore": 45,
+      "riskLevel": "MEDIUM",
+      "recoveryRecommendation": null,
+      "recoverySeverity": null,
+      "createdAt": "2026-09-24T23:06:21.857Z",
+      "updatedAt": "2026-09-24T23:06:22.126Z"
+    },
+    {
+      "transactionId": "0c25eb26-dbad-4151-8a9f-d4608b206d03",
+      "state": "COMPLETED",
+      "currency": "INR",
+      "totalAmount": 8600,
+      "itemCount": 3,
+      "riskScore": 45,
+      "riskLevel": "MEDIUM",
+      "recoveryRecommendation": null,
+      "recoverySeverity": null,
+      "createdAt": "2026-09-24T23:06:21.396Z",
+      "updatedAt": "2026-09-24T23:06:21.751Z"
+    }
+  ]
+}

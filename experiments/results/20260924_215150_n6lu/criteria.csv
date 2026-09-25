@@ -1,0 +1,123 @@
+runId,experimentId,criterion,passed,description,expected,actual
+20260924_215150_n6lu,E01-baseline-success,all-completed,true,Every request completes,20,20
+20260924_215150_n6lu,E01-baseline-success,locks-confirmed,true,One CONFIRMED lock per item (3 per booking),60,60
+20260924_215150_n6lu,E01-baseline-success,payment-captured,true,Payment captured for every booking,20,20
+20260924_215150_n6lu,E01-baseline-success,no-compensation,true,No compensation attempted,0,0
+20260924_215150_n6lu,E01-baseline-success,inv:terminal-states,true,Every transaction reached a terminal state,[],[]
+20260924_215150_n6lu,E01-baseline-success,inv:no-active-locks,true,No ACTIVE (provisional) lock outlives its transaction,0,0
+20260924_215150_n6lu,E01-baseline-success,inv:no-capacity-held-after-rollback,true,ROLLED_BACK/FAILED transactions hold no CONFIRMED locks,0,0
+20260924_215150_n6lu,E01-baseline-success,inv:no-server-errors,true,No 5xx responses,0,0
+20260924_215150_n6lu,E02-first-provider-failure,all-rolled-back,true,Every transaction ends ROLLED_BACK,10,10
+20260924_215150_n6lu,E02-first-provider-failure,one-reserve-attempt,true,Exactly one failed reserve per transaction and no successful reserves,"[10,0]","[10,0]"
+20260924_215150_n6lu,E02-first-provider-failure,no-compensation,true,Nothing to compensate,0,0
+20260924_215150_n6lu,E02-first-provider-failure,payment-voided,true,Authorized payment voided,10,10
+20260924_215150_n6lu,E02-first-provider-failure,locks-released,true,All 3 locks per transaction released,30,30
+20260924_215150_n6lu,E02-first-provider-failure,inv:terminal-states,true,Every transaction reached a terminal state,[],[]
+20260924_215150_n6lu,E02-first-provider-failure,inv:no-active-locks,true,No ACTIVE (provisional) lock outlives its transaction,0,0
+20260924_215150_n6lu,E02-first-provider-failure,inv:no-capacity-held-after-rollback,true,ROLLED_BACK/FAILED transactions hold no CONFIRMED locks,0,0
+20260924_215150_n6lu,E02-first-provider-failure,inv:no-server-errors,true,No 5xx responses,0,0
+20260924_215150_n6lu,E03-failure-after-multiple-reservations,all-rolled-back,true,Every transaction ends ROLLED_BACK,10,10
+20260924_215150_n6lu,E03-failure-after-multiple-reservations,two-compensations,true,Two successful compensations per transaction,20,20
+20260924_215150_n6lu,E03-failure-after-multiple-reservations,compensation-rate,true,Compensation success rate is 1,1,1
+20260924_215150_n6lu,E03-failure-after-multiple-reservations,no-capture,true,Payment never captured; authorization voided,"[0,10]","[0,10]"
+20260924_215150_n6lu,E03-failure-after-multiple-reservations,no-held-capacity,true,No CONFIRMED locks remain,0,0
+20260924_215150_n6lu,E03-failure-after-multiple-reservations,inv:terminal-states,true,Every transaction reached a terminal state,[],[]
+20260924_215150_n6lu,E03-failure-after-multiple-reservations,inv:no-active-locks,true,No ACTIVE (provisional) lock outlives its transaction,0,0
+20260924_215150_n6lu,E03-failure-after-multiple-reservations,inv:no-capacity-held-after-rollback,true,ROLLED_BACK/FAILED transactions hold no CONFIRMED locks,0,0
+20260924_215150_n6lu,E03-failure-after-multiple-reservations,inv:no-server-errors,true,No 5xx responses,0,0
+20260924_215150_n6lu,E04-successful-compensation,all-rolled-back,true,Every transaction ends ROLLED_BACK,10,10
+20260924_215150_n6lu,E04-successful-compensation,all-compensated,true,All three reservations compensated per transaction,30,30
+20260924_215150_n6lu,E04-successful-compensation,compensation-rate,true,Compensation success rate is 1,1,1
+20260924_215150_n6lu,E04-successful-compensation,payment-refunded,true,Captured payment refunded,"[10,10]","[10,10]"
+20260924_215150_n6lu,E04-successful-compensation,no-held-capacity,true,No CONFIRMED locks remain,0,0
+20260924_215150_n6lu,E04-successful-compensation,inv:terminal-states,true,Every transaction reached a terminal state,[],[]
+20260924_215150_n6lu,E04-successful-compensation,inv:no-active-locks,true,No ACTIVE (provisional) lock outlives its transaction,0,0
+20260924_215150_n6lu,E04-successful-compensation,inv:no-capacity-held-after-rollback,true,ROLLED_BACK/FAILED transactions hold no CONFIRMED locks,0,0
+20260924_215150_n6lu,E04-successful-compensation,inv:no-server-errors,true,No 5xx responses,0,0
+20260924_215150_n6lu,E05-compensation-failure,rollback-failed,true,Every transaction ends ROLLBACK_FAILED,20,20
+20260924_215150_n6lu,E05-compensation-failure,single-failure-split,true,One failed and one successful compensation per transaction (single failure),"[10,10]","[10,10]"
+20260924_215150_n6lu,E05-compensation-failure,double-failure-split,true,Two failed compensations per transaction (double failure),"[20,0]","[20,0]"
+20260924_215150_n6lu,E05-compensation-failure,locks-held,true,Each failed compensation leaves exactly one unresolved CONFIRMED lock,30,30
+20260924_215150_n6lu,E05-compensation-failure,manual-review,true,Persisted advisory is MANUAL_OPERATOR_REVIEW for every transaction,"{""MANUAL_OPERATOR_REVIEW"":20}","{""MANUAL_OPERATOR_REVIEW"":20}"
+20260924_215150_n6lu,E05-compensation-failure,inv:terminal-states,true,Every transaction reached a terminal state,[],[]
+20260924_215150_n6lu,E05-compensation-failure,inv:no-active-locks,true,No ACTIVE (provisional) lock outlives its transaction,0,0
+20260924_215150_n6lu,E05-compensation-failure,inv:no-capacity-held-after-rollback,true,ROLLED_BACK/FAILED transactions hold no CONFIRMED locks,0,0
+20260924_215150_n6lu,E05-compensation-failure,inv:no-server-errors,true,No 5xx responses,0,0
+20260924_215150_n6lu,E06-payment-authorization-failure,all-rolled-back,true,Every transaction ends ROLLED_BACK,10,10
+20260924_215150_n6lu,E06-payment-authorization-failure,auth-failed,true,Authorization failure recorded for every transaction,10,10
+20260924_215150_n6lu,E06-payment-authorization-failure,no-provider-calls,true,No provider operation was attempted,0,0
+20260924_215150_n6lu,E06-payment-authorization-failure,locks-released,true,All locks released,"[30,0]","[30,0]"
+20260924_215150_n6lu,E06-payment-authorization-failure,inv:terminal-states,true,Every transaction reached a terminal state,[],[]
+20260924_215150_n6lu,E06-payment-authorization-failure,inv:no-active-locks,true,No ACTIVE (provisional) lock outlives its transaction,0,0
+20260924_215150_n6lu,E06-payment-authorization-failure,inv:no-capacity-held-after-rollback,true,ROLLED_BACK/FAILED transactions hold no CONFIRMED locks,0,0
+20260924_215150_n6lu,E06-payment-authorization-failure,inv:no-server-errors,true,No 5xx responses,0,0
+20260924_215150_n6lu,E07-payment-capture-failure,all-rolled-back,true,Every transaction ends ROLLED_BACK,10,10
+20260924_215150_n6lu,E07-payment-capture-failure,capture-failed,true,Capture failure recorded; nothing captured,"[10,0]","[10,0]"
+20260924_215150_n6lu,E07-payment-capture-failure,all-compensated,true,All three reservations compensated,30,30
+20260924_215150_n6lu,E07-payment-capture-failure,no-held-capacity,true,No CONFIRMED locks remain,0,0
+20260924_215150_n6lu,E07-payment-capture-failure,inv:terminal-states,true,Every transaction reached a terminal state,[],[]
+20260924_215150_n6lu,E07-payment-capture-failure,inv:no-active-locks,true,No ACTIVE (provisional) lock outlives its transaction,0,0
+20260924_215150_n6lu,E07-payment-capture-failure,inv:no-capacity-held-after-rollback,true,ROLLED_BACK/FAILED transactions hold no CONFIRMED locks,0,0
+20260924_215150_n6lu,E07-payment-capture-failure,inv:no-server-errors,true,No 5xx responses,0,0
+20260924_215150_n6lu,E08-duplicate-idempotency,one-execution-per-key,true,Exactly one transaction per key (success and rollback originals),"[5,5]","[5,5]"
+20260924_215150_n6lu,E08-duplicate-idempotency,replays,true,All duplicates served as replays,30,30
+20260924_215150_n6lu,E08-duplicate-idempotency,identical-replays,true,Replayed responses identical to the original,30,30
+20260924_215150_n6lu,E08-duplicate-idempotency,payload-mismatch-rejected,true,Reused key with a different payload rejected (422 IDEMPOTENCY_KEY_REUSED),"{""IDEMPOTENCY_KEY_REUSED"":5}","{""IDEMPOTENCY_KEY_REUSED"":5}"
+20260924_215150_n6lu,E08-duplicate-idempotency,mismatch-no-execution,true,Rejected mismatches created no transactions,0,0
+20260924_215150_n6lu,E08-duplicate-idempotency,inv:terminal-states,true,Every transaction reached a terminal state,[],[]
+20260924_215150_n6lu,E08-duplicate-idempotency,inv:no-active-locks,true,No ACTIVE (provisional) lock outlives its transaction,0,0
+20260924_215150_n6lu,E08-duplicate-idempotency,inv:no-capacity-held-after-rollback,true,ROLLED_BACK/FAILED transactions hold no CONFIRMED locks,0,0
+20260924_215150_n6lu,E08-duplicate-idempotency,inv:no-server-errors,true,No 5xx responses,0,0
+20260924_215150_n6lu,E09-concurrent-same-idempotency-key,single-execution,true,Exactly one transaction per key at every concurrency level,"{""c2"":3,""c4"":3,""c8"":3,""c16"":3}","{""c2"":3,""c4"":3,""c8"":3,""c16"":3}"
+20260924_215150_n6lu,E09-concurrent-same-idempotency-key,replays,true,All other concurrent requests replayed,"{""c2"":3,""c4"":9,""c8"":21,""c16"":45}","{""c2"":3,""c4"":9,""c8"":21,""c16"":45}"
+20260924_215150_n6lu,E09-concurrent-same-idempotency-key,same-transaction-id,true,Every response in a group carries the same transactionId,"{""c2"":3,""c4"":3,""c8"":3,""c16"":3}","{""c2"":3,""c4"":3,""c8"":3,""c16"":3}"
+20260924_215150_n6lu,E09-concurrent-same-idempotency-key,no-in-progress-errors,true,No request gave up waiting (IDEMPOTENT_REQUEST_IN_PROGRESS),0,0
+20260924_215150_n6lu,E09-concurrent-same-idempotency-key,inv:terminal-states,true,Every transaction reached a terminal state,[],[]
+20260924_215150_n6lu,E09-concurrent-same-idempotency-key,inv:no-active-locks,true,No ACTIVE (provisional) lock outlives its transaction,0,0
+20260924_215150_n6lu,E09-concurrent-same-idempotency-key,inv:no-capacity-held-after-rollback,true,ROLLED_BACK/FAILED transactions hold no CONFIRMED locks,0,0
+20260924_215150_n6lu,E09-concurrent-same-idempotency-key,inv:no-server-errors,true,No 5xx responses,0,0
+20260924_215150_n6lu,E10-concurrent-same-resource,C5-N20:completed,true,"Exactly min(C, N) bookings complete",5,5
+20260924_215150_n6lu,E10-concurrent-same-resource,C5-N20:no-oversell,true,CONFIRMED locks never exceed capacity,true,true
+20260924_215150_n6lu,E10-concurrent-same-resource,C5-N20:rejected,true,The remainder is rejected at reservation,15,15
+20260924_215150_n6lu,E10-concurrent-same-resource,C1-N10-last-seat:completed,true,"Exactly min(C, N) bookings complete",1,1
+20260924_215150_n6lu,E10-concurrent-same-resource,C1-N10-last-seat:no-oversell,true,CONFIRMED locks never exceed capacity,true,true
+20260924_215150_n6lu,E10-concurrent-same-resource,C1-N10-last-seat:rejected,true,The remainder is rejected at reservation,9,9
+20260924_215150_n6lu,E10-concurrent-same-resource,inv:terminal-states,true,Every transaction reached a terminal state,[],[]
+20260924_215150_n6lu,E10-concurrent-same-resource,inv:no-active-locks,true,No ACTIVE (provisional) lock outlives its transaction,0,0
+20260924_215150_n6lu,E10-concurrent-same-resource,inv:no-capacity-held-after-rollback,true,ROLLED_BACK/FAILED transactions hold no CONFIRMED locks,0,0
+20260924_215150_n6lu,E10-concurrent-same-resource,inv:no-server-errors,true,No 5xx responses,0,0
+20260924_215150_n6lu,E11-lock-contention,all-completed,true,Every contended booking completes (capacity is sufficient),"{""hot-row-c1"":32,""hot-row-c2"":32,""hot-row-c4"":32,""hot-row-c8"":32,""hot-row-c16"":32,""opposite-order"":32}","{""hot-row-c1"":32,""hot-row-c2"":32,""hot-row-c4"":32,""hot-row-c8"":32,""hot-row-c16"":32,""opposite-order"":32}"
+20260924_215150_n6lu,E11-lock-contention,no-rejections,true,No request rejected under contention,0,0
+20260924_215150_n6lu,E11-lock-contention,no-deadlocks,true,No deadlock errors with opposite item orders,0,0
+20260924_215150_n6lu,E11-lock-contention,inv:terminal-states,true,Every transaction reached a terminal state,[],[]
+20260924_215150_n6lu,E11-lock-contention,inv:no-active-locks,true,No ACTIVE (provisional) lock outlives its transaction,0,0
+20260924_215150_n6lu,E11-lock-contention,inv:no-capacity-held-after-rollback,true,ROLLED_BACK/FAILED transactions hold no CONFIRMED locks,0,0
+20260924_215150_n6lu,E11-lock-contention,inv:no-server-errors,true,No 5xx responses,0,0
+20260924_215150_n6lu,E12-multi-provider-failure-points,outcomes-match-saga-semantics,true,"Every cell ends in the state, compensations, payment and lock outcome the Saga defines",[],[]
+20260924_215150_n6lu,E12-multi-provider-failure-points,cells-covered,true,All failure-point cells executed,27,27
+20260924_215150_n6lu,E12-multi-provider-failure-points,saga-latency-recorded,true,Saga latency measured for every provider count,4,4
+20260924_215150_n6lu,E12-multi-provider-failure-points,inv:terminal-states,true,Every transaction reached a terminal state,[],[]
+20260924_215150_n6lu,E12-multi-provider-failure-points,inv:no-active-locks,true,No ACTIVE (provisional) lock outlives its transaction,0,0
+20260924_215150_n6lu,E12-multi-provider-failure-points,inv:no-capacity-held-after-rollback,true,ROLLED_BACK/FAILED transactions hold no CONFIRMED locks,0,0
+20260924_215150_n6lu,E12-multi-provider-failure-points,inv:no-server-errors,true,No 5xx responses,0,0
+20260924_215150_n6lu,E13-risk-under-provider-conditions,deterministic,true,Identical conditions always produce identical scores,[],[]
+20260924_215150_n6lu,E13-risk-under-provider-conditions,advisory-only,true,Every booking still completes regardless of risk,48,48
+20260924_215150_n6lu,E13-risk-under-provider-conditions,worst-case-dominates,true,The combined worst case scores at least as high as every other condition,true,true
+20260924_215150_n6lu,E13-risk-under-provider-conditions,provider-count-monotonic,true,Score does not decrease as provider count grows,true,true
+20260924_215150_n6lu,E13-risk-under-provider-conditions,decision-consistent,true,Decision is REVIEW exactly when level is HIGH,0,0
+20260924_215150_n6lu,E13-risk-under-provider-conditions,inv:terminal-states,true,Every transaction reached a terminal state,[],[]
+20260924_215150_n6lu,E13-risk-under-provider-conditions,inv:no-active-locks,true,No ACTIVE (provisional) lock outlives its transaction,0,0
+20260924_215150_n6lu,E13-risk-under-provider-conditions,inv:no-capacity-held-after-rollback,true,ROLLED_BACK/FAILED transactions hold no CONFIRMED locks,0,0
+20260924_215150_n6lu,E13-risk-under-provider-conditions,inv:no-server-errors,true,No 5xx responses,0,0
+20260924_215150_n6lu,E14-recovery-advisor-classification,matches-documented-rules,true,Direct classification matches the advisor’s documented decision rules,[],[]
+20260924_215150_n6lu,E14-recovery-advisor-classification,deterministic,true,Each condition classifies identically across trials,[],[]
+20260924_215150_n6lu,E14-recovery-advisor-classification,persisted-only-on-rollback-failed,true,Saga persists advisories only for ROLLBACK_FAILED,0,0
+20260924_215150_n6lu,E14-recovery-advisor-classification,inv:terminal-states,true,Every transaction reached a terminal state,[],[]
+20260924_215150_n6lu,E14-recovery-advisor-classification,inv:no-active-locks,true,No ACTIVE (provisional) lock outlives its transaction,0,0
+20260924_215150_n6lu,E14-recovery-advisor-classification,inv:no-capacity-held-after-rollback,true,ROLLED_BACK/FAILED transactions hold no CONFIRMED locks,0,0
+20260924_215150_n6lu,E14-recovery-advisor-classification,inv:no-server-errors,true,No 5xx responses,0,0
+20260924_215150_n6lu,E15-seeded-mixed-workload,outcomes-match-saga-semantics,true,Every request’s outcome matches its planned failure point under concurrency,[],[]
+20260924_215150_n6lu,E15-seeded-mixed-workload,inv:terminal-states,true,Every transaction reached a terminal state,[],[]
+20260924_215150_n6lu,E15-seeded-mixed-workload,inv:no-active-locks,true,No ACTIVE (provisional) lock outlives its transaction,0,0
+20260924_215150_n6lu,E15-seeded-mixed-workload,inv:no-capacity-held-after-rollback,true,ROLLED_BACK/FAILED transactions hold no CONFIRMED locks,0,0
+20260924_215150_n6lu,E15-seeded-mixed-workload,inv:no-server-errors,true,No 5xx responses,0,0

@@ -1,0 +1,90 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 400" width="800" height="400" font-family="system-ui, -apple-system, sans-serif">
+  <rect width="100%" height="100%" fill="#ffffff" />
+  <text x="80" y="32" font-size="16" font-weight="700" fill="#0f172a">Lock Contention Scaling: Throughput vs Latency (E11 Hot-Row Sweep)</text>
+  <text x="80" y="48" font-size="12" fill="#64748b">Scaling concurrency from 1 to 16 on contended hotel+flight row locks (32 requests per level)</text>
+
+  <!-- Legend -->
+  <circle cx="500" cy="26" r="4" fill="#3b82f6" />
+  <text x="510" y="30" font-size="11" fill="#334155" font-weight="500">Throughput (req/s, left axis)</text>
+  <circle cx="660" cy="26" r="4" fill="#ef4444" />
+  <text x="670" y="30" font-size="11" fill="#334155" font-weight="500">Mean Latency (ms, right axis)</text>
+
+  <!-- Left Axis (Throughput) -->
+  <line x1="80" y1="60" x2="80" y2="340" stroke="#cbd5e1" />
+  <text x="70" y="50" font-size="11" text-anchor="end" fill="#1d4ed8" font-weight="600">Throughput (req/s)</text>
+
+  <!-- Right Axis (Latency) -->
+  <line x1="720" y1="60" x2="720" y2="340" stroke="#cbd5e1" />
+  <text x="730" y="50" font-size="11" text-anchor="start" fill="#b91c1c" font-weight="600">Latency (ms)</text>
+
+  <!-- Horizontal Axis -->
+  <line x1="80" y1="340" x2="720" y2="340" stroke="#94a3b8" stroke-width="1.5" />
+
+  <!-- Paths -->
+  <path d="M 80 124.61538461538461 L 240 202.403806676422 L 400 257.8343211462138 L 560 204.96826015096167 L 720 230.06748007705994 " fill="none" stroke="#3b82f6" stroke-width="2.5" stroke-dasharray="0" />
+  <path d="M 80 333.1747838288054 L 240 318.1103919544254 L 400 266.7437097320072 L 560 257.1459534905047 L 720 166.17480442301436 " fill="none" stroke="#ef4444" stroke-width="2.5" />
+
+  
+      <circle cx="80" cy="124.61538461538461" r="5" fill="#3b82f6" stroke="#ffffff" stroke-width="2">
+        <title>Concurrency 1: 14.61 req/s</title>
+      </circle>
+      <text x="80" y="114.61538461538461" font-size="11" text-anchor="middle" fill="#1d4ed8" font-weight="600">14.6</text>
+    
+      <circle cx="240" cy="202.403806676422" r="5" fill="#3b82f6" stroke="#ffffff" stroke-width="2">
+        <title>Concurrency 2: 9.34 req/s</title>
+      </circle>
+      <text x="240" y="192.403806676422" font-size="11" text-anchor="middle" fill="#1d4ed8" font-weight="600">9.3</text>
+    
+      <circle cx="400" cy="257.8343211462138" r="5" fill="#3b82f6" stroke="#ffffff" stroke-width="2">
+        <title>Concurrency 4: 5.58 req/s</title>
+      </circle>
+      <text x="400" y="247.83432114621382" font-size="11" text-anchor="middle" fill="#1d4ed8" font-weight="600">5.6</text>
+    
+      <circle cx="560" cy="204.96826015096167" r="5" fill="#3b82f6" stroke="#ffffff" stroke-width="2">
+        <title>Concurrency 8: 9.16 req/s</title>
+      </circle>
+      <text x="560" y="194.96826015096167" font-size="11" text-anchor="middle" fill="#1d4ed8" font-weight="600">9.2</text>
+    
+      <circle cx="720" cy="230.06748007705994" r="5" fill="#3b82f6" stroke="#ffffff" stroke-width="2">
+        <title>Concurrency 16: 7.46 req/s</title>
+      </circle>
+      <text x="720" y="220.06748007705994" font-size="11" text-anchor="middle" fill="#1d4ed8" font-weight="600">7.5</text>
+    
+  
+      <circle cx="80" cy="333.1747838288054" r="5" fill="#ef4444" stroke="#ffffff" stroke-width="2">
+        <title>Concurrency 1: Mean Latency 62.7 ms</title>
+      </circle>
+      <text x="80" y="323.1747838288054" font-size="11" text-anchor="middle" fill="#b91c1c" font-weight="600">63 ms</text>
+    
+      <circle cx="240" cy="318.1103919544254" r="5" fill="#ef4444" stroke="#ffffff" stroke-width="2">
+        <title>Concurrency 2: Mean Latency 201.2 ms</title>
+      </circle>
+      <text x="240" y="308.1103919544254" font-size="11" text-anchor="middle" fill="#b91c1c" font-weight="600">201 ms</text>
+    
+      <circle cx="400" cy="266.7437097320072" r="5" fill="#ef4444" stroke="#ffffff" stroke-width="2">
+        <title>Concurrency 4: Mean Latency 673.3 ms</title>
+      </circle>
+      <text x="400" y="256.7437097320072" font-size="11" text-anchor="middle" fill="#b91c1c" font-weight="600">673 ms</text>
+    
+      <circle cx="560" cy="257.1459534905047" r="5" fill="#ef4444" stroke="#ffffff" stroke-width="2">
+        <title>Concurrency 8: Mean Latency 761.5 ms</title>
+      </circle>
+      <text x="560" y="247.14595349050472" font-size="11" text-anchor="middle" fill="#b91c1c" font-weight="600">762 ms</text>
+    
+      <circle cx="720" cy="166.17480442301436" r="5" fill="#ef4444" stroke="#ffffff" stroke-width="2">
+        <title>Concurrency 16: Mean Latency 1597.7 ms</title>
+      </circle>
+      <text x="720" y="156.17480442301436" font-size="11" text-anchor="middle" fill="#b91c1c" font-weight="600">1598 ms</text>
+    
+  
+      <text x="80" y="360" font-size="12" text-anchor="middle" fill="#334155" font-weight="500">c=1</text>
+    
+      <text x="240" y="360" font-size="12" text-anchor="middle" fill="#334155" font-weight="500">c=2</text>
+    
+      <text x="400" y="360" font-size="12" text-anchor="middle" fill="#334155" font-weight="500">c=4</text>
+    
+      <text x="560" y="360" font-size="12" text-anchor="middle" fill="#334155" font-weight="500">c=8</text>
+    
+      <text x="720" y="360" font-size="12" text-anchor="middle" fill="#334155" font-weight="500">c=16</text>
+    
+</svg>
