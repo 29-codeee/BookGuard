@@ -71,6 +71,10 @@ export function shortId(id: string, length = 8): string {
   return id.length > length + 3 ? `${id.slice(0, length)}…` : id;
 }
 
+export function formatInr(amount: number | null): string {
+  return formatMoney(amount, 'INR');
+}
+
 export function formatMoney(amount: number | null, currency: string | null): string {
   if (amount === null) return '—';
   try {

@@ -316,7 +316,7 @@ export class TransactionApiError extends Error {
   }
 }
 
-async function requestJson(path: string, init?: RequestInit): Promise<{ status: number; body: unknown }> {
+export async function requestJson(path: string, init?: RequestInit): Promise<{ status: number; body: unknown }> {
   let res: Response;
   try {
     res = await fetch(`${BASE_URL}${path}`, init);

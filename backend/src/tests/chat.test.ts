@@ -305,7 +305,7 @@ describe('AI service integration', () => {
   const base: TravelIntent = {
     intent: 'plan_trip', destination: null, origin: null, startDate: null, durationDays: null, durationDelta: null,
     travellers: null, travellersDelta: null, budgetTier: null, budgetAmount: null, preferences: [], target: null,
-    transportMode: null, optionIndex: null, optionId: null, optionWhich: null, pendingField: null,
+    transportMode: null, bookingPriority: null, optionIndex: null, optionId: null, optionWhich: null, pendingField: null,
     missingInformation: [], action: 'generate_itinerary', reply: null
   };
 

@@ -44,7 +44,7 @@ export function missingFields(trip: TripState): PlanField[] {
   const missing = REQUIRED.filter(f => {
     if (f === 'destination') return !trip.destination;
     if (f === 'origin') return !trip.origin;
-    return trip[f] == null;
+    return trip[f as 'startDate' | 'durationDays' | 'travellers'] == null;
   });
   // Budget is optional: asked once alongside other questions, then defaulted to mid-range.
   if (!trip.budget && !trip.askedFor.includes('budget')) missing.push('budget');
