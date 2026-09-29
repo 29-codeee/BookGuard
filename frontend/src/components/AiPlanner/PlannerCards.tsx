@@ -35,8 +35,8 @@ export function BookingPriorityCard({ trip, busy, onAction }: { trip: TripState;
     <div className="priority-card">
       <div className="priority-head">
         <div>
-          <div className="priority-title">⚡ Multi-Provider Booking Priority</div>
-          <div className="priority-subtitle">Which component should BookGuard's distributed Saga book and lock first?</div>
+          <div className="priority-title">⚡ Multi-Provider Booking Priority (Optional)</div>
+          <div className="priority-subtitle">Once you have added items to your package, you can optionally choose which component BookGuard's distributed Saga should book and lock first.</div>
         </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
           {currentPriority ? (
@@ -53,7 +53,7 @@ export function BookingPriorityCard({ trip, busy, onAction }: { trip: TripState;
               </button>
             </>
           ) : (
-            <span className="priority-badge unselected">⚠️ Priority Not Selected</span>
+            <span className="priority-badge unselected">Not set · default order</span>
           )}
         </div>
       </div>
@@ -125,7 +125,7 @@ export function HotelCards({ hotels, trip, busy, onAction }: { hotels: HotelOpti
                   </>
                 ) : (
                   <>
-                    <button className="btn-sm" disabled={busy} onClick={() => onAction('select', 'hotel', h.id)}>Select for Package</button>
+                    <button className="btn-sm" disabled={busy} onClick={() => onAction('select', 'hotel', h.id)}>Add to package</button>
                     <button className="btn-sm primary" disabled={busy} onClick={() => onAction('book', 'hotel', h.id)}>Book</button>
                   </>
                 )}
@@ -201,7 +201,7 @@ export function TransportCards({ options, trip, busy, onAction }: { options: Tra
                   </>
                 ) : (
                   <>
-                    <button className="btn-sm" disabled={busy} onClick={() => onAction('select', 'transport', o.id)}>Select for Package</button>
+                    <button className="btn-sm" disabled={busy} onClick={() => onAction('select', 'transport', o.id)}>Add to package</button>
                     <button className="btn-sm primary" disabled={busy} onClick={() => onAction('book', 'transport', o.id)}>Book</button>
                   </>
                 )}
@@ -251,7 +251,6 @@ export function PackageSummaryCard({ trip, busy, onAction }: { trip: TripState; 
 
   const transportCost = trip.transport ? trip.transport.pricePerPerson * numTravellers * 2 : 0;
   const hotelCost = trip.hotel ? trip.hotel.pricePerNight * Math.max(1, numDays - 1) : 0;
-  const sightseeingCost = trip.places.reduce((acc, p) => acc + (p.entryFeeInr || 0) * numTravellers, 0);
 
   return (
     <div className="package-card" id="curated-travel-package">
@@ -363,36 +362,6 @@ export function PackageSummaryCard({ trip, busy, onAction }: { trip: TripState; 
           </div>
         </div>
 
-        {/* Places to Visit Component */}
-        <div className={`package-comp-row ${trip.places.length > 0 ? 'included' : 'missing'}`}>
-          <div className="comp-icon">📍</div>
-          <div className="comp-info">
-            <div className="comp-name">
-              {trip.places.length > 0
-                ? `${trip.places.length} Sightseeing Places & Attractions`
-                : 'Places to Visit & Activities'}
-            </div>
-            <div className="comp-detail">
-              {trip.places.length > 0
-                ? trip.places.map(p => p.name).join(' · ')
-                : 'Select places to visit from recommendations above'}
-            </div>
-          </div>
-          <div className="comp-price">
-            {trip.places.length > 0 ? (sightseeingCost > 0 ? formatInr(sightseeingCost) : 'Free entry') : 'Optional'}
-          </div>
-          <div className="comp-actions">
-            <button
-              type="button"
-              className="btn-change-opt"
-              disabled={busy}
-              onClick={() => onAction('change', 'place')}
-              title="Change sightseeing itinerary"
-            >
-              Change
-            </button>
-          </div>
-        </div>
       </div>
 
       {/* Package Total Amount Bar */}

@@ -79,7 +79,11 @@ describe('requirement collection and itinerary', () => {
     assert.ok(plan.trip.hotel && plan.trip.transport);
     assert.ok(plan.trip.estimate.total > 0);
     assert.deepEqual(plan.missingInformation, []);
-    for (const s of ['itinerary', 'hotels', 'transport', 'places']) assert.ok(plan.show.includes(s));
+    // The day-by-day itinerary card and the places/activities card are no longer
+    // shown automatically - the plan goes straight to flight/hotel package options.
+    assert.ok(!plan.show.includes('itinerary'));
+    assert.ok(!plan.show.includes('places'));
+    for (const s of ['hotels', 'transport']) assert.ok(plan.show.includes(s));
     assert.ok(plan.recommendations.hotels.length > 0);
     assert.ok(plan.recommendations.transport.length > 0);
     assert.match(plan.demoDataNotice, /Demo/);
@@ -385,14 +389,18 @@ describe('demo extractor units', () => {
 
 // ---------------------------------------------------------------------------
 describe('booking priority and package estimation', () => {
-  test('prompts for booking priority when plan is built and honors selection', async () => {
+  test('suggests flights/hotels for the package once the plan is built, without forcing a booking priority', async () => {
     const c = chat();
     const plan = await c.say('Plan a 3-day trip to Goa from Bengaluru on 15 October for 2 people');
     assert.equal(plan.trip.status, 'PLANNED');
-    assert.match(plan.reply, /Which is your first priority to be booked first: Flight, Hotel, Train, or Bus/i);
-    assert.ok(plan.suggestions.includes('Flight first'));
-    assert.ok(plan.suggestions.includes('Hotel first'));
+    assert.equal(plan.trip.bookingPriority, null);
+    assert.match(plan.reply, /Add to package/i);
+    assert.ok(plan.recommendations?.hotels.length);
+    assert.ok(plan.recommendations?.transport.length);
+    assert.ok(!plan.suggestions.includes('Flight first'));
+    assert.ok(!plan.suggestions.includes('Hotel first'));
 
+    // Booking priority remains an optional, explicit choice rather than a forced question.
     const prioritized = await c.say('Flight first');
     assert.equal(prioritized.trip.bookingPriority, 'flight');
     assert.match(prioritized.reply, /booking priority set to flight first/i);
